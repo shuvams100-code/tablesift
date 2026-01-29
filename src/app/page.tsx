@@ -2,11 +2,13 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { auth, db, googleProvider, signInWithPopup, signOut } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } from "firebase/firestore";
 
 export default function Home() {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,12 +24,19 @@ export default function Home() {
 
   // Listen for Auth changes
   useEffect(() => {
-    if (!auth) return; // Skip if Firebase not initialized (build time)
+    if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
     return () => unsubscribe();
   }, []);
+
+  // Redirect to dashboard if signed in
+  useEffect(() => {
+    if (user) {
+      router.push("/dashboard");
+    }
+  }, [user, router]);
 
   const handleSignIn = async () => {
     if (!auth || !googleProvider) {
@@ -36,6 +45,7 @@ export default function Home() {
     }
     try {
       await signInWithPopup(auth, googleProvider);
+      // Redirect happens via onAuthStateChanged
     } catch (err: unknown) {
       console.error("Sign in error:", err);
       if (err instanceof Error) {
@@ -257,7 +267,7 @@ export default function Home() {
             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
               <div style={{ background: '#f0fdf4', color: '#166534', padding: '8px 14px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span style={{ width: '6px', height: '6px', background: '#22c55e', borderRadius: '50%' }}></span>
-                {!user ? '2 free/day' : '2 left'}
+                {!user ? '1 free/day' : '1/day'}
               </div>
               <div style={{ background: '#f8fafc', color: '#475569', padding: '8px 14px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 600, border: '1px solid #e2e8f0' }}>
                 🔒 Zero retention
@@ -402,99 +412,148 @@ export default function Home() {
             </div>
             <div>
               <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.5rem', color: '#0f172a' }}>Is there a free tier?</h4>
-              <p style={{ color: '#64748b', lineHeight: 1.6, fontSize: '0.95rem' }}>Yes! You get 2 free extractions per day. No credit card required.</p>
+              <p style={{ color: '#64748b', lineHeight: 1.6, fontSize: '0.95rem' }}>Yes! You get 1 free extraction per day. No credit card required.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" style={{ width: '100%', maxWidth: '1100px', marginTop: '10rem', scrollMarginTop: '100px', padding: '0 2rem' }}>
+      <section id="pricing" style={{ width: '100%', maxWidth: '1200px', marginTop: '10rem', scrollMarginTop: '100px', padding: '0 2rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
           <span style={{ background: '#f0fdf4', color: '#166534', padding: '6px 14px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>Pricing</span>
           <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginTop: '1.5rem', letterSpacing: '-1px', color: '#0f172a' }}>Simple, Transparent Pricing</h2>
-          <p style={{ color: '#64748b', marginTop: '1rem', fontSize: '1.1rem' }}>No hidden fees. Cancel anytime.</p>
+          <p style={{ color: '#64748b', marginTop: '1rem', fontSize: '1.1rem' }}>Pay only for what you use. Cancel anytime.</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem' }}>
 
           {/* Free Plan */}
-          <div className="card-premium" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="card-premium" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>Free</h3>
-              <p style={{ color: '#64748b', fontSize: '0.9rem', marginTop: '0.5rem' }}>Try it out</p>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Free</h3>
+              <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.25rem' }}>Try it out</p>
             </div>
             <div>
-              <span style={{ fontSize: '3rem', fontWeight: 900, color: '#0f172a' }}>$0</span>
-              <span style={{ color: '#64748b', fontSize: '0.9rem' }}>/month</span>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a' }}>$0</span>
+              <span style={{ color: '#64748b', fontSize: '0.85rem' }}>/month</span>
             </div>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569', fontSize: '0.95rem' }}>
-                <span style={{ color: '#22c55e' }}>✓</span> 1 scan per day
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> 30 scans/month (1/day)
               </li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569', fontSize: '0.95rem' }}>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> 1 image at a time
+              </li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> 1 PDF page max
+              </li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}>
                 <span style={{ color: '#22c55e' }}>✓</span> CSV download
               </li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569', fontSize: '0.95rem' }}>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}>
                 <span style={{ color: '#22c55e' }}>✓</span> Zero data retention
               </li>
             </ul>
-            <button onClick={() => { if (!user) handleSignIn(); }} style={{ marginTop: 'auto', padding: '14px 24px', border: '1px solid #e2e8f0', borderRadius: '12px', fontWeight: 600, color: '#475569', background: 'white', cursor: 'pointer' }}>
-              {!user ? 'Get Started' : 'Current Plan'}
+            <button onClick={() => { if (!user) handleSignIn(); }} style={{ marginTop: 'auto', padding: '12px 20px', border: '1px solid #e2e8f0', borderRadius: '10px', fontWeight: 600, color: '#475569', background: 'white', cursor: 'pointer', fontSize: '0.9rem' }}>
+              Get Started
             </button>
           </div>
 
           {/* Pro Plan */}
-          <div className="card-premium" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', border: '2px solid #22c55e', position: 'relative' }}>
-            <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: '#22c55e', color: 'white', padding: '4px 12px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>POPULAR</div>
+          <div className="card-premium" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', border: '2px solid #22c55e', position: 'relative' }}>
+            <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: '#22c55e', color: 'white', padding: '4px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 700 }}>POPULAR</div>
             <div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>Pro</h3>
-              <p style={{ color: '#64748b', fontSize: '0.9rem', marginTop: '0.5rem' }}>For regular users</p>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Pro</h3>
+              <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.25rem' }}>For regular users</p>
             </div>
             <div>
-              <span style={{ fontSize: '3rem', fontWeight: 900, color: '#0f172a' }}>$9</span>
-              <span style={{ color: '#64748b', fontSize: '0.9rem' }}>/month</span>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a' }}>$9</span>
+              <span style={{ color: '#64748b', fontSize: '0.85rem' }}>/month</span>
             </div>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569', fontSize: '0.95rem' }}>
-                <span style={{ color: '#22c55e' }}>✓</span> 100 scans per month
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> 100 scans/month
               </li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569', fontSize: '0.95rem' }}>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> 5 images at once
+              </li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> Up to 10 PDF pages
+              </li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}>
                 <span style={{ color: '#22c55e' }}>✓</span> CSV download
               </li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569', fontSize: '0.95rem' }}>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}>
                 <span style={{ color: '#22c55e' }}>✓</span> Zero data retention
               </li>
             </ul>
-            <button className="glow-btn" style={{ marginTop: 'auto', padding: '14px 24px' }}>
+            <button className="glow-btn" style={{ marginTop: 'auto', padding: '12px 20px', fontSize: '0.9rem' }}>
               Upgrade to Pro
             </button>
           </div>
 
-          {/* Unlimited Plan */}
-          <div className="card-premium" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: '#0f172a', color: 'white' }}>
+          {/* Business Plan */}
+          <div className="card-premium" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', background: '#0f172a', color: 'white' }}>
             <div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'white' }}>Unlimited</h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: '0.5rem' }}>For power users</p>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'white' }}>Business</h3>
+              <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '0.25rem' }}>For power users</p>
             </div>
             <div>
-              <span style={{ fontSize: '3rem', fontWeight: 900, color: 'white' }}>$29</span>
-              <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>/month</span>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'white' }}>$29</span>
+              <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>/month</span>
             </div>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0', fontSize: '0.95rem' }}>
-                <span style={{ color: '#22c55e' }}>✓</span> Unlimited scans
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> 500 scans/month
               </li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0', fontSize: '0.95rem' }}>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> 20 images at once
+              </li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> Up to 50 PDF pages
+              </li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0' }}>
                 <span style={{ color: '#22c55e' }}>✓</span> CSV download
               </li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0', fontSize: '0.95rem' }}>
-                <span style={{ color: '#22c55e' }}>✓</span> Zero data retention
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> Priority support
               </li>
             </ul>
-            <button style={{ marginTop: 'auto', padding: '14px 24px', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', fontWeight: 600, color: 'white', background: 'transparent', cursor: 'pointer' }}>
-              Go Unlimited
+            <button style={{ marginTop: 'auto', padding: '12px 20px', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', fontWeight: 600, color: 'white', background: 'transparent', cursor: 'pointer', fontSize: '0.9rem' }}>
+              Get Business
             </button>
+          </div>
+
+          {/* Enterprise Plan */}
+          <div className="card-premium" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', border: '1px solid #334155' }}>
+            <div>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'white' }}>Enterprise</h3>
+              <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '0.25rem' }}>Custom solutions</p>
+            </div>
+            <div>
+              <span style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white' }}>Contact Us</span>
+            </div>
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> Unlimited scans
+              </li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> Unlimited bulk upload
+              </li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> Unlimited PDF pages
+              </li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> API access
+              </li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> Dedicated support
+              </li>
+            </ul>
+            <a href="mailto:hello@tablesift.com" style={{ marginTop: 'auto', padding: '12px 20px', border: '1px solid #22c55e', borderRadius: '10px', fontWeight: 600, color: '#22c55e', background: 'transparent', cursor: 'pointer', fontSize: '0.9rem', textAlign: 'center', textDecoration: 'none' }}>
+              Contact Sales
+            </a>
           </div>
 
         </div>
