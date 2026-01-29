@@ -30,12 +30,26 @@ export default function Home() {
   }, []);
 
   const handleSignIn = async () => {
-    if (!auth || !googleProvider) return;
+    if (!auth || !googleProvider) {
+      setError("Firebase not initialized. Please refresh the page.");
+      return;
+    }
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (err: unknown) {
       console.error("Sign in error:", err);
-      setError("Failed to sign in. Please try again.");
+      if (err instanceof Error) {
+        // Show the actual error for debugging
+        if (err.message.includes("popup-closed")) {
+          setError("Sign-in popup was closed. Please try again.");
+        } else if (err.message.includes("unauthorized-domain")) {
+          setError("This domain is not authorized. Add it to Firebase Console → Authentication → Settings → Authorized domains.");
+        } else {
+          setError(`Sign-in failed: ${err.message}`);
+        }
+      } else {
+        setError("Failed to sign in. Please try again.");
+      }
     }
   };
 
