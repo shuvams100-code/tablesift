@@ -22,6 +22,7 @@ export default function Home() {
 
   // Listen for Auth changes
   useEffect(() => {
+    if (!auth) return; // Skip if Firebase not initialized (build time)
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
@@ -29,19 +30,27 @@ export default function Home() {
   }, []);
 
   const handleSignIn = async () => {
+    if (!auth || !googleProvider) return;
     try {
       await signInWithPopup(auth, googleProvider);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Sign in error:", err);
       setError("Failed to sign in. Please try again.");
     }
   };
 
-  const handleSignOut = () => signOut(auth);
+  const handleSignOut = () => {
+    if (auth) signOut(auth);
+  };
 
   const handleFile = async (file: File) => {
     if (!user) {
       handleSignIn();
+      return;
+    }
+
+    if (!db) {
+      setError("Service unavailable. Please refresh the page.");
       return;
     }
 
@@ -50,15 +59,15 @@ export default function Home() {
 
     // 1. Check Limits
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-    const userRef = doc(db, "users", user.uid);
+    const userRef = doc(db!, "users", user.uid);
 
     try {
       const userSnap = await getDoc(userRef);
 
       if (userSnap.exists()) {
         const userData = userSnap.data();
-        if (userData.lastUsageDate === today && userData.usageCount >= 2) {
-          throw new Error("Daily limit reached (2/2). Upgrade to Pro for unlimited access.");
+        if (userData.lastUsageDate === today && userData.usageCount >= 1) {
+          throw new Error("Daily limit reached (1/1). Upgrade to Pro for more scans.");
         }
       }
 
@@ -97,8 +106,12 @@ export default function Home() {
       a.click();
       window.URL.revokeObjectURL(url);
 
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred.");
+      }
     } finally {
       setIsUploading(false);
     }
