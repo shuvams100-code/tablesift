@@ -1,8 +1,8 @@
-import { Anthropic } from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
+import OpenAI from "openai";
 
-const anthropic = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY || "",
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY || "",
 });
 
 export async function POST(req: NextRequest) {
@@ -17,21 +17,19 @@ export async function POST(req: NextRequest) {
         // Convert file to base64
         const bytes = await file.arrayBuffer();
         const base64Image = Buffer.from(bytes).toString("base64");
-        const mediaType = file.type as any;
+        const mediaType = file.type;
 
-        const response = await anthropic.messages.create({
-            model: "claude-3-5-sonnet-20241022",
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
             max_tokens: 4096,
             messages: [
                 {
                     role: "user",
                     content: [
                         {
-                            type: "image",
-                            source: {
-                                type: "base64",
-                                media_type: mediaType,
-                                data: base64Image,
+                            type: "image_url",
+                            image_url: {
+                                url: `data:${mediaType};base64,${base64Image}`,
                             },
                         },
                         {
@@ -43,9 +41,9 @@ export async function POST(req: NextRequest) {
             ],
         });
 
-        const content = response.content[0];
-        if (content.type === 'text') {
-            return new NextResponse(content.text, {
+        const content = response.choices[0]?.message?.content;
+        if (content) {
+            return new NextResponse(content, {
                 headers: {
                     "Content-Type": "text/csv",
                     "Content-Disposition": `attachment; filename="tablesift-export.csv"`,
@@ -54,8 +52,9 @@ export async function POST(req: NextRequest) {
         }
 
         return NextResponse.json({ error: "Failed to extract text" }, { status: 500 });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Extraction error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        const message = error instanceof Error ? error.message : "Unknown error";
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }
