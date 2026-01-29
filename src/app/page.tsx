@@ -49,27 +49,32 @@ export default function Home() {
       return;
     }
 
-    if (!db) {
-      setError("Service unavailable. Please refresh the page.");
-      return;
-    }
-
     setIsUploading(true);
     setError(null);
 
-    // 1. Check Limits
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-    const userRef = doc(db!, "users", user.uid);
-
     try {
-      const userSnap = await getDoc(userRef);
+      // 1. Check Limits (optional - skip if Firestore unavailable)
+      let canProceed = true;
+      if (db) {
+        try {
+          const today = new Date().toISOString().split('T')[0];
+          const userRef = doc(db, "users", user.uid);
+          const userSnap = await getDoc(userRef);
 
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        if (userData.lastUsageDate === today && userData.usageCount >= 1) {
-          throw new Error("Daily limit reached (1/1). Upgrade to Pro for more scans.");
+          if (userSnap.exists()) {
+            const userData = userSnap.data();
+            if (userData.lastUsageDate === today && userData.usageCount >= 1) {
+              canProceed = false;
+              throw new Error("Daily limit reached (1/1). Upgrade to Pro for more scans.");
+            }
+          }
+        } catch (firestoreError) {
+          // If Firestore fails, allow the request but log it
+          console.warn("Firestore unavailable, skipping usage check:", firestoreError);
         }
       }
+
+      if (!canProceed) return;
 
       // 2. Perform Extraction
       const formData = new FormData();
@@ -85,16 +90,26 @@ export default function Home() {
         throw new Error(data.error || "Failed to extract table");
       }
 
-      // 3. Update Usage (Only if successful)
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        if (userData.lastUsageDate === today) {
-          await updateDoc(userRef, { usageCount: increment(1) });
-        } else {
-          await updateDoc(userRef, { usageCount: 1, lastUsageDate: today });
+      // 3. Update Usage (optional - skip if Firestore unavailable)
+      if (db) {
+        try {
+          const today = new Date().toISOString().split('T')[0];
+          const userRef = doc(db, "users", user.uid);
+          const userSnap = await getDoc(userRef);
+
+          if (userSnap.exists()) {
+            const userData = userSnap.data();
+            if (userData.lastUsageDate === today) {
+              await updateDoc(userRef, { usageCount: increment(1) });
+            } else {
+              await updateDoc(userRef, { usageCount: 1, lastUsageDate: today });
+            }
+          } else {
+            await setDoc(userRef, { usageCount: 1, lastUsageDate: today, email: user.email });
+          }
+        } catch (firestoreError) {
+          console.warn("Firestore update failed:", firestoreError);
         }
-      } else {
-        await setDoc(userRef, { usageCount: 1, lastUsageDate: today, email: user.email });
       }
 
       const blob = await response.blob();
