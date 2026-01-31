@@ -7,8 +7,21 @@
   --accent-secondary: #21a366;
   --card-bg: #ffffff;
   --border: #e2e8f0;
-  --grid-line: rgba(16, 124, 65, 0.03);
-  /* Lighter grid for less noise */
+  --grid-line: rgba(16, 124, 65, 0.05);
+  /* Grid lines - increased opacity for better visibility */
+
+  /* Premium Typography */
+  --font-body: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-headline: 'Clash Display', 'Satoshi', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Headline typography - use Clash Display for major headings */
+h1,
+h2,
+h3,
+.headline {
+  font-family: var(--font-headline);
+  font-weight: 600;
 }
 
 * {
@@ -27,7 +40,7 @@ body {
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 30px 30px;
   color: var(--foreground);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -68,12 +81,12 @@ body {
 }
 
 .nav-header.scrolled {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   padding: 0.75rem 4rem;
-  border-bottom: 1px solid rgba(16, 124, 65, 0.05);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(16, 124, 65, 0.08);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.08);
 }
 
 .logo {
@@ -264,9 +277,13 @@ body {
 }
 
 .card-premium:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  border-color: #cbd5e1;
+  transform: translateY(-6px);
+  border-color: #22c55e;
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 8px 10px -6px rgb(0 0 0 / 0.1),
+    0 0 0 2px rgba(34, 197, 94, 0.3),
+    0 0 50px -5px rgba(34, 197, 94, 0.5);
 }
 
 /* The Vibrant "SaaS Blobs" */

@@ -3,9 +3,11 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { auth, db, googleProvider, signInWithPopup, signOut } from "@/lib/firebase";
+import { auth, db, signOut } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc, setDoc, updateDoc, increment } from "firebase/firestore";
+import dynamic from 'next/dynamic';
+
 // Use dynamic import for pdfjs worker to avoid SSR issues
 if (typeof window !== 'undefined' && typeof Promise.withResolvers === 'undefined') {
     // Polyfill for pdfjs
@@ -19,7 +21,6 @@ if (typeof window !== 'undefined' && typeof Promise.withResolvers === 'undefined
         return { promise, resolve, reject };
     };
 }
-// Fix for pdfjs worker in Next.js will be handled inside component useEffect
 
 const DashboardContent = () => {
     const router = useRouter();
@@ -27,10 +28,22 @@ const DashboardContent = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isUploading, setIsUploading] = useState(false);
     const [processingStage, setProcessingStage] = useState("");
-    const [currentPlan] = useState("pro"); // Hardcoded 'pro' for testing
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+    const [planCredits, setPlanCredits] = useState<number>(0);
+    const [refillCredits, setRefillCredits] = useState<number>(0);
+    const [userTier, setUserTier] = useState<string>("free");
+    const [scrolled, setScrolled] = useState(false);
+    const [showTopUpModal, setShowTopUpModal] = useState(false);
+    const [requiredCoinsForUpload, setRequiredCoinsForUpload] = useState(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Handle Scroll Effect for Glassmorphic Header
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     // Auth check - redirect to home if not logged in
     useEffect(() => {
@@ -38,11 +51,45 @@ const DashboardContent = () => {
             router.push("/");
             return;
         }
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
                 router.push("/");
             } else {
                 setUser(currentUser);
+                // Fetch dual-bucket credits and tier from Firestore
+                if (db) {
+                    const userRef = doc(db, "users", currentUser.uid);
+                    const userSnap = await getDoc(userRef);
+                    if (userSnap.exists()) {
+                        const data = userSnap.data();
+                        // Handle migration from old 'credits' field
+                        if (data.credits !== undefined && data.planCredits === undefined) {
+                            // Migrate old credits to planCredits
+                            await updateDoc(userRef, {
+                                planCredits: data.credits,
+                                refillCredits: 0
+                            });
+                            setPlanCredits(data.credits);
+                            setRefillCredits(0);
+                        } else {
+                            setPlanCredits(data.planCredits ?? 0);
+                            setRefillCredits(data.refillCredits ?? 0);
+                        }
+                        setUserTier(data.tier ?? "free");
+                    } else {
+                        // Initialize new user with dual buckets
+                        await setDoc(userRef, {
+                            planCredits: 0,
+                            refillCredits: 0,
+                            tier: "free",
+                            email: currentUser.email,
+                            subscriptionStatus: "none"
+                        });
+                        setPlanCredits(0);
+                        setRefillCredits(0);
+                        setUserTier("free");
+                    }
+                }
             }
             setIsLoading(false);
         });
@@ -80,10 +127,14 @@ const DashboardContent = () => {
             canvas.width = viewport.width;
 
             if (context) {
-                // @ts-ignore
-                await page.render({ canvasContext: context, viewport }).promise;
-                const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
-                images.push(new File([blob], `page-${i}.png`, { type: "image/png" }));
+                try {
+                    // @ts-ignore
+                    await page.render({ canvasContext: context, viewport }).promise;
+                    const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
+                    images.push(new File([blob], `page-${i}.png`, { type: "image/png" }));
+                } catch (e) {
+                    console.error("Error rendering page", e);
+                }
             }
         }
         return images;
@@ -98,72 +149,39 @@ const DashboardContent = () => {
         setSuccess(false);
 
         try {
-            // Mock tier (we'll make this real once payments are connected)
-            const planDetails = {
-                free: { dailyLimit: 1, bulkMax: 1, maxPdfPages: 1 },
-                pro: { dailyLimit: 100, bulkMax: 5, maxPdfPages: 10 },
-                business: { dailyLimit: 500, bulkMax: 20, maxPdfPages: 50 }
-            };
-            const tier = planDetails[currentPlan as keyof typeof planDetails];
+            // 0. SUBSCRIPTION GATING - Block free users
+            if (userTier === "free") {
+                setShowTopUpModal(true);
+                setRequiredCoinsForUpload(1); // Just to trigger modal
+                setIsUploading(false);
+                setError("Upgrade to a paid plan to start uploading files.");
+                return;
+            }
 
             // 1. Handle PDF specifically (split into images)
             if (fileArray.length === 1 && fileArray[0].type === "application/pdf") {
                 setProcessingStage("Reading PDF document...");
                 const pdfImages = await convertPdfToImages(fileArray[0]);
-
-                if (pdfImages.length > tier.maxPdfPages) {
-                    throw new Error(`Your ${currentPlan} plan only supports up to ${tier.maxPdfPages} pages per PDF. Upgrade for more!`);
-                }
                 fileArray = pdfImages;
             }
 
             const fileCount = fileArray.length;
-            setProcessingStage(fileCount > 1 ? `Preparing ${fileCount} scans...` : "Uploading image...");
+            const totalCredits = planCredits + refillCredits;
 
-            // 2. Check Bulk Limit (for non-PDF multiple files)
-            if (fileArray.length > 1 && fileCount > tier.bulkMax && files[0].type !== "application/pdf") {
-                throw new Error(`Your ${currentPlan} plan only supports up to ${tier.bulkMax} files at once. Upgrade for more!`);
+            // 2. Check Coin Balance
+            let totalDeductionNeeded = 0;
+            for (const f of fileArray) {
+                totalDeductionNeeded += (f.name.endsWith(".docx") || f.type.includes("word") || f.type.includes("officedocument")) ? 3 : 1;
             }
 
-            // 2. Check Daily Limit (Firestore + LocalStorage)
-            const today = new Date().toISOString().split('T')[0];
-            const localKey = `tablesift_usage_${user.uid}`;
-            const localUsage = localStorage.getItem(localKey);
-
-            let currentCount = 0;
-            if (localUsage) {
-                const { date, count } = JSON.parse(localUsage);
-                if (date === today) currentCount = count;
-            }
-
-            if (currentCount + fileCount > tier.dailyLimit) {
+            if (totalCredits < totalDeductionNeeded) {
+                setRequiredCoinsForUpload(totalDeductionNeeded);
+                setShowTopUpModal(true);
                 setIsUploading(false);
-                setProcessingStage("");
-                setError(`Daily limit reached (${currentCount}/${tier.dailyLimit}). Upgrade to Pro for high-volume scanning!`);
                 return;
             }
 
-            // Also check Firestore if available
-            if (db) {
-                setProcessingStage("Checking usage limits...");
-                const userRef = doc(db, "users", user.uid);
-                try {
-                    const userSnap = await getDoc(userRef);
-                    if (userSnap.exists()) {
-                        const userData = userSnap.data();
-                        if (userData.lastUsageDate === today && (userData.usageCount + fileCount) > tier.dailyLimit) {
-                            localStorage.setItem(localKey, JSON.stringify({ date: today, count: userData.usageCount }));
-                            setIsUploading(false);
-                            setProcessingStage("");
-                            setError(`Daily limit reached (${userData.usageCount}/${tier.dailyLimit}). Upgrade for more capacity!`);
-                            return;
-                        }
-                        if (userData.lastUsageDate === today) currentCount = userData.usageCount;
-                    }
-                } catch (firestoreError) {
-                    console.warn("Firestore check failed, using local tracking:", firestoreError);
-                }
-            }
+            setProcessingStage(fileCount > 1 ? `Preparing ${fileCount} scans...` : "Uploading image...");
 
             // 3. Perform Extraction (Client-Side Batching)
             let combinedCsvOutput = "";
@@ -178,6 +196,7 @@ const DashboardContent = () => {
 
                 const formData = new FormData();
                 formData.append("file", currentFile);
+                formData.append("tier", userTier);
 
                 const response = await fetch("/api/extract", {
                     method: "POST",
@@ -201,24 +220,35 @@ const DashboardContent = () => {
 
             setProcessingStage("Preparing final CSV...");
 
-            // 4. Update Usage
-            const newTotalCount = currentCount + fileCount;
-            localStorage.setItem(localKey, JSON.stringify({ date: today, count: newTotalCount }));
-
+            // 4. Update Usage (Deduct Coins using Burn Order)
             if (db) {
                 try {
                     const userRef = doc(db, "users", user.uid);
-                    const userSnap = await getDoc(userRef);
-                    if (userSnap.exists()) {
-                        const userData = userSnap.data();
-                        if (userData.lastUsageDate === today) {
-                            await updateDoc(userRef, { usageCount: increment(fileCount) });
-                        } else {
-                            await updateDoc(userRef, { usageCount: fileCount, lastUsageDate: today });
-                        }
-                    } else {
-                        await setDoc(userRef, { usageCount: fileCount, lastUsageDate: today, email: user.email });
+
+                    // Smart burn order: Use planCredits first, then refillCredits
+                    let remainingToDeduct = totalDeductionNeeded;
+                    let planDeduction = 0;
+                    let refillDeduction = 0;
+
+                    if (planCredits > 0) {
+                        planDeduction = Math.min(planCredits, remainingToDeduct);
+                        remainingToDeduct -= planDeduction;
                     }
+
+                    if (remainingToDeduct > 0) {
+                        refillDeduction = remainingToDeduct;
+                    }
+
+                    await updateDoc(userRef, {
+                        planCredits: increment(-planDeduction),
+                        refillCredits: increment(-refillDeduction),
+                        usageCount: increment(fileCount),
+                        lastUsageDate: new Date().toISOString().split('T')[0]
+                    });
+
+                    // Update local state
+                    setPlanCredits(prev => prev - planDeduction);
+                    setRefillCredits(prev => prev - refillDeduction);
                 } catch (firestoreError) {
                     console.warn("Firestore update failed:", firestoreError);
                 }
@@ -276,201 +306,529 @@ const DashboardContent = () => {
     }
 
     return (
-        <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #f8fafc, #f1f5f9)', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
-            {/* Header */}
-            <header style={{ padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', background: 'white' }}>
-                <div style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0f172a' }}>
-                    TableSift<span style={{ color: '#22c55e' }}>.com</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <Link href="/profile" style={{ fontSize: '0.85rem', color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Profile</Link>
-                    <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#0f172a' }}>{user?.displayName}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{user?.email}</div>
+            {/* Premium Glassmorphic Header */}
+            <header className={`nav-header ${scrolled ? 'scrolled' : ''}`} style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                padding: scrolled ? '0.75rem 2rem' : '1.25rem 2rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                zIndex: 1000,
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                background: scrolled ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.01)',
+                backdropFilter: scrolled ? 'blur(20px) saturate(180%)' : 'blur(0px)',
+                borderBottom: scrolled ? '1px solid rgba(16, 124, 65, 0.08)' : '1px solid transparent',
+                boxShadow: scrolled ? '0 4px 20px -5px rgba(0, 0, 0, 0.08)' : 'none',
+            }}>
+                <Link href="/" className="logo">
+                    TableSift<span>.com</span>
+                </Link>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+
+                    {/* Unified Profile Pill */}
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        background: 'rgba(255, 255, 255, 0.6)',
+                        padding: '6px 8px 6px 16px',
+                        borderRadius: '99px',
+                        border: '1px solid rgba(0,0,0,0.05)',
+                        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+                        backdropFilter: 'blur(10px)',
+                        gap: '12px'
+                    }}>
+                        {/* Coin Balance Section */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', lineHeight: 1.1 }}>
+                            <div style={{
+                                fontSize: '0.9rem',
+                                fontWeight: 700,
+                                color: '#0f172a',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                animation: (planCredits + refillCredits < 5) ? 'pulse-low 2s infinite' : 'none'
+                            }}>
+                                {/* Thunder Icon (Small) - Green */}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#22c55e" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                </svg>
+                                {planCredits + refillCredits}
+                            </div>
+                        </div>
+
+                        {/* Divider */}
+                        <div style={{ width: '1px', height: '24px', background: '#e2e8f0' }}></div>
+
+                        {/* Profile Section */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} className="group">
+                            <img
+                                src={user?.photoURL || ""}
+                                alt="Profile"
+                                style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid white', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}
+                            />
+                            <div style={{ display: 'flex', flexDirection: 'column', paddingRight: '4px' }}>
+                                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
+                                    {user?.displayName?.split(' ')[0]}
+                                </span>
+                            </div>
+                            <button
+                                onClick={handleSignOut}
+                                style={{
+                                    background: '#fee2e2',
+                                    color: '#dc2626',
+                                    border: 'none',
+                                    borderRadius: '50%',
+                                    width: '28px',
+                                    height: '28px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    marginLeft: '4px'
+                                }}
+                                title="Sign Out"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                            </button>
+                        </div>
                     </div>
-                    <Link href="/profile">
-                        <img src={user?.photoURL || ""} alt="" style={{ width: '40px', height: '40px', borderRadius: '50%', border: '2px solid #22c55e', cursor: 'pointer' }} />
-                    </Link>
-                    <button onClick={handleSignOut} style={{ fontSize: '0.85rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
-                        Sign Out
-                    </button>
+
                 </div>
             </header>
 
             {/* Main Content */}
-            <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+            <main className="container" style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingTop: '100px',
+                paddingBottom: '40px'
+            }}>
 
-                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.5rem' }}>
-                        Extract Tables Instantly
+                <div style={{ textAlign: 'center', marginBottom: '3rem', position: 'relative', zIndex: 10 }}>
+                    <div style={{
+                        display: 'inline-block',
+                        padding: '6px 16px',
+                        background: '#f0fdf4',
+                        color: '#15803d',
+                        borderRadius: '99px',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        letterSpacing: '1px',
+                        textTransform: 'uppercase',
+                        marginBottom: '1.5rem',
+                        border: '1px solid #dcfce7'
+                    }}>
+                        Ready to Extract
+                    </div>
+                    <h1 style={{ fontSize: '3rem', fontWeight: 800, color: '#0f172a', marginBottom: '1rem', letterSpacing: '-1px' }}>
+                        Drop anything here.<br />We'll turn it into an Excel file.
                     </h1>
-                    <p style={{ color: '#64748b', fontSize: '1rem' }}>
-                        Upload a screenshot of any table and get a clean CSV file
+                    <p style={{ color: '#64748b', fontSize: '1.1rem', maxWidth: '500px', margin: '0 auto', lineHeight: 1.6 }}>
+                        Upload screenshots, PDFs, or Word docs. Get clean, formatted data instantly.
                     </p>
                 </div>
 
-                {/* Upload Zone */}
+                {/* Premium Upload Zone - Matching Homepage 'App Window' Style */}
                 <div
                     onDrop={onDrop}
                     onDragOver={(e) => e.preventDefault()}
                     onClick={() => !isUploading && fileInputRef.current?.click()}
                     style={{
                         width: '100%',
-                        maxWidth: '600px',
-                        minHeight: '300px',
+                        maxWidth: '750px',
+                        minHeight: '400px',
                         background: 'white',
-                        border: isUploading ? '2px solid #22c55e' : '2px dashed #cbd5e1',
-                        borderRadius: '20px',
+                        border: isUploading ? '2px solid #22c55e' : '1px solid #e2e8f0',
+                        borderRadius: '24px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: isUploading ? 'wait' : 'pointer',
-                        transition: 'all 0.3s ease',
-                        boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
-                        padding: '2rem',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: isUploading
+                            ? '0 25px 50px -12px rgba(34, 197, 94, 0.25)'
+                            : '0 20px 40px -10px rgba(0,0,0,0.06)',
+                        padding: '3rem',
+                        position: 'relative',
+                        overflow: 'hidden'
                     }}
+                    className="group"
                 >
+                    {/* Background Glow Effect */}
+                    <div style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '600px',
+                        height: '600px',
+                        background: 'radial-gradient(circle, rgba(34, 197, 94, 0.15) 0%, rgba(255, 255, 255, 0) 60%)',
+                        zIndex: 0,
+                        pointerEvents: 'none',
+                        filter: 'blur(40px)'
+                    }}></div>
+
                     <input
                         ref={fileInputRef}
                         type="file"
-                        accept="image/*,.pdf"
+                        accept="image/*,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                         multiple
                         onChange={onFileChange}
                         style={{ display: 'none' }}
                     />
 
                     {isUploading ? (
-                        <div style={{ textAlign: 'center' }}>
-                            {/* Animated Spinner */}
-                            <div style={{
-                                width: '60px',
-                                height: '60px',
-                                border: '4px solid #e2e8f0',
-                                borderTop: '4px solid #22c55e',
-                                borderRadius: '50%',
-                                animation: 'spin 1s linear infinite',
-                                margin: '0 auto 1.5rem',
-                            }}></div>
+                        <div style={{ textAlign: 'center', zIndex: 10 }}>
+                            {/* Animated Premium Spinner */}
+                            <div style={{ position: 'relative', width: '80px', height: '80px', margin: '0 auto 2rem' }}>
+                                <div style={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    border: '4px solid #e2e8f0',
+                                    borderRadius: '50%',
+                                }}></div>
+                                <div style={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    border: '4px solid #22c55e',
+                                    borderTopColor: 'transparent',
+                                    borderRadius: '50%',
+                                    animation: 'spin 1s linear infinite',
+                                }}></div>
+                            </div>
 
-                            {/* Processing Stage */}
-                            <p style={{ fontSize: '1.1rem', fontWeight: 600, color: '#0f172a', marginBottom: '0.5rem' }}>
+                            <p style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>
                                 {processingStage}
                             </p>
-                            <p style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                                This may take 15-30 seconds for complex tables
+                            <p style={{ fontSize: '0.9rem', color: '#64748b' }}>
+                                AI is analyzing your document structure...
                             </p>
-
-                            {/* Progress Dots */}
-                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '1rem' }}>
-                                <div style={{ width: '8px', height: '8px', background: '#22c55e', borderRadius: '50%', animation: 'pulse 1s infinite' }}></div>
-                                <div style={{ width: '8px', height: '8px', background: '#22c55e', borderRadius: '50%', animation: 'pulse 1s infinite 0.2s' }}></div>
-                                <div style={{ width: '8px', height: '8px', background: '#22c55e', borderRadius: '50%', animation: 'pulse 1s infinite 0.4s' }}></div>
-                            </div>
                         </div>
                     ) : success ? (
-                        <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>✅</div>
-                            <p style={{ fontSize: '1.25rem', fontWeight: 700, color: '#166534', marginBottom: '0.5rem' }}>
-                                Download Complete!
+                        <div style={{ textAlign: 'center', zIndex: 10 }}>
+                            <div style={{
+                                width: '80px', height: '80px',
+                                background: '#dcfce7',
+                                color: '#166534',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '2.5rem',
+                                margin: '0 auto 1.5rem'
+                            }}>
+                                ✓
+                            </div>
+                            <p style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.5rem' }}>
+                                Extraction Complete!
                             </p>
-                            <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '1.5rem' }}>
-                                Your CSV file has been downloaded
+                            <p style={{ fontSize: '1rem', color: '#64748b', marginBottom: '2rem' }}>
+                                Your data has been securely downloaded.
                             </p>
                             <button
                                 onClick={(e) => { e.stopPropagation(); setSuccess(false); }}
                                 style={{
-                                    padding: '12px 24px',
+                                    padding: '12px 32px',
                                     background: '#22c55e',
                                     color: 'white',
                                     border: 'none',
-                                    borderRadius: '10px',
-                                    fontWeight: 600,
+                                    borderRadius: '12px',
+                                    fontWeight: 700,
                                     cursor: 'pointer',
+                                    fontSize: '1rem',
+                                    boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)',
+                                    transition: 'transform 0.2s'
                                 }}
+                                onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                                onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                             >
                                 Extract Another Table
                             </button>
                         </div>
                     ) : (
-                        <>
-                            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📊</div>
-                            <p style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>
-                                Drop your screenshot here
-                            </p>
-                            <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>
-                                or click to browse files
-                            </p>
-                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                                <span style={{ background: '#f1f5f9', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', color: '#475569' }}>PNG</span>
-                                <span style={{ background: '#f1f5f9', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', color: '#475569' }}>JPG</span>
-                                <span style={{ background: '#f1f5f9', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', color: '#475569' }}>PDF</span>
-                                <span style={{ background: '#f1f5f9', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', color: '#475569' }}>Up to 10MB</span>
+                        <div style={{ textAlign: 'center', zIndex: 10 }} className="drop-content">
+                            <div style={{
+                                width: '80px', height: '80px',
+                                background: '#f0fdf4',
+                                borderRadius: '24px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                margin: '0 auto 2rem',
+                                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.06)',
+                                border: '1px solid #dcfce7'
+                            }}>
+                                {/* Green Thunder Icon */}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="#22c55e" stroke="#15803d" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                </svg>
                             </div>
-                        </>
+                            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.75rem' }}>
+                                Drag & Drop or Click to Upload
+                            </p>
+                            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginBottom: '2rem' }}>
+                                {['JPG', 'PNG', 'PDF', 'DOCX'].map(ext => (
+                                    <span key={ext} style={{
+                                        fontSize: '0.75rem',
+                                        fontWeight: 700,
+                                        color: '#94a3b8',
+                                        background: '#f8fafc',
+                                        padding: '4px 10px',
+                                        borderRadius: '6px',
+                                        border: '1px solid #e2e8f0'
+                                    }}>
+                                        {ext}
+                                    </span>
+                                ))}
+                            </div>
+                            <p style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500 }}>
+                                Max file size: 100MB
+                            </p>
+                        </div>
                     )}
                 </div>
 
                 {/* Error Message */}
                 {error && (
-                    <div style={{ marginTop: '1.5rem', padding: '1.5rem', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', maxWidth: '600px', width: '100%', textAlign: 'center' }}>
-                        <p style={{ color: '#dc2626', marginBottom: error.includes("limit") ? '1rem' : '0' }}>{error}</p>
-                        {error.includes("limit") && (
-                            <Link href="/#pricing" style={{
-                                display: 'inline-block',
-                                padding: '10px 20px',
-                                background: '#22c55e',
-                                color: 'white',
-                                borderRadius: '8px',
-                                fontWeight: 600,
-                                textDecoration: 'none',
-                                fontSize: '0.9rem'
-                            }}>
-                                Upgrade to Pro
-                            </Link>
-                        )}
+                    <div style={{
+                        marginTop: '2rem',
+                        padding: '1rem 2rem',
+                        background: '#fef2f2',
+                        border: '1px solid #fee2e2',
+                        borderRadius: '16px',
+                        color: '#dc2626',
+                        fontWeight: 600,
+                        boxShadow: '0 4px 12px rgba(220, 38, 38, 0.05)',
+                        animation: 'fadeIn 0.3s ease-out'
+                    }}>
+                        {error} {error.includes("coin") && <Link href="/#pricing" style={{ textDecoration: 'underline', marginLeft: '5px' }}>Get more.</Link>}
                     </div>
                 )}
 
-                {/* Usage Info */}
-                <div style={{ marginTop: '2rem', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>
-                    {currentPlan === 'pro' ? (
-                        <p>Plan: <span style={{ color: '#22c55e', fontWeight: 700 }}>Pro Account</span> • 100 scans/month • Bulk Support (5 images)</p>
-                    ) : (
-                        <p>Free tier: 1 scan per day • <Link href="/#pricing" style={{ color: '#22c55e', fontWeight: 600 }}>Upgrade to Pro</Link></p>
-                    )}
+                {/* Refill Option (Always Visible) */}
+                {user && (
+                    <div style={{
+                        marginTop: '2rem',
+                        textAlign: 'center',
+                        animation: 'fadeIn 0.5s ease-out',
+                        position: 'relative',
+                        zIndex: 10
+                    }}>
+                        <div style={{
+                            background: '#f0fdf4', // green-50
+                            border: '1px solid #4ade80', // green-400
+                            padding: '10px 24px',
+                            borderRadius: '99px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                        }}>
+                            {/* Green Thunder Icon */}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#22c55e" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                            </svg>
+                            <span style={{ color: '#166534', fontWeight: 600, fontSize: '0.95rem' }}>
+                                Running low on energy?
+                            </span>
+                            <a href="/credits" style={{
+                                color: '#15803d',
+                                fontWeight: 700,
+                                textDecoration: 'none',
+                                borderBottom: '2px solid rgba(21, 128, 61, 0.3)',
+                                fontSize: '0.95rem',
+                                transition: 'all 0.2s',
+                            }}
+                                onMouseOver={(e) => e.currentTarget.style.borderBottomColor = '#15803d'}
+                                onMouseOut={(e) => e.currentTarget.style.borderBottomColor = 'rgba(21, 128, 61, 0.3)'}
+                            >
+                                Get a refill →
+                            </a>
+                        </div>
+                    </div>
+                )}
+
+                {/* Usage Info & Tips */}
+                <div style={{ marginTop: '4rem', maxWidth: '800px', width: '100%' }}>
+
+                    {/* Tips Section */}
+                    <div style={{
+                        background: '#f8fafc',
+                        borderRadius: '20px',
+                        padding: '2rem',
+                        border: '1px solid #e2e8f0',
+                        textAlign: 'left'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+                            <span style={{ fontSize: '1.25rem' }}>💡</span>
+                            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>Tips for Best Results</h3>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <div style={{ minWidth: '24px', height: '24px', background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#166534', fontSize: '0.75rem', fontWeight: 700 }}>1</div>
+                                <div>
+                                    <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>Crystal Clear</h4>
+                                    <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>High-resolution screenshots work best. Ensure text isn't blurry.</p>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <div style={{ minWidth: '24px', height: '24px', background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#166534', fontSize: '0.75rem', fontWeight: 700 }}>2</div>
+                                <div>
+                                    <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>Native Docs</h4>
+                                    <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>Use original PDFs or Word files whenever possible for 100% accuracy.</p>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <div style={{ minWidth: '24px', height: '24px', background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#166534', fontSize: '0.75rem', fontWeight: 700 }}>3</div>
+                                <div>
+                                    <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>Table Focus</h4>
+                                    <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>Crop screenshots specifically to the table area you need.</p>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <div style={{ minWidth: '24px', height: '24px', background: '#fef3c7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#b45309', fontSize: '0.75rem', fontWeight: 700 }}>$</div>
+                                <div>
+                                    <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>Cost Check</h4>
+                                    <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>Standard images cost <strong>1 coin</strong>. Complex Word docs cost <strong>3 coins</strong>.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Tips Section */}
-                <div style={{ marginTop: '2rem', maxWidth: '600px', width: '100%', background: '#f8fafc', borderRadius: '12px', padding: '1.25rem', border: '1px solid #e2e8f0' }}>
-                    <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '0.75rem', fontSize: '0.9rem' }}>💡 Best Results Tips:</p>
-                    <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#64748b', fontSize: '0.85rem', lineHeight: 1.7 }}>
-                        <li><strong>Screenshots</strong> of tables work best (Excel, Google Sheets, web tables)</li>
-                        <li><strong>One table per image</strong> for accurate extraction</li>
-                        <li><strong>Clear headers</strong> improve column detection</li>
-                        <li><strong>PDFs</strong>: Free tier supports 1 page. Pro supports up to 10 pages.</li>
-                    </ul>
-                </div>
 
+
+                {/* THE GLASS WALL MODAL */}
+                {
+                    showTopUpModal && (
+                        <div style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: 'rgba(15, 23, 42, 0.4)',
+                            backdropFilter: 'blur(8px)',
+                            zIndex: 2000,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            animation: 'fadeIn 0.2s ease-out'
+                        }} onClick={() => setShowTopUpModal(false)}>
+                            <div style={{
+                                background: 'white',
+                                borderRadius: '24px',
+                                padding: '3rem',
+                                width: '100%',
+                                maxWidth: '450px',
+                                textAlign: 'center',
+                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                                position: 'relative',
+                                border: '1px solid rgba(255,255,255,0.5)'
+                            }} onClick={(e) => e.stopPropagation()}>
+                                <div style={{
+                                    width: '64px', height: '64px',
+                                    background: '#fef3c7',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    margin: '0 auto 1.5rem',
+                                }}>
+                                    {/* Large Thunder Icon for Modal */}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#d97706" stroke="#b45309" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                    </svg>
+                                </div>
+                                <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.5rem' }}>Out of Energy</h2>
+                                <p style={{ color: '#64748b', fontSize: '1rem', lineHeight: 1.6, marginBottom: '2rem' }}>
+                                    This operation requires <strong>{requiredCoinsForUpload} coins</strong>, but you only have <strong>{planCredits + refillCredits}</strong>. Recharge to continue!
+                                </p>
+
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                    <Link
+                                        href="/credits"
+                                        style={{
+                                            display: 'block',
+                                            width: '100%',
+                                            padding: '16px',
+                                            background: '#22c55e',
+                                            color: 'white',
+                                            borderRadius: '12px',
+                                            fontWeight: 700,
+                                            fontSize: '1rem',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            boxShadow: '0 10px 15px -3px rgba(34, 197, 94, 0.3)',
+                                            textDecoration: 'none'
+                                        }}
+                                    >
+                                        Get 50 Coins for $5
+                                    </Link>
+                                    <button
+                                        onClick={() => setShowTopUpModal(false)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '14px',
+                                            background: 'transparent',
+                                            color: '#64748b',
+                                            borderRadius: '12px',
+                                            fontWeight: 600,
+                                            border: 'none',
+                                            fontSize: '1rem',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )
+                }
             </main>
 
             {/* CSS for animations */}
             <style jsx global>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
-        }
-      `}</style>
+                @keyframes spin {
+                  0% { transform: rotate(0deg); }
+                  100% { transform: rotate(360deg); }
+                }
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .logo {
+                  font-size: 1.5rem;
+                  font-weight: 800;
+                  letter-spacing: -1px;
+                  color: #1e293b;
+                  text-decoration: none;
+                }
+                .logo span { color: #107c41; }
+                @keyframes pulse-low {
+                    0% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.6; transform: scale(0.95); }
+                    100% { opacity: 1; transform: scale(1); }
+                }
+            `}</style>
         </div>
     );
 };
-
-import dynamic from 'next/dynamic';
 
 const DashboardContentDynamic = dynamic(() => Promise.resolve(DashboardContent), {
     ssr: false,

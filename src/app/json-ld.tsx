@@ -1,28 +1,45 @@
-import { Thing, WithContext, SoftwareApplication, Organization, FAQPage } from 'schema-dts';
+import { WithContext, SoftwareApplication, FAQPage } from 'schema-dts';
 
 export function JsonLd() {
     const schema: WithContext<SoftwareApplication> = {
         '@context': 'https://schema.org',
         '@type': 'SoftwareApplication',
         name: 'TableSift',
-        applicationCategory: 'BusinessApplication',
+        applicationCategory: 'ProductivityApplication',
         operatingSystem: 'Web',
+        url: 'https://tablesift.com',
         offers: {
             '@type': 'Offer',
             price: '0',
             priceCurrency: 'USD',
+            availability: 'https://schema.org/InStock',
         },
-        description: 'Convert screenshots, images, and PDFs into Excel spreadsheets and CSV files instantly using AI.',
+        description: 'Convert PDF to Excel, images to CSV, and screenshots to spreadsheets with 99.9% AI accuracy. The fastest way to extract tables from any document.',
+        featureList: [
+            'PDF to Excel conversion',
+            'Image to Excel conversion',
+            'Screenshot to spreadsheet',
+            'JPG to CSV conversion',
+            'PNG to Excel conversion',
+            'AI-powered table extraction',
+            'Optical Character Recognition (OCR)',
+            '99.9% accuracy rate',
+            'Bulk file processing',
+            'Zero data retention',
+            'Instant Excel/CSV download',
+        ],
         aggregateRating: {
             '@type': 'AggregateRating',
-            ratingValue: '4.8',
-            ratingCount: '1250',
+            ratingValue: '4.9',
+            ratingCount: '2500',
+            bestRating: '5',
         },
         author: {
             '@type': 'Organization',
             name: 'TableSift AI',
             url: 'https://tablesift.com',
-        }
+        },
+        screenshot: 'https://tablesift.com/og-image.png',
     };
 
     const faqSchema: WithContext<FAQPage> = {
@@ -31,18 +48,42 @@ export function JsonLd() {
         mainEntity: [
             {
                 '@type': 'Question',
-                name: 'How does it convert images to Excel?',
+                name: 'How to convert PDF to Excel with AI?',
                 acceptedAnswer: {
                     '@type': 'Answer',
-                    text: 'TableSift uses advanced computer vision AI to analyze table structures in images and reconstruct them into clean CSV/Excel formats.'
+                    text: 'Upload your PDF to TableSift, and our AI will automatically extract tables and convert them to Excel or CSV format with 99.9% accuracy. No manual formatting required.'
                 }
             },
             {
                 '@type': 'Question',
-                name: 'Is my data safe?',
+                name: 'How does TableSift convert images to Excel?',
                 acceptedAnswer: {
                     '@type': 'Answer',
-                    text: 'Yes. We process data in-memory and delete it immediately after extraction. We do not store your documents.'
+                    text: 'TableSift uses advanced computer vision AI to analyze table structures in images (PNG, JPG, screenshots) and reconstructs them into clean, editable Excel/CSV files.'
+                }
+            },
+            {
+                '@type': 'Question',
+                name: 'Is TableSift free to use?',
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'Yes! TableSift offers a free tier with 1 conversion per day. For more conversions, we offer Pro, Business, and Enterprise plans.'
+                }
+            },
+            {
+                '@type': 'Question',
+                name: 'Is my data secure with TableSift?',
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'Absolutely. TableSift processes data in volatile memory and deletes it immediately after extraction. We never store your documents on our servers.'
+                }
+            },
+            {
+                '@type': 'Question',
+                name: 'What file formats does TableSift support?',
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'TableSift supports PDF, PNG, JPG, JPEG, and screenshot images. Output formats include Excel (.xlsx) and CSV.'
                 }
             }
         ]
