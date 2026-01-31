@@ -405,39 +405,279 @@ body {
   max-width: 600px;
 }
 
-/* Mobile Responsiveness */
+/* ============================================
+   MOBILE RESPONSIVENESS - TABLET (max-width: 1024px)
+   ============================================ */
+@media (max-width: 1024px) {
+
+  /* Hero Split: 2 columns -> 1 column */
+  .hero-split {
+    grid-template-columns: 1fr !important;
+    gap: 2rem;
+    text-align: center;
+  }
+
+  .hero-text {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .hero-text h1 {
+    text-align: center !important;
+    font-size: 2.75rem !important;
+  }
+
+  .hero-text p {
+    text-align: center !important;
+  }
+
+  /* App Window: Reset 3D tilt for mobile */
+  .app-window {
+    transform: none !important;
+    max-width: 100%;
+  }
+}
+
+/* ============================================
+   MOBILE RESPONSIVENESS - PHONE (max-width: 768px)
+   ============================================ */
 @media (max-width: 768px) {
+
+  /* Navigation Header */
   .nav-header {
-    padding: 1rem 1.5rem;
+    padding: 1rem 1rem;
   }
 
   .nav-header.scrolled {
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1rem;
   }
 
+  .nav-header nav {
+    gap: 1rem !important;
+  }
+
+  /* Hide desktop nav links on mobile - show hamburger later */
+  .nav-header nav a {
+    display: none;
+  }
+
+  .nav-header nav button,
+  .nav-header nav>div:last-child {
+    display: flex;
+  }
+
+  /* Container */
   .container {
     padding-top: 100px;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
-  .hero h1 {
-    font-size: 2.5rem;
-    /* Much smaller on mobile */
+  /* Hero Section */
+  .hero-split {
+    margin-top: 0;
+    margin-bottom: 3rem;
+    padding: 0 1rem;
+  }
+
+  .hero-text h1 {
+    font-size: 2rem !important;
+    line-height: 1.15 !important;
     letter-spacing: -1px;
   }
 
-  .hero p {
-    font-size: 1rem;
+  .hero-text p {
+    font-size: 1rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  /* CTA Buttons Stack */
+  .hero-text>div[style*="display: flex"][style*="gap"] {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  /* App Window / Dropzone */
+  .app-window {
+    border-radius: 16px;
+    margin-bottom: 3rem;
+  }
+
+  .dropzone-content {
+    padding: 2rem 1rem !important;
+  }
+
+  /* ===== FEATURES BENTO GRID ===== */
+  .bento-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  /* Reset grid-column span for all feature cards */
+  #features .card-premium {
+    grid-column: span 1 !important;
+  }
+
+  /* ===== FAQ SECTION ===== */
+  .faq-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  #faq h2 {
+    font-size: 1.75rem !important;
+  }
+
+  /* ===== PRICING SECTION ===== */
+  .pricing-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  #pricing h2 {
+    font-size: 1.75rem !important;
+  }
+
+  #pricing .card-premium {
+    padding: 1.5rem !important;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2rem !important;
+  }
+
+  .footer-cta {
+    flex-direction: column !important;
+    text-align: center;
+    gap: 1rem !important;
   }
 
   .footer-massive {
     grid-template-columns: 1fr;
-    /* Stack footer columns */
-    padding: 60px 2rem;
-    gap: 3rem;
+    padding: 60px 1.5rem;
+    gap: 2rem;
   }
 
+  /* Card Section (About, Terms, Privacy pages) */
   .card-section {
-    padding: 2rem;
+    padding: 2rem 1.5rem;
     border-radius: 20px;
+  }
+
+  /* ===== GENERAL TYPOGRAPHY SCALING ===== */
+  h1 {
+    font-size: 2rem !important;
+  }
+
+  h2 {
+    font-size: 1.5rem !important;
+  }
+
+  h3 {
+    font-size: 1.15rem !important;
+  }
+
+  /* Blobs - Reduce size on mobile */
+  .blob {
+    opacity: 0.3;
+  }
+
+  .blob-1 {
+    width: 300px;
+    height: 300px;
+  }
+
+  .blob-2 {
+    width: 350px;
+    height: 350px;
+  }
+}
+
+/* ============================================
+   MOBILE RESPONSIVENESS - SMALL PHONE (max-width: 480px)
+   ============================================ */
+@media (max-width: 480px) {
+  .logo {
+    font-size: 1.35rem;
+  }
+
+  .hero-text h1 {
+    font-size: 1.75rem !important;
+  }
+
+  .glow-btn {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+  }
+
+  .badge {
+    font-size: 0.7rem;
+    padding: 6px 12px;
+  }
+
+  /* Pricing cards - ensure readability */
+  #pricing .card-premium ul li {
+    font-size: 0.8rem !important;
+  }
+}
+
+/* ============================================
+   DASHBOARD PAGE MOBILE (max-width: 768px)
+   ============================================ */
+@media (max-width: 768px) {
+
+  /* Dashboard header - tighter padding */
+  .nav-header {
+    padding: 0.75rem 1rem !important;
+  }
+
+  /* Dashboard container - full width on mobile */
+  .dashboard-container {
+    padding: 100px 1rem 2rem 1rem !important;
+  }
+
+  /* App Window in dashboard */
+  .app-window {
+    margin: 0 !important;
+    border-radius: 16px !important;
+  }
+
+  /* Credits Page - stack the grid */
+  .credits-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  /* Modal responsiveness */
+  .modal-content {
+    width: 95vw !important;
+    max-width: none !important;
+    margin: 1rem !important;
+    padding: 1.5rem !important;
+  }
+}
+
+/* ============================================
+   UTILITY: Hide on mobile
+   ============================================ */
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   UTILITY: Show only on mobile
+   ============================================ */
+@media (min-width: 769px) {
+  .show-on-mobile-only {
+    display: none !important;
   }
 }

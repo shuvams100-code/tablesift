@@ -152,7 +152,7 @@ export default function CreditsPage() {
                 </div>
 
                 {/* Pricing Grid */}
-                <div style={{
+                <div className="credits-grid" style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
                     gap: '1.5rem',

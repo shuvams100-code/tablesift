@@ -310,7 +310,7 @@ export default function Home() {
         </h2>
 
         {/* Bento Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: 'auto auto', gap: '1.5rem' }}>
+        <div className="bento-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: 'auto auto', gap: '1.5rem' }}>
 
           {/* Card 1: Large - Accuracy with Mini Table Mockup */}
           <div className="card-premium" style={{ gridColumn: 'span 2', padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -415,7 +415,7 @@ export default function Home() {
           <p style={{ color: '#64748b', marginTop: '1rem', fontSize: '1.1rem' }}>Everything you need to know about TableSift</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+        <div className="faq-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
           <div className="card-premium" style={{ padding: '2rem', display: 'flex', gap: '1rem' }}>
             <div style={{ width: '40px', height: '40px', background: '#f0fdf4', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <span style={{ color: '#166534', fontWeight: 700, fontSize: '1rem' }}>01</span>
@@ -466,7 +466,7 @@ export default function Home() {
           <p style={{ color: '#64748b', marginTop: '1rem', fontSize: '1.1rem' }}>Pay only for what you use. Cancel anytime.</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem' }}>
+        <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem' }}>
 
           {/* Free Plan */}
           <div className="card-premium" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -603,7 +603,7 @@ export default function Home() {
       <footer style={{ width: '100%', marginTop: '10rem', background: '#f8fafc', color: '#0f172a', padding: '0 2rem', borderTop: '1px solid #e2e8f0' }}>
         {/* CTA Banner */}
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 0', borderBottom: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
+          <div className="footer-cta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
             <div>
               <h3 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>Ready to save hours?</h3>
               <p style={{ color: '#64748b', fontSize: '1.1rem' }}>Start extracting tables in seconds. No credit card required.</p>
@@ -615,7 +615,7 @@ export default function Home() {
         </div>
 
         {/* Main Footer Grid */}
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 0', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '4rem' }}>
+        <div className="footer-grid" style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 0', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '4rem' }}>
           <div>
             <div style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.5rem', color: '#0f172a' }}>TableSift<span style={{ color: '#22c55e' }}>.com</span></div>
             <p style={{ color: '#64748b', lineHeight: 1.8, marginBottom: '1.5rem' }}>
