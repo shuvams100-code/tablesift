@@ -491,10 +491,41 @@ body {
     margin-bottom: 1.5rem !important;
   }
 
-  /* CTA Buttons Stack */
-  .hero-text>div[style*="display: flex"][style*="gap"] {
+  /* CTA Buttons - Center and stack on mobile */
+  .hero-cta-buttons {
     flex-direction: column !important;
-    align-items: stretch !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  .hero-cta-buttons .glow-btn {
+    width: 100% !important;
+    max-width: 280px !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  .hero-cta-buttons a {
+    width: 100% !important;
+    max-width: 280px !important;
+    text-align: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+  }
+
+  /* Trust Row - Center on mobile */
+  .hero-trust-row {
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  .hero-trust-row>div {
+    justify-content: center !important;
+  }
+
+  /* Hide the vertical divider on mobile */
+  .hero-trust-row>div[style*="width: 1px"] {
+    display: none !important;
   }
 
   /* App Window / Dropzone */
@@ -517,6 +548,39 @@ body {
   /* Reset grid-column span for all feature cards */
   #features .card-premium {
     grid-column: span 1 !important;
+  }
+
+  /* Feature cards - prevent content overflow */
+  #features .card-premium>div {
+    overflow-x: auto !important;
+  }
+
+  /* Mini table wrapper - make scrollable */
+  .feature-table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Mini table - fix for mobile */
+  .feature-mini-table {
+    font-size: 0.65rem !important;
+    min-width: 280px !important;
+  }
+
+  .feature-mini-table>div {
+    padding: 6px 4px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Code block - make scrollable */
+  .feature-code-block {
+    font-size: 0.65rem !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .feature-code-block>div {
+    white-space: nowrap !important;
   }
 
   /* ===== FAQ SECTION ===== */
@@ -640,6 +704,60 @@ body {
   /* Dashboard container - full width on mobile */
   .dashboard-container {
     padding: 100px 1rem 2rem 1rem !important;
+  }
+
+  /* ===== PROFILE PILL - Compact for mobile ===== */
+  .profile-pill {
+    padding: 6px 10px 6px 12px !important;
+    gap: 8px !important;
+  }
+
+  /* Hide the profile name on mobile to save space */
+  .profile-name {
+    display: none !important;
+  }
+
+  /* Make logout button always visible and accessible */
+  .logout-btn {
+    width: 32px !important;
+    height: 32px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Profile image - slightly smaller */
+  .profile-pill img {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  /* ===== REFILL PILL - Stack vertically on mobile ===== */
+  .refill-pill {
+    flex-direction: column !important;
+    padding: 12px 20px !important;
+    gap: 8px !important;
+    border-radius: 16px !important;
+    text-align: center !important;
+  }
+
+  .refill-pill span,
+  .refill-pill a {
+    font-size: 0.85rem !important;
+  }
+
+  /* ===== TIPS GRID - Stack vertically on mobile ===== */
+  .tips-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.25rem !important;
+  }
+
+  /* Tips cards - smaller text */
+  .tips-grid h4 {
+    font-size: 0.85rem !important;
+  }
+
+  .tips-grid p {
+    font-size: 0.8rem !important;
   }
 
   /* App Window in dashboard */

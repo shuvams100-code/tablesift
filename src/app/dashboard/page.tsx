@@ -332,7 +332,7 @@ const DashboardContent = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
 
                     {/* Unified Profile Pill */}
-                    <div style={{
+                    <div className="profile-pill" style={{
                         display: 'flex',
                         alignItems: 'center',
                         background: 'rgba(255, 255, 255, 0.6)',
@@ -372,13 +372,14 @@ const DashboardContent = () => {
                                 alt="Profile"
                                 style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid white', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}
                             />
-                            <div style={{ display: 'flex', flexDirection: 'column', paddingRight: '4px' }}>
+                            <div className="profile-name" style={{ display: 'flex', flexDirection: 'column', paddingRight: '4px' }}>
                                 <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
                                     {user?.displayName?.split(' ')[0]}
                                 </span>
                             </div>
                             <button
                                 onClick={handleSignOut}
+                                className="logout-btn"
                                 style={{
                                     background: '#fee2e2',
                                     color: '#dc2626',
@@ -624,7 +625,7 @@ const DashboardContent = () => {
                         position: 'relative',
                         zIndex: 10
                     }}>
-                        <div style={{
+                        <div className="refill-pill" style={{
                             background: '#f0fdf4', // green-50
                             border: '1px solid #4ade80', // green-400
                             padding: '10px 24px',
@@ -674,7 +675,7 @@ const DashboardContent = () => {
                             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>Tips for Best Results</h3>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                        <div className="tips-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                             <div style={{ display: 'flex', gap: '12px' }}>
                                 <div style={{ minWidth: '24px', height: '24px', background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#166534', fontSize: '0.75rem', fontWeight: 700 }}>1</div>
                                 <div>
