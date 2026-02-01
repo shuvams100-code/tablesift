@@ -108,9 +108,9 @@ const DashboardContent = () => {
             const query = new URLSearchParams(window.location.search);
             if (query.get('subscribed') === 'true' || query.get('success') === 'true') {
                 setSuccess(true);
-                setProcessingStage("Success! Synchronizing your new credits...");
+                setProcessingStage("Synchronizing your credits...");
 
-                // Poll for updates (in case webhook is slightly delayed)
+                // Poll for updates
                 let attempts = 0;
                 const interval = setInterval(async () => {
                     if (auth && auth.currentUser && db) {
@@ -118,21 +118,24 @@ const DashboardContent = () => {
                         const snap = await getDoc(userRef);
                         if (snap.exists()) {
                             const data = snap.data();
-                            // If tier changed or credits increased, stop polling
                             if (data.tier !== "free" || (data.planCredits + data.refillCredits) > 30) {
                                 setPlanCredits(data.planCredits ?? 0);
                                 setRefillCredits(data.refillCredits ?? 0);
                                 setUserTier(data.tier ?? "free");
-                                setSuccess(false); // Hide the processing screen
+                                setSuccess(true); // Keep success true for the celebration!
+                                setProcessingStage("COMPLETE"); // Trigger the "Celebration" UI
                                 clearInterval(interval);
+
+                                // Auto-dismiss celebration after 5 seconds
+                                setTimeout(() => setSuccess(false), 5000);
                             }
                         }
                     }
                     attempts++;
-                    if (attempts > 10) {
+                    if (attempts > 15) {
                         setSuccess(false);
                         clearInterval(interval);
-                    } // Stop after 20 seconds
+                    }
                 }, 2000);
 
                 return () => clearInterval(interval);
@@ -590,57 +593,16 @@ const DashboardContent = () => {
                                     border: '4px solid #22c55e',
                                     borderTopColor: 'transparent',
                                     borderRadius: '50%',
-                                    animation: 'spin 1s linear infinite',
+                                    animation: 'spin 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
                                 }}></div>
                             </div>
 
                             <p style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>
                                 {processingStage}
                             </p>
-                            <p style={{ fontSize: '0.9rem', color: '#64748b' }}>
+                            <p style={{ fontSize: '0.9rem', color: '#64748b' }} className="pulse-animation">
                                 AI is analyzing your document structure...
                             </p>
-                        </div>
-                    ) : success ? (
-                        <div style={{ textAlign: 'center', zIndex: 10 }}>
-                            <div style={{
-                                width: '80px', height: '80px',
-                                background: '#dcfce7',
-                                color: '#166534',
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '2.5rem',
-                                margin: '0 auto 1.5rem'
-                            }}>
-                                ✓
-                            </div>
-                            <p style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.5rem' }}>
-                                Extraction Complete!
-                            </p>
-                            <p style={{ fontSize: '1rem', color: '#64748b', marginBottom: '2rem' }}>
-                                Your data has been securely downloaded.
-                            </p>
-                            <button
-                                onClick={(e) => { e.stopPropagation(); setSuccess(false); }}
-                                style={{
-                                    padding: '12px 32px',
-                                    background: '#22c55e',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '12px',
-                                    fontWeight: 700,
-                                    cursor: 'pointer',
-                                    fontSize: '1rem',
-                                    boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)',
-                                    transition: 'transform 0.2s'
-                                }}
-                                onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                                onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                            >
-                                Extract Another Table
-                            </button>
                         </div>
                     ) : (
                         <div style={{ textAlign: 'center', zIndex: 10 }} className="drop-content">
@@ -653,8 +615,8 @@ const DashboardContent = () => {
                                 justifyContent: 'center',
                                 margin: '0 auto 2rem',
                                 boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.06)',
-                                border: '1px solid #dcfce7'
-                            }}>
+                                border: '1px solid #dcfce7',
+                            }} className="float-animation">
                                 {/* Green Thunder Icon */}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="#22c55e" stroke="#15803d" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                                     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
@@ -738,7 +700,7 @@ const DashboardContent = () => {
                                     borderBottom: '2px solid rgba(21, 128, 61, 0.3)',
                                     fontSize: '0.95rem',
                                     transition: 'all 0.2s',
-                                }}>
+                                }} className="shine-effect">
                                     Upgrade to Pro →
                                 </span>
                             </div>
@@ -1035,6 +997,91 @@ const DashboardContent = () => {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                )}
+
+                {/* Celebratory Success Overlay (Dodo Payment Success) */}
+                {success && processingStage === "COMPLETE" && (
+                    <div className="success-overlay">
+                        {/* CSS Confetti */}
+                        {[...Array(50)].map((_, i) => (
+                            <div
+                                key={i}
+                                className="confetti"
+                                style={{
+                                    left: `${Math.random() * 100}%`,
+                                    background: ['#22c55e', '#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6'][Math.floor(Math.random() * 5)],
+                                    animationDelay: `${Math.random() * 3}s`,
+                                    animationDuration: `${2 + Math.random() * 2}s`
+                                }}
+                            />
+                        ))}
+                        <div className="success-card">
+                            <div style={{
+                                width: '100px',
+                                height: '100px',
+                                background: '#f0fdf4',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '3rem',
+                                margin: '0 auto 2rem',
+                                color: '#22c55e',
+                                boxShadow: '0 0 40px rgba(34, 197, 94, 0.2)'
+                            }} className="float-animation">
+                                ✨
+                            </div>
+                            <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', marginBottom: '1rem' }}>
+                                Payment Successful!
+                            </h2>
+                            <p style={{ color: '#64748b', fontSize: '1.1rem', lineHeight: 1.6, marginBottom: '2rem' }}>
+                                Your account has been upgraded to <b>{userTier.toUpperCase()}</b>.<br />
+                                Your credits are now synchronized and ready to use.
+                            </p>
+                            <button
+                                onClick={() => setSuccess(false)}
+                                style={{
+                                    padding: '16px 48px',
+                                    background: '#0f172a',
+                                    color: 'white',
+                                    borderRadius: '16px',
+                                    fontWeight: 700,
+                                    fontSize: '1.1rem',
+                                    cursor: 'pointer',
+                                    border: 'none',
+                                    transition: 'all 0.3s'
+                                }}
+                                className="shine-effect"
+                            >
+                                Let's Get Sifting
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Extraction Success Indicator */}
+                {success && (processingStage === "" || processingStage === "Extraction Complete!") && (
+                    <div style={{
+                        position: 'fixed',
+                        bottom: '40px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        background: '#15803d',
+                        color: 'white',
+                        padding: '12px 24px',
+                        borderRadius: '99px',
+                        fontWeight: 700,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '12px',
+                        boxShadow: '0 10px 25px rgba(21, 128, 61, 0.4)',
+                        zIndex: 1000,
+                        animation: 'success-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                    }}>
+                        <span style={{ background: 'white', color: '#15803d', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>✓</span>
+                        Table Extracted Successfully!
                     </div>
                 )}
             </main>
