@@ -113,7 +113,7 @@ const DashboardContent = () => {
                 // Poll for updates (in case webhook is slightly delayed)
                 let attempts = 0;
                 const interval = setInterval(async () => {
-                    if (auth.currentUser) {
+                    if (auth && auth.currentUser && db) {
                         const userRef = doc(db, "users", auth.currentUser.uid);
                         const snap = await getDoc(userRef);
                         if (snap.exists()) {
