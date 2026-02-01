@@ -11,16 +11,18 @@ import { db } from '@/lib/firebase-admin';
 
 export async function POST(req: NextRequest) {
     const body = await req.text();
-    const signature = req.headers.get('webhook-signature') || req.headers.get('x-dodo-signature');
+    const signature = req.headers.get('webhook-signature');
+    const msgId = req.headers.get('webhook-id');
+    const timestamp = req.headers.get('webhook-timestamp');
     const secret = process.env.DODO_PAYMENTS_WEBHOOK_SECRET;
 
     // 1. Verify Signature
-    if (!signature || !secret) {
-        console.error('Missing signature or webhook secret');
-        return new NextResponse('Invalid signature', { status: 401 });
+    if (!signature || !secret || !msgId || !timestamp) {
+        console.error('Missing required webhook headers or secret');
+        return new NextResponse('Invalid headers', { status: 401 });
     }
 
-    // Handle v1 signature format (v1,base64_hmac)
+    // Dodo uses Svix-style signatures: v1,base64_hash
     const [version, signatureHash] = signature.split(',');
 
     if (version !== 'v1' || !signatureHash) {
@@ -28,11 +30,13 @@ export async function POST(req: NextRequest) {
         return new NextResponse('Invalid signature format', { status: 401 });
     }
 
+    // Signed content is id.timestamp.body
+    const toSign = `${msgId}.${timestamp}.${body}`;
     const hmac = crypto.createHmac('sha256', secret);
-    const computedSignature = hmac.update(body).digest('base64');
+    const computedSignature = hmac.update(toSign).digest('base64');
 
     if (computedSignature !== signatureHash) {
-        console.error('Signature mismatch', { received: signatureHash, computed: computedSignature });
+        console.error('Signature mismatch');
         return new NextResponse('Invalid signature', { status: 401 });
     }
 
