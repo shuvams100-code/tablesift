@@ -35,6 +35,7 @@ const DashboardContent = () => {
     const [userTier, setUserTier] = useState<string>("free");
     const [scrolled, setScrolled] = useState(false);
     const [showTopUpModal, setShowTopUpModal] = useState(false);
+    const [showPricingModal, setShowPricingModal] = useState(false);
     const [requiredCoinsForUpload, setRequiredCoinsForUpload] = useState(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,30 +63,34 @@ const DashboardContent = () => {
                     const userSnap = await getDoc(userRef);
                     if (userSnap.exists()) {
                         const data = userSnap.data();
-                        // Handle migration from old 'credits' field
-                        if (data.credits !== undefined && data.planCredits === undefined) {
-                            // Migrate old credits to planCredits
+                        if (data.planCredits === undefined || (data.planCredits === 0 && !data.tier) || data.tier === "none") {
+                            // First time landing or migration: Force 30 bonus if it's their very first time
+                            const existingTotal = data.credits ?? data.planCredits ?? 30;
+                            const finalTier = (data.tier === "none" || !data.tier) ? "free" : data.tier;
                             await updateDoc(userRef, {
-                                planCredits: data.credits,
-                                refillCredits: 0
+                                planCredits: existingTotal,
+                                refillCredits: 0,
+                                tier: finalTier
                             });
-                            setPlanCredits(data.credits);
+                            setPlanCredits(existingTotal);
                             setRefillCredits(0);
+                            setUserTier(finalTier);
                         } else {
                             setPlanCredits(data.planCredits ?? 0);
                             setRefillCredits(data.refillCredits ?? 0);
+                            setUserTier(data.tier || "free");
                         }
-                        setUserTier(data.tier ?? "free");
                     } else {
-                        // Initialize new user with dual buckets
+                        // Initialize new user with 30 Signup Bonus
                         await setDoc(userRef, {
-                            planCredits: 0,
+                            planCredits: 30,
                             refillCredits: 0,
                             tier: "free",
                             email: currentUser.email,
-                            subscriptionStatus: "none"
+                            subscriptionStatus: "none",
+                            createdAt: new Date()
                         });
-                        setPlanCredits(0);
+                        setPlanCredits(30);
                         setRefillCredits(0);
                         setUserTier("free");
                     }
@@ -101,6 +106,38 @@ const DashboardContent = () => {
         if (auth) {
             await signOut(auth);
             router.push("/");
+        }
+    };
+
+    const handleUpgrade = async (productId: string, planName: string, monthlyCredits: number) => {
+        if (!user) return;
+
+        try {
+            const idToken = await user.getIdToken();
+            const response = await fetch("/api/subscriptions/create-checkout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${idToken}`,
+                },
+                body: JSON.stringify({
+                    productId,
+                    planName,
+                    monthlyCredits,
+                }),
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to start checkout");
+            }
+
+            const { checkoutUrl } = data;
+            window.location.href = checkoutUrl;
+
+        } catch (err: any) {
+            console.error("Upgrade failed:", err);
+            setError(`Failed to start upgrade: ${err.message}`);
         }
     };
 
@@ -149,14 +186,18 @@ const DashboardContent = () => {
         setSuccess(false);
 
         try {
-            // 0. SUBSCRIPTION GATING - Block free users
-            if (userTier === "free") {
-                setShowTopUpModal(true);
-                setRequiredCoinsForUpload(1); // Just to trigger modal
+            // 0. SUBSCRIPTION GATING - Allow free users to use their 30 coins, but nudge to upgrade
+            // If you want them to spend their 30 coins FIRST, we keep this commented out or removed.
+            // Based on user feedback: "Once the balance is exhausted they cannot do anything"
+            // So we ALLOW them to upload as long as they have balance.
+            /*
+            if (userTier === "free" && (planCredits + refillCredits) < 1) {
+                setShowPricingModal(true);
                 setIsUploading(false);
-                setError("Upgrade to a paid plan to start uploading files.");
+                setError("Your signup bonus is exhausted. Upgrade to a plan to continue.");
                 return;
             }
+            */
 
             // 1. Handle PDF specifically (split into images)
             if (fileArray.length === 1 && fileArray[0].type === "application/pdf") {
@@ -343,7 +384,6 @@ const DashboardContent = () => {
                         backdropFilter: 'blur(10px)',
                         gap: '12px'
                     }}>
-                        {/* Coin Balance Section */}
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', lineHeight: 1.1 }}>
                             <div style={{
                                 fontSize: '0.9rem',
@@ -360,6 +400,14 @@ const DashboardContent = () => {
                                 </svg>
                                 {planCredits + refillCredits}
                             </div>
+                            {(userTier === "free" || userTier === "none") && (
+                                <button
+                                    onClick={() => setShowPricingModal(true)}
+                                    style={{ fontSize: '0.7rem', color: '#2563eb', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                                >
+                                    Upgrade
+                                </button>
+                            )}
                         </div>
 
                         {/* Divider */}
@@ -616,7 +664,7 @@ const DashboardContent = () => {
                     </div>
                 )}
 
-                {/* Refill Option (Always Visible) */}
+                {/* Footer Action Pill (Upgrade vs Refill) */}
                 {user && (
                     <div style={{
                         marginTop: '2rem',
@@ -625,37 +673,71 @@ const DashboardContent = () => {
                         position: 'relative',
                         zIndex: 10
                     }}>
-                        <div className="refill-pill" style={{
-                            background: '#f0fdf4', // green-50
-                            border: '1px solid #4ade80', // green-400
-                            padding: '10px 24px',
-                            borderRadius: '99px',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
-                        }}>
-                            {/* Green Thunder Icon */}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#22c55e" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                            </svg>
-                            <span style={{ color: '#166534', fontWeight: 600, fontSize: '0.95rem' }}>
-                                Running low on energy?
-                            </span>
-                            <a href="/credits" style={{
-                                color: '#15803d',
-                                fontWeight: 700,
-                                textDecoration: 'none',
-                                borderBottom: '2px solid rgba(21, 128, 61, 0.3)',
-                                fontSize: '0.95rem',
-                                transition: 'all 0.2s',
-                            }}
-                                onMouseOver={(e) => e.currentTarget.style.borderBottomColor = '#15803d'}
-                                onMouseOut={(e) => e.currentTarget.style.borderBottomColor = 'rgba(21, 128, 61, 0.3)'}
-                            >
-                                Get a refill →
-                            </a>
-                        </div>
+                        {(userTier === "free" || userTier === "none") ? (
+                            // FREE USER: Show UPGRADE Nudge
+                            <div className="refill-pill" style={{
+                                background: '#f0fdf4', // green-50
+                                border: '1px solid #4ade80', // green-400
+                                padding: '10px 24px',
+                                borderRadius: '99px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                                cursor: 'pointer'
+                            }} onClick={() => setShowPricingModal(true)}>
+                                {/* Green Sparkle Icon */}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#22c55e" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                                </svg>
+                                <span style={{ color: '#166534', fontWeight: 600, fontSize: '0.95rem' }}>
+                                    Want more power?
+                                </span>
+                                <span style={{
+                                    color: '#15803d',
+                                    fontWeight: 700,
+                                    textDecoration: 'none',
+                                    borderBottom: '2px solid rgba(21, 128, 61, 0.3)',
+                                    fontSize: '0.95rem',
+                                    transition: 'all 0.2s',
+                                }}>
+                                    Upgrade to Pro →
+                                </span>
+                            </div>
+                        ) : (
+                            // PAID USER: Show REFILL Nudge (Original)
+                            <div className="refill-pill" style={{
+                                background: '#f0fdf4', // green-50
+                                border: '1px solid #4ade80', // green-400
+                                padding: '10px 24px',
+                                borderRadius: '99px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                            }}>
+                                {/* Green Thunder Icon */}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#22c55e" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                </svg>
+                                <span style={{ color: '#166534', fontWeight: 600, fontSize: '0.95rem' }}>
+                                    Running low on energy?
+                                </span>
+                                <a href="/credits" style={{
+                                    color: '#15803d',
+                                    fontWeight: 700,
+                                    textDecoration: 'none',
+                                    borderBottom: '2px solid rgba(21, 128, 61, 0.3)',
+                                    fontSize: '0.95rem',
+                                    transition: 'all 0.2s',
+                                }}
+                                    onMouseOver={(e) => e.currentTarget.style.borderBottomColor = '#15803d'}
+                                    onMouseOut={(e) => e.currentTarget.style.borderBottomColor = 'rgba(21, 128, 61, 0.3)'}
+                                >
+                                    Get a refill →
+                                </a>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -761,25 +843,46 @@ const DashboardContent = () => {
                                 </p>
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                    <Link
-                                        href="/credits"
-                                        style={{
-                                            display: 'block',
-                                            width: '100%',
-                                            padding: '16px',
-                                            background: '#22c55e',
-                                            color: 'white',
-                                            borderRadius: '12px',
-                                            fontWeight: 700,
-                                            fontSize: '1rem',
-                                            border: 'none',
-                                            cursor: 'pointer',
-                                            boxShadow: '0 10px 15px -3px rgba(34, 197, 94, 0.3)',
-                                            textDecoration: 'none'
-                                        }}
-                                    >
-                                        Get 50 Coins for $5
-                                    </Link>
+                                    {userTier === "free" ? (
+                                        <button
+                                            onClick={() => { setShowTopUpModal(false); setShowPricingModal(true); }}
+                                            style={{
+                                                display: 'block',
+                                                width: '100%',
+                                                padding: '16px',
+                                                background: '#2563eb', // Blue for upgrade
+                                                color: 'white',
+                                                borderRadius: '12px',
+                                                fontWeight: 700,
+                                                fontSize: '1rem',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                boxShadow: '0 10px 15px -3px rgba(37, 99, 235, 0.3)',
+                                            }}
+                                        >
+                                            Upgrade for More Fuel
+                                        </button>
+                                    ) : (
+                                        <Link
+                                            href="/credits"
+                                            style={{
+                                                display: 'block',
+                                                width: '100%',
+                                                padding: '16px',
+                                                background: '#22c55e',
+                                                color: 'white',
+                                                borderRadius: '12px',
+                                                fontWeight: 700,
+                                                fontSize: '1rem',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                boxShadow: '0 10px 15px -3px rgba(34, 197, 94, 0.3)',
+                                                textDecoration: 'none'
+                                            }}
+                                        >
+                                            Refill Fuel
+                                        </Link>
+                                    )}
                                     <button
                                         onClick={() => setShowTopUpModal(false)}
                                         style={{
@@ -801,6 +904,101 @@ const DashboardContent = () => {
                         </div>
                     )
                 }
+
+                {/* PRICING MODAL */}
+                {showPricingModal && (
+                    <div style={{
+                        position: 'fixed',
+                        top: 0, left: 0, right: 0, bottom: 0,
+                        background: 'rgba(15, 23, 42, 0.4)',
+                        backdropFilter: 'blur(8px)',
+                        zIndex: 2001,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        animation: 'fadeIn 0.2s ease-out',
+                        padding: '1rem'
+                    }} onClick={() => setShowPricingModal(false)}>
+                        <div style={{
+                            background: '#f8fafc',
+                            borderRadius: '24px',
+                            padding: '2rem',
+                            maxWidth: '900px',
+                            width: '100%',
+                            maxHeight: '90vh',
+                            overflowY: 'auto',
+                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                            position: 'relative'
+                        }} onClick={(e) => e.stopPropagation()}>
+                            <button
+                                onClick={() => setShowPricingModal(false)}
+                                style={{
+                                    position: 'absolute', top: '1rem', right: '1rem',
+                                    background: 'none', border: 'none', fontSize: '1.5rem',
+                                    color: '#64748b', cursor: 'pointer'
+                                }}
+                            >
+                                ×
+                            </button>
+
+                            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                                <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a' }}>Upgrade Your Plan</h2>
+                                <p style={{ color: '#64748b' }}>Choose the best plan for your needs.</p>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                                {/* Pro Plan */}
+                                <div style={{ padding: '2rem', background: 'white', border: '2px solid #22c55e', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Pro</h3>
+                                        <span style={{ background: '#22c55e', color: 'white', padding: '4px 10px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}>Popular</span>
+                                    </div>
+                                    <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '-0.75rem' }}>For regular users</p>
+                                    <div>
+                                        <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a' }}>$15</span>
+                                        <span style={{ color: '#64748b', fontSize: '0.85rem' }}>/month</span>
+                                    </div>
+                                    <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
+                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 150 Coins / month</li>
+                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Hybrid GPT-4o Engine</li>
+                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Word Doc Support (3 coins)</li>
+                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 5 images at once</li>
+                                    </ul>
+                                    <button
+                                        onClick={() => handleUpgrade('pdt_0NXYHBcPszGyHO9M2lt8P', 'Pro', 150)}
+                                        style={{ marginTop: 'auto', padding: '12px 20px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.4)' }}
+                                    >
+                                        Upgrade to Pro
+                                    </button>
+                                </div>
+
+                                {/* Business Plan */}
+                                <div style={{ padding: '2rem', background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                                    <div>
+                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Business</h3>
+                                        <p style={{ color: '#64748b', fontSize: '0.85rem' }}>For power users</p>
+                                    </div>
+                                    <div>
+                                        <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a' }}>$49</span>
+                                        <span style={{ color: '#64748b', fontSize: '0.85rem' }}>/month</span>
+                                    </div>
+                                    <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
+                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 500 Coins / month</li>
+                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 20 images at once</li>
+                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Up to 50 PDF pages</li>
+                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Priority Support</li>
+                                    </ul>
+                                    <button
+                                        onClick={() => handleUpgrade('pdt_0NXYHGpP9pSriiWduXPUE', 'Business', 500)}
+                                        style={{ marginTop: 'auto', padding: '12px 20px', background: 'white', color: '#0f172a', border: '2px solid #e2e8f0', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem' }}
+                                    >
+                                        Upgrade to Business
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
 
             {/* CSS for animations */}

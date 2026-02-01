@@ -97,9 +97,10 @@ export default function Home() {
               throw new Error(`Insufficient coins. You have ${userCredits} coins, but this document needs ${estimatedCreditsNeeded}. Upgrade for more coins!`);
             }
           } else {
-            // New users: Give them 30 coins by default
+            // New users: Give them 30 coins by default (Plan Credits)
             await setDoc(userRef, {
-              credits: 30,
+              planCredits: 30,
+              refillCredits: 0,
               tier: "free",
               email: user.email,
               lastUsageDate: new Date().toISOString().split('T')[0],
@@ -178,6 +179,41 @@ export default function Home() {
       }
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleUpgrade = async (productId: string, planName: string, monthlyCredits: number) => {
+    if (!user) {
+      handleSignIn();
+      return;
+    }
+
+    try {
+      const idToken = await user.getIdToken();
+      const response = await fetch("/api/subscriptions/create-checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          productId,
+          planName,
+          monthlyCredits,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to start checkout");
+      }
+
+      const { checkoutUrl } = await response.json();
+      window.location.href = checkoutUrl;
+
+    } catch (err: any) {
+      console.error("Upgrade failed:", err);
+      setError(`Failed to start upgrade: ${err.message}`);
     }
   };
 
@@ -529,7 +565,11 @@ export default function Home() {
                 <span style={{ color: '#22c55e' }}>✓</span> Up to 10 PDF pages
               </li>
             </ul>
-            <button className="glow-btn" style={{ marginTop: 'auto', padding: '12px 20px', fontSize: '0.9rem' }}>
+            <button
+              onClick={() => handleUpgrade('pdt_0NXYHBcPszGyHO9M2lt8P', 'Pro', 150)}
+              className="glow-btn"
+              style={{ marginTop: 'auto', padding: '12px 20px', fontSize: '0.9rem' }}
+            >
               Upgrade to Pro
             </button>
           </div>
@@ -561,7 +601,10 @@ export default function Home() {
                 <span style={{ color: '#22c55e' }}>✓</span> Custom Branding
               </li>
             </ul>
-            <button style={{ marginTop: 'auto', padding: '12px 20px', border: '1px solid #0f172a', borderRadius: '10px', fontWeight: 600, color: '#0f172a', background: 'white', cursor: 'pointer', fontSize: '0.9rem' }}>
+            <button
+              onClick={() => handleUpgrade('pdt_0NXYHGpP9pSriiWduXPUE', 'Business', 500)}
+              style={{ marginTop: 'auto', padding: '12px 20px', border: '1px solid #0f172a', borderRadius: '10px', fontWeight: 600, color: '#0f172a', background: 'white', cursor: 'pointer', fontSize: '0.9rem' }}
+            >
               Get Business
             </button>
           </div>

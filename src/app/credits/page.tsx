@@ -29,9 +29,20 @@ export default function CreditsPage() {
                     const snap = await getDoc(userRef);
                     if (snap.exists()) {
                         const data = snap.data();
+                        const tier = data.tier ?? "free";
+
+                        // Gating: Only paid users can access this page
+                        if (tier === "free" || tier === "none") {
+                            router.push("/dashboard?upgrade_needed=true");
+                            return;
+                        }
+
                         setPlanCredits(data.planCredits ?? 0);
                         setRefillCredits(data.refillCredits ?? 0);
-                        setUserTier(data.tier ?? "free");
+                        setUserTier(tier);
+                    } else {
+                        // Document doesn't exist, must be a free new user
+                        router.push("/dashboard");
                     }
                 }
             } else {
@@ -41,44 +52,57 @@ export default function CreditsPage() {
         return () => unsubscribe();
     }, [router]);
 
-    const handlePurchase = async (price: number, amount: number) => {
+    const handlePurchase = async (productId: string, amount: number) => {
         if (!user || !db) return;
 
-        // SUBSCRIPTION GATING - Block free users
-        if (userTier === "free") {
-            alert("Please upgrade to a paid plan to purchase refill credits.");
+        // Double check gating
+        if (userTier === "free" || userTier === "none") {
+            router.push("/dashboard");
             return;
         }
 
-        setProcessingPack(price);
-
-        // Simulate API/Payment delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        setProcessingPack(amount);
 
         try {
-            const userRef = doc(db, "users", user.uid);
-            // Increment REFILL credits (these roll over)
-            await updateDoc(userRef, {
-                refillCredits: increment(amount)
+            const idToken = await user.getIdToken();
+
+            const response = await fetch("/api/payments/create-checkout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${idToken}`,
+                },
+                body: JSON.stringify({
+                    productId,
+                    credits: amount,
+                }),
             });
 
-            // Redirect back to dashboard
-            router.push("/dashboard");
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || "Failed to create checkout");
+            }
+
+            const { checkoutUrl } = await response.json();
+
+            // Redirect to Dodo Checkout
+            window.location.href = checkoutUrl;
         } catch (error) {
             console.error("Purchase failed", error);
             setProcessingPack(null);
-            alert("Purchase failed. Please try again.");
+            alert("Failed to start checkout. Please try again.");
         }
     };
 
-    // Pricing Packs Configuration (WITH BONUSES)
+    // Pricing Packs Configuration (Matching Dodo Dashboard)
+    // Pricing Packs Configuration (Matching Dodo Dashboard)
+    // Labels renamed to avoid conflict with Subscription names (Starter/Pro)
     const packs = [
-        { price: 5, amount: 55, baseAmount: 50, bonus: "+10%", label: "Starter" },
-        { price: 10, amount: 115, baseAmount: 100, bonus: "+15%", label: "Booster" },
-        { price: 15, amount: 180, baseAmount: 150, bonus: "+20%", label: "Basic" },
-        { price: 20, amount: 250, baseAmount: 200, bonus: "+25%", label: "Pro", popular: true },
-        { price: 25, amount: 325, baseAmount: 250, bonus: "+30%", label: "Expert" },
-        { price: 50, amount: 700, baseAmount: 500, bonus: "+40%", label: "Master" },
+        { id: 'pdt_0NXY12XISoCzZ7ikWU2D3', price: 5, amount: 55, baseAmount: 50, bonus: "+10%", label: "Fuel Mini" },
+        { id: 'pdt_0NXY1LQjul9UlatR2vAfb', price: 10, amount: 115, baseAmount: 100, bonus: "+15%", label: "Fuel Basic" },
+        { id: 'pdt_0NXY1atSM5bib2RuQknAq', price: 20, amount: 240, baseAmount: 200, bonus: "+20%", label: "Fuel Standard", popular: true },
+        { id: 'pdt_0NXY27NeRW5UWRjLPfTWi', price: 30, amount: 375, baseAmount: 300, bonus: "+25%", label: "Fuel Plus" },
+        { id: 'pdt_0NXY2KVOI9kYbpHHemQcb', price: 50, amount: 700, baseAmount: 500, bonus: "+40%", label: "Fuel Max" },
     ];
 
     return (
@@ -228,7 +252,7 @@ export default function CreditsPage() {
                             </div>
 
                             <button
-                                onClick={() => handlePurchase(pack.price, pack.amount)}
+                                onClick={() => handlePurchase(pack.id, pack.amount)}
                                 disabled={!!processingPack}
                                 style={{
                                     width: '100%',
@@ -238,12 +262,12 @@ export default function CreditsPage() {
                                     fontWeight: 700,
                                     fontSize: '1rem',
                                     cursor: processingPack ? 'not-allowed' : 'pointer',
-                                    background: processingPack === pack.price ? '#f1f5f9' : '#0f172a',
-                                    color: processingPack === pack.price ? '#94a3b8' : 'white',
+                                    background: processingPack === pack.amount ? '#f1f5f9' : '#0f172a',
+                                    color: processingPack === pack.amount ? '#94a3b8' : 'white',
                                     transition: 'all 0.2s'
                                 }}
                             >
-                                {processingPack === pack.price ? 'Processing...' : `Buy for $${pack.price}`}
+                                {processingPack === pack.amount ? 'Processing...' : `Buy for $${pack.price}`}
                             </button>
                         </div>
                     ))}
