@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dodoClient } from '@/lib/dodo';
 import { adminAuth } from '@/lib/firebase-admin';
+import { getBaseUrl } from '@/lib/config';
 
 export async function POST(req: NextRequest) {
     try {
@@ -27,6 +28,10 @@ export async function POST(req: NextRequest) {
         // We use @ts-ignore because the local SDK types might not yet reflect the latest checkoutSessions API,
         // but the runtime supports it.
         try {
+            const baseUrl = getBaseUrl();
+            const returnUrl = `${baseUrl}/dashboard?subscribed=true`;
+            console.log('Creating Dodo Subscription checkout:', { productId, userId, returnUrl });
+
             // @ts-ignore
             const session = await dodoClient.checkoutSessions.create({
                 customer: {
@@ -52,7 +57,7 @@ export async function POST(req: NextRequest) {
                     monthly_credits: monthlyCredits.toString(),
                     type: 'subscription',
                 },
-                return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?subscribed=true`,
+                return_url: returnUrl,
             });
 
             return NextResponse.json({

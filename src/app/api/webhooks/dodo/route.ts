@@ -11,7 +11,7 @@ import { db } from '@/lib/firebase-admin';
 
 export async function POST(req: NextRequest) {
     const body = await req.text();
-    const signature = req.headers.get('x-dodo-signature');
+    const signature = req.headers.get('webhook-signature') || req.headers.get('x-dodo-signature');
     const secret = process.env.DODO_PAYMENTS_WEBHOOK_SECRET;
 
     // 1. Verify Signature
@@ -20,11 +20,19 @@ export async function POST(req: NextRequest) {
         return new NextResponse('Invalid signature', { status: 401 });
     }
 
-    const hmac = crypto.createHmac('sha256', secret);
-    const computedSignature = hmac.update(body).digest('hex');
+    // Handle v1 signature format (v1,base64_hmac)
+    const [version, signatureHash] = signature.split(',');
 
-    if (computedSignature !== signature) {
-        console.error('Signature mismatch');
+    if (version !== 'v1' || !signatureHash) {
+        console.error('Invalid signature format');
+        return new NextResponse('Invalid signature format', { status: 401 });
+    }
+
+    const hmac = crypto.createHmac('sha256', secret);
+    const computedSignature = hmac.update(body).digest('base64');
+
+    if (computedSignature !== signatureHash) {
+        console.error('Signature mismatch', { received: signatureHash, computed: computedSignature });
         return new NextResponse('Invalid signature', { status: 401 });
     }
 

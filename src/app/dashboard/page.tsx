@@ -102,6 +102,44 @@ const DashboardContent = () => {
         return () => unsubscribe();
     }, [router]);
 
+    // Handle Post-Payment Success Redirect
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const query = new URLSearchParams(window.location.search);
+            if (query.get('subscribed') === 'true' || query.get('success') === 'true') {
+                setSuccess(true);
+                setProcessingStage("Success! Synchronizing your new credits...");
+
+                // Poll for updates (in case webhook is slightly delayed)
+                let attempts = 0;
+                const interval = setInterval(async () => {
+                    if (auth.currentUser) {
+                        const userRef = doc(db, "users", auth.currentUser.uid);
+                        const snap = await getDoc(userRef);
+                        if (snap.exists()) {
+                            const data = snap.data();
+                            // If tier changed or credits increased, stop polling
+                            if (data.tier !== "free" || (data.planCredits + data.refillCredits) > 30) {
+                                setPlanCredits(data.planCredits ?? 0);
+                                setRefillCredits(data.refillCredits ?? 0);
+                                setUserTier(data.tier ?? "free");
+                                setSuccess(false); // Hide the processing screen
+                                clearInterval(interval);
+                            }
+                        }
+                    }
+                    attempts++;
+                    if (attempts > 10) {
+                        setSuccess(false);
+                        clearInterval(interval);
+                    } // Stop after 20 seconds
+                }, 2000);
+
+                return () => clearInterval(interval);
+            }
+        }
+    }, [user]);
+
     const handleSignOut = async () => {
         if (auth) {
             await signOut(auth);

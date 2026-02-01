@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dodoClient } from '@/lib/dodo';
 import { adminAuth } from '@/lib/firebase-admin';
+import { getBaseUrl } from '@/lib/config';
 
 export async function POST(req: NextRequest) {
     try {
@@ -26,6 +27,10 @@ export async function POST(req: NextRequest) {
         }
 
         // 3. Create one-time payment via Dodo SDK
+        const baseUrl = getBaseUrl();
+        const returnUrl = `${baseUrl}/credits?success=true`;
+        console.log('Creating Dodo Payment checkout:', { productId, userId, returnUrl });
+
         const payment = await dodoClient.payments.create({
             billing: {
                 city: 'Not Provided',
@@ -51,7 +56,7 @@ export async function POST(req: NextRequest) {
                 type: 'credit_topup',
             },
             // Redirect URLs
-            return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/credits?success=true`,
+            return_url: returnUrl,
         });
 
         // 4. Return checkout URL
