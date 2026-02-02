@@ -57,7 +57,7 @@ export default function PrivacyPage() {
                 <div className="footer-col">
                     <Link href="/" className="logo" style={{ marginBottom: '2rem' }}>TableSift<span>.com</span></Link>
                     <p style={{ color: '#64748b', lineHeight: 1.8, fontSize: '1.1rem' }}>
-                        The world's most advanced AI-powered extraction tool for spreadsheet professionals.
+                        The world&apos;s most advanced AI-powered extraction tool for spreadsheet professionals.
                     </p>
                 </div>
                 <div className="footer-col">

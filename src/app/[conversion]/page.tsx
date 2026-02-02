@@ -134,8 +134,9 @@ export default async function ConversionPage({ params }: { params: Promise<{ con
             fontFamily: 'var(--font-body)',
         }}>
             {/* Header */}
-            <header style={{
-                padding: '1.5rem 4rem',
+            <header className="nav-header" style={{
+                position: 'relative',
+                padding: '1rem 2rem',
                 borderBottom: '1px solid #e2e8f0',
                 background: 'white',
                 display: 'flex',
@@ -161,7 +162,7 @@ export default async function ConversionPage({ params }: { params: Promise<{ con
             </header>
 
             {/* Hero */}
-            <main style={{ maxWidth: '800px', margin: '0 auto', padding: '6rem 2rem', textAlign: 'center' }}>
+            <main style={{ maxWidth: '800px', margin: '0 auto', padding: '3rem 1.5rem', textAlign: 'center' }}>
                 <div style={{
                     fontSize: '4rem',
                     marginBottom: '1.5rem',
@@ -210,12 +211,8 @@ export default async function ConversionPage({ params }: { params: Promise<{ con
                     Convert {config.from} to {config.to} Free →
                 </Link>
 
-                {/* Features */}
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '2rem',
-                    marginTop: '5rem',
+                <div className="features-grid" style={{
+                    marginTop: '3rem',
                     textAlign: 'left',
                 }}>
                     <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>

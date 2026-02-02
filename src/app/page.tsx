@@ -2,10 +2,14 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { auth, db, googleProvider, signInWithPopup, signOut } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } from "firebase/firestore";
+
+const MotionDiv = motion.div as any;
+const MotionButton = motion.button as any;
 
 export default function Home() {
   const router = useRouter();
@@ -14,6 +18,15 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeStep, setActiveStep] = useState(0);
+
+  // Auto-playing steps highlight loop
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveStep((prev) => (prev + 1) % 3);
+    }, 2500);
+    return () => clearInterval(timer);
+  }, []);
 
   // Handle Scroll Effect
   useEffect(() => {
@@ -257,20 +270,23 @@ export default function Home() {
         <div className="hero-text">
           <div className="badge">AI-Powered Data Extraction ✨</div>
           <h1 className="gradient-text" style={{ fontSize: '3.5rem', textAlign: 'left', marginBottom: '1.5rem', lineHeight: 1.1 }}>
-            Turn Messy Screenshots<br />into Perfect Excel Sheets.
+            Turn PDFs, Images & Documents <br />into Excel in Seconds.
           </h1>
           <p style={{ fontSize: '1.15rem', color: '#64748b', lineHeight: 1.7, marginBottom: '2.5rem', textAlign: 'left' }}>
-            Stop wasting hours on manual data entry. Our elite AI Vision instantly extracts data from any screenshot or PDF into structured, ready-to-use tables.
+            Stop manual data entry. Upload any file — get a clean, ready-to-use spreadsheet instantly.
           </p>
 
           {/* CTA Buttons */}
           <div className="hero-cta-buttons" style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
             <button onClick={() => { if (!user) handleSignIn(); else fileInputRef.current?.click(); }} className="glow-btn" style={{ fontSize: '1rem', padding: '16px 32px' }}>
-              {!user ? 'Get Started Free' : 'Upload Screenshot'}
+              Try It Free
             </button>
-            <Link href="#features" style={{ padding: '16px 24px', border: '1px solid #e2e8f0', borderRadius: '12px', fontWeight: 600, color: '#475569', display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'white' }}>
-              See How It Works →
-            </Link>
+            <button
+              onClick={() => { if (!user) handleSignIn(); else fileInputRef.current?.click(); }}
+              style={{ padding: '16px 24px', border: '1px solid #e2e8f0', borderRadius: '12px', fontWeight: 600, color: '#475569', display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'white', cursor: 'pointer' }}
+            >
+              Upload Your First File
+            </button>
           </div>
 
           {/* Trust Row */}
@@ -338,6 +354,57 @@ export default function Home() {
           </div>
         </div>
       </section>
+      {/* Problem Section: Glassmorphic Bento Grid */}
+      <section style={{ width: '100%', padding: '5rem 2rem', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {/* Atmospheric Background for Glass Effect */}
+        <div className="blob" style={{ top: '20%', left: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, rgba(255, 255, 255, 0) 70%)', filter: 'blur(100px)' }}></div>
+        <div className="blob" style={{ bottom: '10%', right: '-5%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, rgba(255, 255, 255, 0) 70%)', filter: 'blur(100px)' }}></div>
+
+        <div style={{ maxWidth: '1200px', width: '100%', position: 'relative', zIndex: 1 }}>
+          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+            <span style={{ background: '#fee2e2', color: '#dc2626', padding: '8px 16px', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>The Problem</span>
+            <h2 style={{ fontSize: '3rem', fontWeight: 800, color: '#0f172a', marginTop: '1.5rem', lineHeight: 1.1, letterSpacing: '-1.5px' }}>
+              Manual data entry is slow,<br />expensive, and frustrating
+            </h2>
+          </div>
+
+          <div className="problem-grid" style={{ gridTemplateRows: 'auto' }}>
+            {/* Row 1: Left Card */}
+            <div className="glass-card" style={{ gridColumn: 'span 2', padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ fontSize: '2rem' }}>📄</div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>Copying from PDFs</h3>
+              <p style={{ color: '#64748b', lineHeight: 1.6 }}>Wasting hours manually selecting cells and praying the alignment stays perfect in Excel.</p>
+            </div>
+
+            {/* Row 1: Right Card */}
+            <div className="glass-card" style={{ gridColumn: 'span 2', padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ fontSize: '2rem' }}>🧾</div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>Re-typing Invoices</h3>
+              <p style={{ color: '#64748b', lineHeight: 1.6 }}>Human errors lead to costly accounting mistakes that take even longer to find and fix later.</p>
+            </div>
+
+            {/* Row 2: Left (Small) */}
+            <div className="glass-card" style={{ gridColumn: 'span 1', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ fontSize: '1.5rem' }}>🛠️</div>
+              <h4 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>Messy Cleansing</h4>
+            </div>
+
+            {/* Row 2: Middle (Large) */}
+            <div className="glass-card" style={{ gridColumn: 'span 2', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: '#107c41', border: 'none' }}>
+              <p style={{ color: 'white', fontSize: '1.5rem', fontWeight: 900, textAlign: 'center', margin: 0 }}>
+                Tablesift removes<br />this completely.
+              </p>
+            </div>
+
+            {/* Row 2: Right (Small) */}
+            <div className="glass-card" style={{ gridColumn: 'span 1', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ fontSize: '1.5rem' }}>⏳</div>
+              <h4 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>Repetitive Work</h4>
+            </div>
+          </div>
+        </div>
+      </section>
+
 
       {/* Premium Bento Grid Features */}
       <section id="features" style={{ width: '100%', maxWidth: '1200px', marginTop: '5rem', scrollMarginTop: '100px', padding: '0 2rem' }}>
@@ -346,7 +413,7 @@ export default function Home() {
         </h2>
 
         {/* Bento Grid */}
-        <div className="bento-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: 'auto auto', gap: '1.5rem' }}>
+        <div className="bento-grid features-grid" style={{ gridTemplateRows: 'auto auto' }}>
 
           {/* Card 1: Large - Accuracy with Mini Table Mockup */}
           <div className="card-premium" style={{ gridColumn: 'span 2', padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -357,21 +424,21 @@ export default function Home() {
             <p style={{ color: '#64748b', lineHeight: 1.6, maxWidth: '500px' }}>Our AI understands cell relationships, merged headers, and complex data types.</p>
 
             {/* Mini Table Mockup */}
-            <div className="feature-table-wrapper" style={{ background: '#f8fafc', borderRadius: '12px', padding: '1rem', border: '1px solid #e2e8f0', marginTop: 'auto' }}>
+            <div className="feature-table-wrapper" style={{ borderRadius: '12px', padding: '1rem', border: '1px solid #e2e8f0', marginTop: 'auto' }}>
               <div className="feature-mini-table" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 600 }}>
                 <div style={{ background: '#e2e8f0', padding: '8px', borderRadius: '4px', color: '#0f172a' }}>Product</div>
                 <div style={{ background: '#e2e8f0', padding: '8px', borderRadius: '4px', color: '#0f172a' }}>Q1 Sales</div>
                 <div style={{ background: '#e2e8f0', padding: '8px', borderRadius: '4px', color: '#0f172a' }}>Q2 Sales</div>
                 <div style={{ background: '#e2e8f0', padding: '8px', borderRadius: '4px', color: '#0f172a' }}>Growth</div>
 
-                <div style={{ background: 'white', padding: '8px', borderRadius: '4px', color: '#475569' }}>Widget A</div>
-                <div style={{ background: 'white', padding: '8px', borderRadius: '4px', color: '#475569' }}>$12,450</div>
-                <div style={{ background: 'white', padding: '8px', borderRadius: '4px', color: '#475569' }}>$18,320</div>
+                <div style={{ padding: '8px', borderRadius: '4px', color: '#475569' }}>Widget A</div>
+                <div style={{ padding: '8px', borderRadius: '4px', color: '#475569' }}>$12,450</div>
+                <div style={{ padding: '8px', borderRadius: '4px', color: '#475569' }}>$18,320</div>
                 <div style={{ background: '#dcfce7', padding: '8px', borderRadius: '4px', color: '#166534', fontWeight: 700 }}>+47%</div>
 
-                <div style={{ background: 'white', padding: '8px', borderRadius: '4px', color: '#475569' }}>Gadget B</div>
-                <div style={{ background: 'white', padding: '8px', borderRadius: '4px', color: '#475569' }}>$8,200</div>
-                <div style={{ background: 'white', padding: '8px', borderRadius: '4px', color: '#475569' }}>$9,100</div>
+                <div style={{ padding: '8px', borderRadius: '4px', color: '#475569' }}>Gadget B</div>
+                <div style={{ padding: '8px', borderRadius: '4px', color: '#475569' }}>$8,200</div>
+                <div style={{ padding: '8px', borderRadius: '4px', color: '#475569' }}>$9,100</div>
                 <div style={{ background: '#dcfce7', padding: '8px', borderRadius: '4px', color: '#166534', fontWeight: 700 }}>+11%</div>
               </div>
             </div>
@@ -443,8 +510,77 @@ export default function Home() {
         </div>
       </section >
 
+      {/* Solution Section: Glassmorphic Bento Grid */}
+      <section style={{ width: '100%', padding: '5rem 2rem', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {/* Atmospheric Background: Success Green/Blue */}
+        <div className="blob" style={{ top: '30%', right: '-10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(16, 124, 65, 0.08) 0%, rgba(255, 255, 255, 0) 70%)', filter: 'blur(120px)' }}></div>
+        <div className="blob" style={{ bottom: '20%', left: '-5%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, rgba(255, 255, 255, 0) 70%)', filter: 'blur(120px)' }}></div>
+
+        <div style={{ maxWidth: '1200px', width: '100%', position: 'relative', zIndex: 1 }}>
+          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+            <span style={{ background: '#dcfce7', color: '#166534', padding: '8px 16px', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>The Solution</span>
+            <h2 style={{ fontSize: '3rem', fontWeight: 800, color: '#0f172a', marginTop: '1.5rem', lineHeight: 1.1, letterSpacing: '-1.5px' }}>
+              Upload → Get Excel → Done.
+            </h2>
+          </div>
+
+          <div className="solution-grid">
+            {/* Step 1 */}
+            <MotionDiv
+              animate={{
+                borderColor: activeStep === 0 ? '#22c55e' : 'rgba(255, 255, 255, 0.5)',
+                boxShadow: activeStep === 0 ? '0 0 20px rgba(34, 197, 94, 0.2)' : '0 8px 32px 0 rgba(31, 38, 135, 0.05)',
+                scale: activeStep === 0 ? 1.02 : 1
+              }}
+              transition={{ duration: 0.5 }}
+              className="glass-card"
+              style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.5)' }}
+            >
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>Upload</h3>
+              <p style={{ color: '#64748b', lineHeight: 1.6 }}>Upload PDF, image, or Word file.</p>
+            </MotionDiv>
+
+            {/* Step 2 */}
+            <MotionDiv
+              animate={{
+                borderColor: activeStep === 1 ? '#22c55e' : 'rgba(255, 255, 255, 0.5)',
+                boxShadow: activeStep === 1 ? '0 0 20px rgba(34, 197, 94, 0.2)' : '0 8px 32px 0 rgba(31, 38, 135, 0.05)',
+                scale: activeStep === 1 ? 1.02 : 1
+              }}
+              transition={{ duration: 0.5 }}
+              className="glass-card"
+              style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.5)' }}
+            >
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>Analyze</h3>
+              <p style={{ color: '#64748b', lineHeight: 1.6 }}>Our AI reads the tables automatically.</p>
+            </MotionDiv>
+
+            {/* Step 3 */}
+            <MotionDiv
+              animate={{
+                borderColor: activeStep === 2 ? '#22c55e' : 'rgba(255, 255, 255, 0.5)',
+                boxShadow: activeStep === 2 ? '0 0 20px rgba(34, 197, 94, 0.2)' : '0 8px 32px 0 rgba(31, 38, 135, 0.05)',
+                scale: activeStep === 2 ? 1.02 : 1
+              }}
+              transition={{ duration: 0.5 }}
+              className="glass-card"
+              style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.5)' }}
+            >
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>Download</h3>
+              <p style={{ color: '#64748b', lineHeight: 1.6 }}>Download a clean, ready-to-use Excel file.</p>
+            </MotionDiv>
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: '4rem' }}>
+            <p style={{ color: '#64748b', fontSize: '1.25rem', fontWeight: 600, letterSpacing: '0.5px' }}>
+              No formatting. No corrections. No effort.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Premium FAQ Section */}
-      < section id="faq" style={{ width: '100%', maxWidth: '1000px', marginTop: '10rem', scrollMarginTop: '100px', padding: '0 2rem' }
+      < section id="faq" style={{ width: '100%', maxWidth: '1000px', marginTop: '5rem', scrollMarginTop: '100px', padding: '0 2rem' }
       }>
         <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
           <span style={{ background: '#dbeafe', color: '#1e40af', padding: '6px 14px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>FAQ</span>
@@ -452,7 +588,7 @@ export default function Home() {
           <p style={{ color: '#64748b', marginTop: '1rem', fontSize: '1.1rem' }}>Everything you need to know about TableSift</p>
         </div>
 
-        <div className="faq-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+        <div className="faq-grid">
           <div className="card-premium" style={{ padding: '2rem', display: 'flex', gap: '1rem' }}>
             <div style={{ width: '40px', height: '40px', background: '#f0fdf4', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <span style={{ color: '#166534', fontWeight: 700, fontSize: '1rem' }}>01</span>
@@ -496,14 +632,14 @@ export default function Home() {
       </section >
 
       {/* Pricing Section */}
-      < section id="pricing" style={{ width: '100%', maxWidth: '1200px', marginTop: '10rem', scrollMarginTop: '100px', padding: '0 2rem' }}>
+      < section id="pricing" style={{ width: '100%', maxWidth: '1200px', marginTop: '5rem', scrollMarginTop: '100px', padding: '0 2rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
           <span style={{ background: '#f0fdf4', color: '#166534', padding: '6px 14px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>Pricing</span>
           <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginTop: '1.5rem', letterSpacing: '-1px', color: '#0f172a' }}>Simple, Transparent Pricing</h2>
           <p style={{ color: '#64748b', marginTop: '1rem', fontSize: '1.1rem' }}>Pay only for what you use. Cancel anytime.</p>
         </div>
 
-        <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem' }}>
+        <div className="pricing-grid">
 
           {/* Free Plan */}
           <div className="card-premium" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -538,7 +674,7 @@ export default function Home() {
           </div>
 
           {/* Pro Plan */}
-          <div className="card-premium" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', background: 'white', border: '2px solid #22c55e', position: 'relative' }}>
+          <div className="card-premium" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', border: '2px solid #22c55e', position: 'relative' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Pro</h3>
               <span style={{ background: '#22c55e', color: 'white', padding: '4px 10px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}>Popular</span>
@@ -575,7 +711,7 @@ export default function Home() {
           </div>
 
           {/* Business Plan */}
-          <div className="card-premium" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', background: 'white', border: '1px solid #e2e8f0' }}>
+          <div className="card-premium" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Business</h3>
               <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.25rem' }}>For power users</p>
@@ -609,10 +745,10 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Enterprise Plan */}
-          <div className="card-premium" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', background: 'white', border: '1px solid #e2e8f0' }}>
+          {/* Flexible Plan */}
+          <div className="card-premium" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Enterprise</h3>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Flexible</h3>
               <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.25rem' }}>Custom solutions</p>
             </div>
             <div>
@@ -644,22 +780,58 @@ export default function Home() {
       </section >
 
       {/* Premium Footer - Light Theme */}
-      < footer style={{ width: '100%', marginTop: '10rem', background: '#f8fafc', color: '#0f172a', padding: '0 2rem', borderTop: '1px solid #e2e8f0' }}>
-        {/* CTA Banner */}
-        < div style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 0', borderBottom: '1px solid #e2e8f0' }}>
-          <div className="footer-cta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
-            <div>
-              <h3 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>Ready to save hours?</h3>
-              <p style={{ color: '#64748b', fontSize: '1.1rem' }}>Start extracting tables in seconds. No credit card required.</p>
+      < footer style={{ width: '100%', marginTop: '5rem', background: '#f8fafc', color: '#0f172a', padding: '0 2rem', borderTop: '1px solid #e2e8f0' }}>
+        {/* Final CTA Section */}
+        <section style={{ width: '100%', padding: '5rem 2rem', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {/* Intense Ambient Glow */}
+          <div className="blob" style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, rgba(255, 255, 255, 0) 70%)', filter: 'blur(150px)', opacity: 0.8 }}></div>
+
+          <MotionDiv
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="glass-card"
+            style={{
+              maxWidth: '1000px',
+              width: '100%',
+              padding: '6rem 2rem',
+              textAlign: 'center',
+              position: 'relative',
+              zIndex: 1
+            }}
+          >
+            <h2 style={{ fontSize: '3.5rem', fontWeight: 900, color: '#0f172a', marginBottom: '1.5rem', lineHeight: 1.1, letterSpacing: '-2px' }}>
+              Stop typing.<br />Start working smarter.
+            </h2>
+            <p style={{ color: '#64748b', fontSize: '1.25rem', marginBottom: '3rem', maxWidth: '600px', margin: '0 auto 3rem' }}>
+              Join thousands of professionals who save hours every week using TableSift.
+            </p>
+
+            <MotionButton
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => { if (!user) handleSignIn(); else fileInputRef.current?.click(); }}
+              className="glow-btn"
+              style={{
+                fontSize: '1.25rem',
+                padding: '20px 48px',
+                borderRadius: '16px',
+                boxShadow: '0 20px 40px -10px rgba(34, 197, 94, 0.4)'
+              }}
+            >
+              {!user ? 'Get Started Free' : 'Upload Your First File'}
+            </MotionButton>
+
+            <div style={{ marginTop: '3rem', display: 'flex', gap: '2rem', justifyContent: 'center', color: '#94a3b8', fontSize: '0.9rem', fontWeight: 600 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>✨ Fast Setup</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>🔐 SSL Secure</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>💳 No Card Required</div>
             </div>
-            <button onClick={() => { if (!user) handleSignIn(); else fileInputRef.current?.click(); }} className="glow-btn" style={{ fontSize: '1rem', padding: '16px 32px' }}>
-              {!user ? 'Get Started Free' : 'Upload Now'}
-            </button>
-          </div>
-        </div >
+          </MotionDiv>
+        </section>
 
         {/* Main Footer Grid */}
-        < div className="footer-grid" style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 0', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '4rem' }}>
+        < div className="footer-grid" style={{ width: '100%', maxWidth: '1200px', margin: '4rem auto' }}>
           <div>
             <div style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.5rem', color: '#0f172a' }}>TableSift<span style={{ color: '#22c55e' }}>.com</span></div>
             <p style={{ color: '#64748b', lineHeight: 1.8, marginBottom: '1.5rem' }}>

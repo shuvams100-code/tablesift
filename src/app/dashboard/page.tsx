@@ -520,7 +520,7 @@ const DashboardContent = () => {
                         Ready to Extract
                     </div>
                     <h1 style={{ fontSize: '3rem', fontWeight: 800, color: '#0f172a', marginBottom: '1rem', letterSpacing: '-1px' }}>
-                        Drop anything here.<br />We'll turn it into an Excel file.
+                        Drop anything here.<br />We&apos;ll turn it into an Excel file.
                     </h1>
                     <p style={{ color: '#64748b', fontSize: '1.1rem', maxWidth: '500px', margin: '0 auto', lineHeight: 1.6 }}>
                         Upload screenshots, PDFs, or Word docs. Get clean, formatted data instantly.
@@ -762,7 +762,7 @@ const DashboardContent = () => {
                                 <div style={{ minWidth: '24px', height: '24px', background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#166534', fontSize: '0.75rem', fontWeight: 700 }}>1</div>
                                 <div>
                                     <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>Crystal Clear</h4>
-                                    <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>High-resolution screenshots work best. Ensure text isn't blurry.</p>
+                                    <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>High-resolution screenshots work best. Ensure text isn&apos;t blurry.</p>
                                 </div>
                             </div>
 
@@ -1054,7 +1054,7 @@ const DashboardContent = () => {
                                 }}
                                 className="shine-effect"
                             >
-                                Let's Get Sifting
+                                Let&apos;s Get Sifting
                             </button>
                         </div>
                     </div>

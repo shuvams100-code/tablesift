@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     default: "TableSift.com | AI Screenshot to Excel Converter",
     template: "%s | TableSift"
   },
-  description: "The world's most advanced AI tool to convert screenshots, PDFs, and images into clean Excel & CSV files instantly. 99.9% accuracy with structure retention.",
+  description: "The world&apos;s most advanced AI tool to convert screenshots, PDFs, and images into clean Excel & CSV files instantly. 99.9% accuracy with structure retention.",
   keywords: ["screenshot to excel", "image to csv", "pdf to excel ai", "table extraction", "ocr table", "tablesift"],
   authors: [{ name: "TableSift AI" }],
   creator: "TableSift AI",
