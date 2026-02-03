@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
                     });
 
                     content = response.choices[0]?.message?.content?.trim() || "";
-                } catch (wordError) {
+                } catch (wordError: unknown) {
                     console.error("Word extraction error:", wordError);
                     content = `Error extracting Word document: ${file.name}`;
                 }

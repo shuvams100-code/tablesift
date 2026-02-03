@@ -14,11 +14,11 @@ export function JsonLd() {
             priceCurrency: 'USD',
             availability: 'https://schema.org/InStock',
         },
-        description: 'Convert PDF to Excel, images to CSV, and screenshots to spreadsheets with 99.9% AI accuracy. The fastest way to extract tables from any document.',
+        description: 'Best AI table extractor and PDF to Excel converter. Extract tables from PDF, convert Image to Excel AI, and turn screenshots into spreadsheets with 99.9% accuracy.',
         featureList: [
-            'PDF to Excel conversion',
-            'Image to Excel conversion',
-            'Screenshot to spreadsheet',
+            'PDF to Excel converter',
+            'Extract tables from PDF',
+            'Image to Excel AI',
             'JPG to CSV conversion',
             'PNG to Excel conversion',
             'AI-powered table extraction',
@@ -26,6 +26,7 @@ export function JsonLd() {
             '99.9% accuracy rate',
             'Bulk file processing',
             'Zero data retention',
+            'Convert PDF table to CSV',
             'Instant Excel/CSV download',
         ],
         aggregateRating: {
@@ -51,7 +52,7 @@ export function JsonLd() {
                 name: 'How to convert PDF to Excel with AI?',
                 acceptedAnswer: {
                     '@type': 'Answer',
-                    text: 'Upload your PDF to TableSift, and our AI will automatically extract tables and convert them to Excel or CSV format with 99.9% accuracy. No manual formatting required.'
+                    text: 'Upload your file to our PDF to Excel converter. Our AI table extractor will automatically identify and extract tables from PDF to Excel or CSV with 99.9% accuracy.'
                 }
             },
             {

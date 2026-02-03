@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@tiptap/react": "^3.19.0",
+    "@tiptap/starter-kit": "^3.19.0",
+    "date-fns": "^4.1.0",
     "dodopayments": "^2.17.2",
     "firebase": "^12.8.0",
     "firebase-admin": "^13.6.0",
@@ -22,7 +25,8 @@
     "pdfjs-dist": "^5.4.530",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "schema-dts": "^1.1.5"
+    "schema-dts": "^1.1.5",
+    "swr": "^2.4.0"
   },
   "devDependencies": {
     "@types/node": "^20",

@@ -40,7 +40,7 @@ export default function Profile() {
                         if (userSnap.exists()) {
                             setUsageData(userSnap.data() as { usageCount: number; lastUsageDate: string });
                         }
-                    }).catch((err) => {
+                    }).catch((err: unknown) => {
                         console.warn("Failed to fetch usage:", err);
                     });
                 }
@@ -91,7 +91,7 @@ export default function Profile() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '3rem' }}>
                     <img
                         src={user?.photoURL || ""}
-                        alt=""
+                        alt="Profile"
                         style={{ width: '80px', height: '80px', borderRadius: '50%', border: '3px solid #22c55e' }}
                     />
                     <div>

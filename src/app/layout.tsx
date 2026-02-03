@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./blog-styles.css";
 import { JsonLd } from "./json-ld";
 
 export const viewport: Viewport = {
@@ -12,11 +13,19 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://tablesift.com'),
   title: {
-    default: "TableSift.com | AI Screenshot to Excel Converter",
+    default: "TableSift | AI Table Extractor & Image to Excel Converter",
     template: "%s | TableSift"
   },
-  description: "The world&apos;s most advanced AI tool to convert screenshots, PDFs, and images into clean Excel & CSV files instantly. 99.9% accuracy with structure retention.",
-  keywords: ["screenshot to excel", "image to csv", "pdf to excel ai", "table extraction", "ocr table", "tablesift"],
+  description: "Stop manual data entry. The automated data entry tool that converts PDFs, Screenshots, and Images to structured Excel files in 30 seconds.",
+  keywords: [
+    "pdf to excel converter",
+    "extract tables from pdf",
+    "ai table extractor",
+    "image to excel ai",
+    "convert pdf table to csv",
+    "screenshot to excel",
+    "ocr table"
+  ],
   authors: [{ name: "TableSift AI" }],
   creator: "TableSift AI",
   publisher: "TableSift AI",
