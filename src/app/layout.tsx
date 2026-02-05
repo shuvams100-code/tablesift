@@ -18,13 +18,28 @@ export const metadata: Metadata = {
   },
   description: "Stop manual data entry. The automated data entry tool that converts PDFs, Screenshots, and Images to structured Excel files in 30 seconds.",
   keywords: [
+    // Core conversion terms
     "pdf to excel converter",
     "extract tables from pdf",
     "ai table extractor",
     "image to excel ai",
     "convert pdf table to csv",
     "screenshot to excel",
-    "ocr table"
+    "ocr table extraction",
+    // Profession-specific (high intent)
+    "bank statement to excel",
+    "invoice pdf to spreadsheet",
+    "scanned document to excel",
+    "gst invoice extractor",
+    "financial report to excel",
+    // India-specific
+    "tally export to excel",
+    "itr pdf data extraction",
+    "ca document converter",
+    // Workflow terms
+    "bulk pdf processing",
+    "automated data entry tool",
+    "document automation software"
   ],
   authors: [{ name: "TableSift AI" }],
   creator: "TableSift AI",

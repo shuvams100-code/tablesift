@@ -98,11 +98,11 @@ export default function CreditsPage() {
     // Pricing Packs Configuration (Matching Dodo Dashboard)
     // Labels renamed to avoid conflict with Subscription names (Starter/Pro)
     const packs = [
-        { id: 'pdt_0NXY12XISoCzZ7ikWU2D3', price: 5, amount: 55, baseAmount: 50, bonus: "+10%", label: "Fuel Mini" },
-        { id: 'pdt_0NXY1LQjul9UlatR2vAfb', price: 10, amount: 115, baseAmount: 100, bonus: "+15%", label: "Fuel Basic" },
-        { id: 'pdt_0NXY1atSM5bib2RuQknAq', price: 20, amount: 240, baseAmount: 200, bonus: "+20%", label: "Fuel Standard", popular: true },
-        { id: 'pdt_0NXY27NeRW5UWRjLPfTWi', price: 30, amount: 375, baseAmount: 300, bonus: "+25%", label: "Fuel Plus" },
-        { id: 'pdt_0NXY2KVOI9kYbpHHemQcb', price: 50, amount: 700, baseAmount: 500, bonus: "+40%", label: "Fuel Max" },
+        { id: 'pdt_0NXY12XISoCzZ7ikWU2D3', price: 5, amount: 27, baseAmount: 25, bonus: "+8%", label: "Fuel Mini" },
+        { id: 'pdt_0NXY1LQjul9UlatR2vAfb', price: 10, amount: 55, baseAmount: 50, bonus: "+10%", label: "Fuel Basic" },
+        { id: 'pdt_0NXY1atSM5bib2RuQknAq', price: 20, amount: 112, baseAmount: 100, bonus: "+12%", label: "Fuel Standard", popular: true },
+        { id: 'pdt_0NXY27NeRW5UWRjLPfTWi', price: 30, amount: 172, baseAmount: 150, bonus: "+15%", label: "Fuel Plus" },
+        { id: 'pdt_0NXY2KVOI9kYbpHHemQcb', price: 50, amount: 300, baseAmount: 250, bonus: "+20%", label: "Fuel Max" },
     ];
 
     return (
@@ -241,13 +241,13 @@ export default function CreditsPage() {
                                 {/* Base Amount (Crossed Out) */}
                                 {pack.baseAmount && (
                                     <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#94a3b8', textDecoration: 'line-through' }}>
-                                        {pack.baseAmount} Coins
+                                        {pack.baseAmount} Fuel
                                     </span>
                                 )}
                                 {/* Final Amount (Bold & Green) */}
                                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
                                     <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a' }}>{pack.amount}</span>
-                                    <span style={{ fontSize: '1.25rem', fontWeight: 700, color: '#22c55e' }}>Coins</span>
+                                    <span style={{ fontSize: '1.25rem', fontWeight: 700, color: '#22c55e' }}>Fuel</span>
                                 </div>
                             </div>
 

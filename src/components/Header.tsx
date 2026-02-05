@@ -58,7 +58,7 @@ export default function Header() {
             transition: 'all 0.3s ease'
         }}>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-                <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1e293b', fontFamily: 'Clash Display', letterSpacing: '-1px' }}>
+                <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1e293b', letterSpacing: '-0.5px' }}>
                     TableSift<span style={{ color: '#107c41' }}>.com</span>
                 </span>
             </Link>
@@ -67,6 +67,7 @@ export default function Header() {
             <nav className="desktop-nav" style={{ display: 'flex', gap: '32px', position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
                 <Link href="/#why-tablesift" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem' }}>Why TableSift?</Link>
                 <Link href="/#how-it-works" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem' }}>How it works</Link>
+                <Link href="/blog" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem' }}>Blog</Link>
                 <Link href="/#pricing" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem' }}>Pricing</Link>
                 <Link href="/#faq" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem' }}>FAQ</Link>
             </nav>

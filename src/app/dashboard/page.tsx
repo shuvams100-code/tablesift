@@ -788,7 +788,7 @@ const DashboardContent = () => {
                                 <div style={{ minWidth: '24px', height: '24px', background: '#fef3c7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#b45309', fontSize: '0.75rem', fontWeight: 700 }}>$</div>
                                 <div>
                                     <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>Cost Check</h4>
-                                    <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>Standard images cost <strong>1 coin</strong>. Complex Word docs cost <strong>3 coins</strong>.</p>
+                                    <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>Standard images cost <strong>1 fuel</strong>. Complex Word docs cost <strong>3 fuel</strong>.</p>
                                 </div>
                             </div>
                         </div>
@@ -841,7 +841,7 @@ const DashboardContent = () => {
                                 </div>
                                 <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.5rem' }}>Out of Energy</h2>
                                 <p style={{ color: '#64748b', fontSize: '1rem', lineHeight: 1.6, marginBottom: '2rem' }}>
-                                    This operation requires <strong>{requiredCoinsForUpload} coins</strong>, but you only have <strong>{planCredits + refillCredits}</strong>. Recharge to continue!
+                                    This operation requires <strong>{requiredCoinsForUpload} fuel</strong>, but you only have <strong>{planCredits + refillCredits}</strong>. Recharge to continue!
                                 </p>
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -949,35 +949,35 @@ const DashboardContent = () => {
                             </div>
 
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-                                {/* Pro Plan */}
+                                {/* Starter Plan */}
                                 <div style={{ padding: '2rem', background: 'white', border: '2px solid #22c55e', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Pro</h3>
+                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Starter</h3>
                                         <span style={{ background: '#22c55e', color: 'white', padding: '4px 10px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}>Popular</span>
                                     </div>
                                     <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '-0.75rem' }}>For regular users</p>
                                     <div>
-                                        <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a' }}>$15</span>
+                                        <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a' }}>$12</span>
                                         <span style={{ color: '#64748b', fontSize: '0.85rem' }}>/month</span>
                                     </div>
                                     <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
-                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 150 Coins / month</li>
+                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 50 Fuel / month</li>
                                         <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Hybrid GPT-4o Engine</li>
-                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Word Doc Support (3 coins)</li>
+                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Word Doc Support (3 fuel)</li>
                                         <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 5 images at once</li>
                                     </ul>
                                     <button
-                                        onClick={() => handleUpgrade('pdt_0NXYHBcPszGyHO9M2lt8P', 'Pro', 150)}
+                                        onClick={() => handleUpgrade('pdt_0NXYHBcPszGyHO9M2lt8P', 'Starter', 50)}
                                         style={{ marginTop: 'auto', padding: '12px 20px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.4)' }}
                                     >
-                                        Upgrade to Pro
+                                        Upgrade to Starter
                                     </button>
                                 </div>
 
-                                {/* Business Plan */}
+                                {/* Pro Plan */}
                                 <div style={{ padding: '2rem', background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                                     <div>
-                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Business</h3>
+                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Pro</h3>
                                         <p style={{ color: '#64748b', fontSize: '0.85rem' }}>For power users</p>
                                     </div>
                                     <div>
@@ -985,111 +985,116 @@ const DashboardContent = () => {
                                         <span style={{ color: '#64748b', fontSize: '0.85rem' }}>/month</span>
                                     </div>
                                     <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
-                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 500 Coins / month</li>
+                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 200 Fuel / month</li>
                                         <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 20 images at once</li>
                                         <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Up to 50 PDF pages</li>
                                         <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Priority Support</li>
                                     </ul>
                                     <button
-                                        onClick={() => handleUpgrade('pdt_0NXYHGpP9pSriiWduXPUE', 'Business', 500)}
+                                        onClick={() => handleUpgrade('pdt_0NXYHGpP9pSriiWduXPUE', 'Pro', 200)}
                                         style={{ marginTop: 'auto', padding: '12px 20px', background: 'white', color: '#0f172a', border: '2px solid #e2e8f0', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem' }}
                                     >
-                                        Upgrade to Business
+                                        Upgrade to Pro
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                )}
+                )
+                }
 
                 {/* Celebratory Success Overlay (Dodo Payment Success) */}
-                {success && processingStage === "COMPLETE" && (
-                    <div className="success-overlay">
-                        {/* CSS Confetti */}
-                        {[...Array(50)].map((_, i) => (
-                            <div
-                                key={i}
-                                className="confetti"
-                                style={{
-                                    left: `${Math.random() * 100}%`,
-                                    background: ['#22c55e', '#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6'][Math.floor(Math.random() * 5)],
-                                    animationDelay: `${Math.random() * 3}s`,
-                                    animationDuration: `${2 + Math.random() * 2}s`
-                                }}
-                            />
-                        ))}
-                        <div className="success-card">
-                            <div style={{
-                                width: '100px',
-                                height: '100px',
-                                background: '#f0fdf4',
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '3rem',
-                                margin: '0 auto 2rem',
-                                color: '#22c55e',
-                                boxShadow: '0 0 40px rgba(34, 197, 94, 0.2)'
-                            }} className="float-animation">
-                                ✨
+                {
+                    success && processingStage === "COMPLETE" && (
+                        <div className="success-overlay">
+                            {/* CSS Confetti */}
+                            {[...Array(50)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="confetti"
+                                    style={{
+                                        left: `${Math.random() * 100}%`,
+                                        background: ['#22c55e', '#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6'][Math.floor(Math.random() * 5)],
+                                        animationDelay: `${Math.random() * 3}s`,
+                                        animationDuration: `${2 + Math.random() * 2}s`
+                                    }}
+                                />
+                            ))}
+                            <div className="success-card">
+                                <div style={{
+                                    width: '100px',
+                                    height: '100px',
+                                    background: '#f0fdf4',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '3rem',
+                                    margin: '0 auto 2rem',
+                                    color: '#22c55e',
+                                    boxShadow: '0 0 40px rgba(34, 197, 94, 0.2)'
+                                }} className="float-animation">
+                                    ✨
+                                </div>
+                                <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', marginBottom: '1rem' }}>
+                                    Payment Successful!
+                                </h2>
+                                <p style={{ color: '#64748b', fontSize: '1.1rem', lineHeight: 1.6, marginBottom: '2rem' }}>
+                                    Your account has been upgraded to <b>{userTier.toUpperCase()}</b>.<br />
+                                    Your credits are now synchronized and ready to use.
+                                </p>
+                                <button
+                                    onClick={() => setSuccess(false)}
+                                    style={{
+                                        padding: '16px 48px',
+                                        background: '#0f172a',
+                                        color: 'white',
+                                        borderRadius: '16px',
+                                        fontWeight: 700,
+                                        fontSize: '1.1rem',
+                                        cursor: 'pointer',
+                                        border: 'none',
+                                        transition: 'all 0.3s'
+                                    }}
+                                    className="shine-effect"
+                                >
+                                    Let&apos;s Get Sifting
+                                </button>
                             </div>
-                            <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', marginBottom: '1rem' }}>
-                                Payment Successful!
-                            </h2>
-                            <p style={{ color: '#64748b', fontSize: '1.1rem', lineHeight: 1.6, marginBottom: '2rem' }}>
-                                Your account has been upgraded to <b>{userTier.toUpperCase()}</b>.<br />
-                                Your credits are now synchronized and ready to use.
-                            </p>
-                            <button
-                                onClick={() => setSuccess(false)}
-                                style={{
-                                    padding: '16px 48px',
-                                    background: '#0f172a',
-                                    color: 'white',
-                                    borderRadius: '16px',
-                                    fontWeight: 700,
-                                    fontSize: '1.1rem',
-                                    cursor: 'pointer',
-                                    border: 'none',
-                                    transition: 'all 0.3s'
-                                }}
-                                className="shine-effect"
-                            >
-                                Let&apos;s Get Sifting
-                            </button>
                         </div>
-                    </div>
-                )}
+                    )
+                }
 
                 {/* Extraction Success Indicator */}
-                {success && (processingStage === "" || processingStage === "Extraction Complete!") && (
-                    <div style={{
-                        position: 'fixed',
-                        bottom: '40px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        background: '#15803d',
-                        color: 'white',
-                        padding: '12px 24px',
-                        borderRadius: '99px',
-                        fontWeight: 700,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '12px',
-                        boxShadow: '0 10px 25px rgba(21, 128, 61, 0.4)',
-                        zIndex: 1000,
-                        animation: 'success-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-                    }}>
-                        <span style={{ background: 'white', color: '#15803d', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>✓</span>
-                        Table Extracted Successfully!
-                    </div>
-                )}
-            </main>
+                {
+                    success && (processingStage === "" || processingStage === "Extraction Complete!") && (
+                        <div style={{
+                            position: 'fixed',
+                            bottom: '40px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            background: '#15803d',
+                            color: 'white',
+                            padding: '12px 24px',
+                            borderRadius: '99px',
+                            fontWeight: 700,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '12px',
+                            boxShadow: '0 10px 25px rgba(21, 128, 61, 0.4)',
+                            zIndex: 1000,
+                            animation: 'success-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                        }}>
+                            <span style={{ background: 'white', color: '#15803d', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>✓</span>
+                            Table Extracted Successfully!
+                        </div>
+                    )
+                }
+            </main >
 
             {/* CSS for animations */}
-            <style jsx global>{`
+            < style jsx global > {`
                 @keyframes spin {
                   0% { transform: rotate(0deg); }
                   100% { transform: rotate(360deg); }
@@ -1111,8 +1116,8 @@ const DashboardContent = () => {
                     50% { opacity: 0.6; transform: scale(0.95); }
                     100% { opacity: 1; transform: scale(1); }
                 }
-            `}</style>
-        </div>
+            `}</style >
+        </div >
     );
 };
 

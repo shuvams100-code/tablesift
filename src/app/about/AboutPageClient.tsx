@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-export default function TermsPage() {
+export default function AboutPageClient() {
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
@@ -55,8 +55,8 @@ export default function TermsPage() {
                 {/* Hero */}
                 <div style={{ marginBottom: '60px', textAlign: 'center' }}>
                     <span style={{
-                        background: '#f0fdf4',
-                        color: '#166534',
+                        background: '#dbeafe',
+                        color: '#1e40af',
                         padding: '8px 16px',
                         borderRadius: '8px',
                         fontSize: '0.8rem',
@@ -64,7 +64,7 @@ export default function TermsPage() {
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em'
                     }}>
-                        Legal
+                        About Us
                     </span>
                     <h1 style={{
                         fontSize: '3rem',
@@ -74,65 +74,104 @@ export default function TermsPage() {
                         marginBottom: '16px',
                         letterSpacing: '-1px',
                     }}>
-                        Terms of Service
+                        Redefining Data Extraction with AI Precision
                     </h1>
-                    <p style={{ color: '#64748b', fontSize: '1rem' }}>
-                        Last updated: January 29, 2026
+                    <p style={{
+                        color: '#64748b',
+                        fontSize: '1.25rem',
+                        lineHeight: 1.7,
+                    }}>
+                        Welcome to <strong style={{ color: '#0f172a' }}>TableSift</strong>, the next-generation document conversion
+                        engine designed to transform static documents into dynamic, usable spreadsheets with <strong style={{ color: '#22c55e' }}>99.9% accuracy</strong>.
                     </p>
                 </div>
 
-                {/* Content Sections */}
+                {/* Why We Built This */}
                 <div className="glass-panel" style={{ padding: '48px', marginBottom: '32px' }}>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '20px', color: '#0f172a' }}>
-                        1. Provision of Service
+                        Why We Built TableSift
                     </h2>
                     <p style={{ color: '#64748b', lineHeight: 1.8, fontSize: '1.1rem' }}>
-                        TableSift provides an AI-driven data extraction interface. By using our service, you agree
-                        to use it for <strong style={{ color: '#0f172a' }}>lawful purposes</strong> and comply with all applicable data privacy regulations.
+                        We were tired of <strong style={{ color: '#0f172a' }}>&ldquo;dumb&rdquo; converters</strong>. OCR tools that
+                        mixed up columns, confused headers with data, and required hours of manual cleanup.
+                        We believed there had to be a better way to handle the world&apos;s data.
                     </p>
                 </div>
 
+                {/* What Does TableSift Mean */}
                 <div className="glass-panel" style={{ padding: '48px', marginBottom: '32px' }}>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '20px', color: '#0f172a' }}>
-                        2. AI Performance
+                        What Does &ldquo;TableSift&rdquo; Mean?
                     </h2>
-                    <p style={{ color: '#64748b', lineHeight: 1.8, fontSize: '1.1rem' }}>
-                        While our models are industry-leading, AI can occasionally misread data. TableSift
-                        is a <strong style={{ color: '#0f172a' }}>productivity tool, not a substitute for human audit</strong>. Users bear the responsibility
-                        for verifying all generated data.
+                    <p style={{ color: '#64748b', lineHeight: 1.8, fontSize: '1.1rem', marginBottom: '24px' }}>
+                        The name is our philosophy:
                     </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                            <span style={{ background: '#dcfce7', color: '#166534', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>Table</span>
+                            <span style={{ color: '#475569', lineHeight: 1.7 }}>The structured data—rows, columns, and financial grids—that drives your business.</span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                            <span style={{ background: '#dbeafe', color: '#1e40af', padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>Sift</span>
+                            <span style={{ color: '#475569', lineHeight: 1.7 }}>To examine thoroughly and isolate what is valuable.</span>
+                        </div>
+                    </div>
                 </div>
 
+                {/* Technology */}
                 <div className="glass-panel" style={{ padding: '48px', marginBottom: '32px' }}>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '20px', color: '#0f172a' }}>
-                        3. Fair Use
+                        Our Technology: Beyond Standard OCR
                     </h2>
-                    <p style={{ color: '#64748b', lineHeight: 1.8, fontSize: '1.1rem' }}>
-                        Our free tier is designed to help individual users. Automated scraping, bulk account creation,
-                        or any attempt to bypass usage limits will result in an <strong style={{ color: '#0f172a' }}>immediate and permanent suspension</strong> of access.
+                    <p style={{ color: '#64748b', lineHeight: 1.8, fontSize: '1.1rem', marginBottom: '32px' }}>
+                        Standard OCR sees characters. <strong style={{ color: '#0f172a' }}>TableSift sees context.</strong> Powered by
+                        advanced LLMs and computer vision, we understand document <em>structure</em> before extracting a single number.
                     </p>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                        <div style={{ background: '#f8fafc', padding: '24px', borderRadius: '12px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🎯</div>
+                            <h4 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>99.9% Accuracy</h4>
+                            <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Minimized errors</p>
+                        </div>
+                        <div style={{ background: '#f8fafc', padding: '24px', borderRadius: '12px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '2rem', marginBottom: '12px' }}>📊</div>
+                            <h4 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>Complex Layouts</h4>
+                            <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Merged cells handled</p>
+                        </div>
+                        <div style={{ background: '#f8fafc', padding: '24px', borderRadius: '12px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '2rem', marginBottom: '12px' }}>📁</div>
+                            <h4 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>Universal</h4>
+                            <p style={{ color: '#64748b', fontSize: '0.9rem' }}>PDF, JPG, PNG</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="glass-panel" style={{ padding: '48px', marginBottom: '32px' }}>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '20px', color: '#0f172a' }}>
-                        4. Payment & Refunds
+                {/* Mission */}
+                <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '48px', borderRadius: '20px', color: 'white', marginBottom: '32px' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '20px' }}>
+                        Our Mission
                     </h2>
-                    <p style={{ color: '#64748b', lineHeight: 1.8, fontSize: '1.1rem' }}>
-                        Paid plans are billed monthly. You may cancel at any time, and your access will continue until the end
-                        of your billing period. Refunds are provided on a case-by-case basis for unused credits.
+                    <p style={{ fontSize: '1.25rem', lineHeight: 1.7, opacity: 0.95 }}>
+                        <strong>To make the world&apos;s unstructured data accessible.</strong>
+                    </p>
+                    <p style={{ fontSize: '1rem', lineHeight: 1.8, marginTop: '16px', opacity: 0.85 }}>
+                        Every day, millions of valuable data points are locked inside &ldquo;dead&rdquo; formats like PDFs and images.
+                        We&apos;re unlocking that data for analysts, accountants, developers, and researchers worldwide.
                     </p>
                 </div>
 
                 {/* CTA */}
                 <div style={{ textAlign: 'center', marginTop: '60px' }}>
-                    <p style={{ color: '#64748b', marginBottom: '24px' }}>Questions about our terms?</p>
-                    <a href="mailto:support@tablesift.com" className="btn-primary" style={{
+                    <p style={{ color: '#64748b', marginBottom: '24px', fontStyle: 'italic' }}>
+                        Stop typing. <strong style={{ color: '#0f172a' }}>Start Sifting.</strong>
+                    </p>
+                    <Link href="/" className="btn-primary" style={{
                         display: 'inline-block',
                         padding: '16px 36px',
                         textDecoration: 'none',
                     }}>
-                        Contact Support
-                    </a>
+                        Try TableSift Free →
+                    </Link>
                 </div>
             </main>
 

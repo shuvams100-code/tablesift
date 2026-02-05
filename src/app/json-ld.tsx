@@ -1,4 +1,4 @@
-import { WithContext, SoftwareApplication, FAQPage } from 'schema-dts';
+import { WithContext, SoftwareApplication, FAQPage, HowTo } from 'schema-dts';
 
 export function JsonLd() {
     const schema: WithContext<SoftwareApplication> = {
@@ -14,7 +14,7 @@ export function JsonLd() {
             priceCurrency: 'USD',
             availability: 'https://schema.org/InStock',
         },
-        description: 'Best AI table extractor and PDF to Excel converter. Extract tables from PDF, convert Image to Excel AI, and turn screenshots into spreadsheets with 99.9% accuracy.',
+        description: 'Best AI table extractor and PDF to Excel converter. Extract tables from PDF, convert Image to Excel AI, and turn screenshots into spreadsheets with 99.9% accuracy. Built for accountants, auditors, and operations teams.',
         featureList: [
             'PDF to Excel converter',
             'Extract tables from PDF',
@@ -28,6 +28,9 @@ export function JsonLd() {
             'Zero data retention',
             'Convert PDF table to CSV',
             'Instant Excel/CSV download',
+            'Bank statement extraction',
+            'GST invoice to Excel',
+            'Scanned document OCR',
         ],
         aggregateRating: {
             '@type': 'AggregateRating',
@@ -41,6 +44,34 @@ export function JsonLd() {
             url: 'https://tablesift.com',
         },
         screenshot: 'https://tablesift.com/og-image.png',
+    };
+
+    const howToSchema: WithContext<HowTo> = {
+        '@context': 'https://schema.org',
+        '@type': 'HowTo',
+        name: 'How to Convert PDF to Excel with AI',
+        description: 'Extract tables from any PDF or image and convert them to Excel spreadsheets in 3 simple steps.',
+        totalTime: 'PT30S',
+        step: [
+            {
+                '@type': 'HowToStep',
+                name: 'Upload your PDF or Image',
+                text: 'Upload your document - supports scanned docs, photos, bank statements, invoices, and high-resolution PDFs.',
+                position: 1
+            },
+            {
+                '@type': 'HowToStep',
+                name: 'AI Identifies Data',
+                text: 'Our vision AI automatically identifies rows, columns, headers, and table structures in your document.',
+                position: 2
+            },
+            {
+                '@type': 'HowToStep',
+                name: 'Download Results',
+                text: 'Download your perfectly formatted Excel (.xlsx) or CSV file instantly.',
+                position: 3
+            }
+        ]
     };
 
     const faqSchema: WithContext<FAQPage> = {
@@ -65,10 +96,26 @@ export function JsonLd() {
             },
             {
                 '@type': 'Question',
+                name: 'Can I convert bank statements PDF to Excel?',
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'Yes! TableSift is designed to extract data from bank statements, converting them into structured Excel spreadsheets with columns for date, description, and amounts perfectly preserved.'
+                }
+            },
+            {
+                '@type': 'Question',
+                name: 'Can accountants use TableSift for GST invoices?',
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'Absolutely. TableSift is trusted by CA firms and accountants to extract data from GST invoices, ITR documents, and Tally exports. Perfect for tax season workflows.'
+                }
+            },
+            {
+                '@type': 'Question',
                 name: 'Is TableSift free to use?',
                 acceptedAnswer: {
                     '@type': 'Answer',
-                    text: 'Yes! TableSift offers a free tier with 1 conversion per day. For more conversions, we offer Pro, Business, and Enterprise plans.'
+                    text: 'Yes! TableSift offers 10 free fuels (conversions) to start. For high-volume workflows, we offer Starter, Pro, Business, and Enterprise plans.'
                 }
             },
             {
@@ -86,6 +133,14 @@ export function JsonLd() {
                     '@type': 'Answer',
                     text: 'TableSift supports PDF, PNG, JPG, JPEG, and screenshot images. Output formats include Excel (.xlsx) and CSV.'
                 }
+            },
+            {
+                '@type': 'Question',
+                name: 'Can I process bulk invoices or vendor bills?',
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'Yes. TableSift Pro plan supports bulk file uploads, making it ideal for operations teams, BPOs, and agencies processing hundreds of documents daily.'
+                }
             }
         ]
     };
@@ -98,8 +153,13 @@ export function JsonLd() {
             />
             <script
                 type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
+            />
+            <script
+                type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
             />
         </>
     );
 }
+

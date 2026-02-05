@@ -2,7 +2,18 @@ import { CheckCircle2, FileSpreadsheet, Zap } from "lucide-react";
 
 export default function HeroVisual() {
     return (
-        <div style={{ position: 'relative', width: '100%', height: '500px', display: 'flex', justifyContent: 'center', alignItems: 'center', perspective: '1200px' }}>
+        <div style={{
+            position: 'relative',
+            width: '100%',
+            height: '500px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            perspective: '1200px',
+            background: 'radial-gradient(ellipse at center, rgba(16, 124, 65, 0.06) 0%, transparent 70%)',
+            borderRadius: '32px',
+            padding: '20px'
+        }}>
 
             {/* --- LAYER 1: THE BASE SPREADSHEET --- */}
             <div className="glass-panel" style={{
@@ -12,9 +23,9 @@ export default function HeroVisual() {
                 transform: 'rotateY(-15deg) rotateX(10deg) rotateZ(2deg)',
                 transformStyle: 'preserve-3d',
                 overflow: 'hidden',
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                border: '1px solid rgba(16, 124, 65, 0.2)',
-                boxShadow: '0 40px 80px -20px rgba(0,0,0,0.15), 0 0 20px rgba(16, 124, 65, 0.05)'
+                backgroundColor: '#fafbfc',
+                border: '1px solid rgba(16, 124, 65, 0.15)',
+                boxShadow: '0 40px 80px -20px rgba(0,0,0,0.12), 0 0 40px rgba(16, 124, 65, 0.08), inset 0 0 0 1px rgba(255,255,255,0.5)'
             }}>
                 {/* Spreadsheet Header */}
                 <div style={{ padding: '20px', backgroundColor: '#107c41', display: 'flex', alignItems: 'center', gap: '8px', color: 'white' }}>

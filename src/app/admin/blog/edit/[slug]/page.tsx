@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { auth, googleProvider, signInWithPopup, signOut } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { doc, setDoc, Timestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { ArrowLeft, Save, Eye } from "lucide-react";
+import { ArrowLeft, Save, Eye, Trash2 } from "lucide-react";
 
 const ADMIN_EMAILS = ["support@tablesift.com"];
 
@@ -20,18 +20,23 @@ function generateSlug(title: string): string {
         .slice(0, 60);
 }
 
-export default function NewPost() {
+interface Props {
+    params: Promise<{ slug: string }>;
+}
+
+export default function EditPost({ params }: Props) {
+    const resolvedParams = use(params);
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [notFound, setNotFound] = useState(false);
 
     const [title, setTitle] = useState("");
     const [slug, setSlug] = useState("");
     const [excerpt, setExcerpt] = useState("");
     const [content, setContent] = useState("");
     const [coverImage, setCoverImage] = useState("");
-    const [slugEdited, setSlugEdited] = useState(false);
 
     useEffect(() => {
         if (!auth) {
@@ -45,12 +50,25 @@ export default function NewPost() {
         return () => unsubscribe();
     }, []);
 
-    // Auto-generate slug from title
+    // Fetch existing post
     useEffect(() => {
-        if (!slugEdited && title) {
-            setSlug(generateSlug(title));
+        async function fetchPost() {
+            if (!db || !user || !ADMIN_EMAILS.includes(user.email || "")) return;
+            const docRef = doc(db, "blog_posts", resolvedParams.slug);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                setTitle(data.title || "");
+                setSlug(docSnap.id);
+                setExcerpt(data.excerpt || "");
+                setContent(data.content || "");
+                setCoverImage(data.coverImage || "");
+            } else {
+                setNotFound(true);
+            }
         }
-    }, [title, slugEdited]);
+        if (user) fetchPost();
+    }, [user, resolvedParams.slug]);
 
     const handleLogin = async () => {
         if (!auth || !googleProvider) return;
@@ -67,7 +85,7 @@ export default function NewPost() {
         router.push("/");
     };
 
-    const handlePublish = async () => {
+    const handleSave = async () => {
         if (!db || !user || !title || !content) {
             alert("Please fill in title and content");
             return;
@@ -83,16 +101,16 @@ export default function NewPost() {
                 content,
                 coverImage: coverImage || null,
                 publishedAt: Timestamp.now(),
-                createdAt: Timestamp.now(),
+                updatedAt: Timestamp.now(),
                 author: {
                     name: user.displayName || "Admin",
                     photoURL: user.photoURL || null,
                 },
-            });
+            }, { merge: true });
             router.push("/admin/blog");
         } catch (err) {
-            console.error("Publish failed", err);
-            alert("Failed to publish. Try again.");
+            console.error("Save failed", err);
+            alert("Failed to save. Try again.");
         }
         setSaving(false);
     };
@@ -120,10 +138,18 @@ export default function NewPost() {
         return (
             <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#f8fafc", gap: "24px" }}>
                 <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "#ef4444" }}>Access Denied</h1>
-                <p style={{ color: "#64748b" }}>Your email is not authorized.</p>
                 <button onClick={handleLogout} style={{ padding: "14px 32px", borderRadius: "12px", background: "#e2e8f0", color: "#0f172a", fontWeight: 700, cursor: "pointer", border: "none" }}>
                     Sign out
                 </button>
+            </div>
+        );
+    }
+
+    if (notFound) {
+        return (
+            <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#f8fafc", gap: "24px" }}>
+                <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "#ef4444" }}>Post Not Found</h1>
+                <Link href="/admin/blog" style={{ color: "#107C41", textDecoration: "underline" }}>Back to Admin</Link>
             </div>
         );
     }
@@ -136,31 +162,29 @@ export default function NewPost() {
                     <Link href="/admin/blog" style={{ color: "#64748b", display: "flex", alignItems: "center", gap: "6px", textDecoration: "none", fontSize: "0.9rem" }}>
                         <ArrowLeft size={16} /> Back
                     </Link>
-                    <h1 style={{ fontSize: "1.25rem", fontWeight: 800, color: "#0f172a" }}>New Post</h1>
+                    <h1 style={{ fontSize: "1.25rem", fontWeight: 800, color: "#0f172a" }}>Edit Post</h1>
                 </div>
                 <div style={{ display: "flex", gap: "12px" }}>
-                    {slug && (
-                        <Link
-                            href={`/blog/${slug}`}
-                            target="_blank"
-                            style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "6px",
-                                padding: "10px 20px",
-                                borderRadius: "8px",
-                                background: "#f1f5f9",
-                                color: "#475569",
-                                textDecoration: "none",
-                                fontWeight: 600,
-                                fontSize: "0.9rem",
-                            }}
-                        >
-                            <Eye size={16} /> Preview
-                        </Link>
-                    )}
+                    <Link
+                        href={`/blog/${slug}`}
+                        target="_blank"
+                        style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            padding: "10px 20px",
+                            borderRadius: "8px",
+                            background: "#f1f5f9",
+                            color: "#475569",
+                            textDecoration: "none",
+                            fontWeight: 600,
+                            fontSize: "0.9rem",
+                        }}
+                    >
+                        <Eye size={16} /> View Live
+                    </Link>
                     <button
-                        onClick={handlePublish}
+                        onClick={handleSave}
                         disabled={saving || !title || !content}
                         style={{
                             display: "inline-flex",
@@ -176,7 +200,7 @@ export default function NewPost() {
                             fontSize: "0.9rem",
                         }}
                     >
-                        <Save size={16} /> {saving ? "Publishing..." : "Publish"}
+                        <Save size={16} /> {saving ? "Saving..." : "Save Changes"}
                     </button>
                 </div>
             </header>
@@ -191,7 +215,6 @@ export default function NewPost() {
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Your blog post title..."
                             style={{
                                 width: "100%",
                                 padding: "14px 16px",
@@ -204,20 +227,16 @@ export default function NewPost() {
                         />
                     </div>
 
-                    {/* Slug */}
+                    {/* Slug (read-only for edit) */}
                     <div>
                         <label style={{ display: "block", fontWeight: 600, color: "#374151", marginBottom: "8px" }}>
                             URL Slug
-                            <span style={{ fontSize: "0.8rem", color: "#94a3b8", fontWeight: 400, marginLeft: "8px" }}>/blog/{slug || "..."}</span>
+                            <span style={{ fontSize: "0.8rem", color: "#94a3b8", fontWeight: 400, marginLeft: "8px" }}>/blog/{slug}</span>
                         </label>
                         <input
                             type="text"
                             value={slug}
-                            onChange={(e) => {
-                                setSlug(generateSlug(e.target.value));
-                                setSlugEdited(true);
-                            }}
-                            placeholder="url-friendly-slug"
+                            disabled
                             style={{
                                 width: "100%",
                                 padding: "12px 16px",
@@ -225,19 +244,18 @@ export default function NewPost() {
                                 border: "1px solid #e2e8f0",
                                 fontSize: "0.95rem",
                                 boxSizing: "border-box",
+                                background: "#f8fafc",
+                                color: "#64748b",
                             }}
                         />
                     </div>
 
                     {/* Excerpt */}
                     <div>
-                        <label style={{ display: "block", fontWeight: 600, color: "#374151", marginBottom: "8px" }}>
-                            Excerpt <span style={{ fontSize: "0.8rem", color: "#94a3b8", fontWeight: 400 }}>(for SEO & previews)</span>
-                        </label>
+                        <label style={{ display: "block", fontWeight: 600, color: "#374151", marginBottom: "8px" }}>Excerpt</label>
                         <textarea
                             value={excerpt}
                             onChange={(e) => setExcerpt(e.target.value)}
-                            placeholder="A brief summary of the post..."
                             rows={2}
                             style={{
                                 width: "100%",
@@ -258,7 +276,6 @@ export default function NewPost() {
                             type="url"
                             value={coverImage}
                             onChange={(e) => setCoverImage(e.target.value)}
-                            placeholder="https://example.com/image.jpg"
                             style={{
                                 width: "100%",
                                 padding: "12px 16px",
@@ -275,16 +292,10 @@ export default function NewPost() {
 
                     {/* Content */}
                     <div>
-                        <label style={{ display: "block", fontWeight: 600, color: "#374151", marginBottom: "8px" }}>
-                            Content * <span style={{ fontSize: "0.8rem", color: "#94a3b8", fontWeight: 400 }}>(HTML supported)</span>
-                        </label>
+                        <label style={{ display: "block", fontWeight: 600, color: "#374151", marginBottom: "8px" }}>Content * (HTML)</label>
                         <textarea
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
-                            placeholder="<p>Write your blog content here...</p>
-
-<h2>Subheading</h2>
-<p>More content...</p>"
                             rows={20}
                             style={{
                                 width: "100%",
