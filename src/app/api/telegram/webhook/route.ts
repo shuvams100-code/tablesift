@@ -240,6 +240,12 @@ Daily auto-publishing at 10:00 AM IST
 export async function GET() {
     return NextResponse.json({
         status: 'Telegram webhook is active',
-        bot: 'TableSift Blog Bot'
+        bot: 'TableSift Blog Bot',
+        config: {
+            hasBotToken: !!process.env.TELEGRAM_BOT_TOKEN,
+            hasGenerateSecret: !!process.env.BLOG_GENERATE_SECRET,
+            baseUrl: BASE_URL,
+            nodeEnv: process.env.NODE_ENV
+        }
     });
 }
