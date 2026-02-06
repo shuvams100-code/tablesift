@@ -95,7 +95,7 @@ interface GeneratedBlog {
 
 async function generateBlogContent(topic: string): Promise<GeneratedBlog> {
     const response = await openai.chat.completions.create({
-        model: 'gpt-4.1-mini',
+        model: 'gpt-4o-mini',
         messages: [
             { role: 'system', content: SYSTEM_PROMPT },
             {
@@ -113,7 +113,7 @@ Return a JSON object with exactly these fields:
 {
     "title": "SEO title (50-60 chars, keyword at start)",
     "excerpt": "Meta description (150-160 chars, keyword + value prop + action verb)",
-    "content": "Full HTML article (2000-2500 words, includes FAQ section)",
+    "content": "Full HTML article (1000-1200 words, includes FAQ section)",
     "metaKeywords": ["primary keyword", "lsi keyword 1", "lsi keyword 2", "lsi keyword 3", "question keyword"]
 }
 
@@ -174,10 +174,11 @@ export async function POST(req: Request) {
             topic = getRandomTopic(usedTopics);
         }
 
-        console.log(`Generating blog post for topic: ${topic}`);
+        console.log(`Generating blog post content for topic: ${topic}`);
 
-        // Generate content using GPT-4.1-mini
+        // Generate content using GPT-4o-mini
         const blog = await generateBlogContent(topic);
+        console.log(`Content generated successfully: ${blog.title}`);
 
         // Check if slug already exists, append number if needed
         let finalSlug = blog.slug;

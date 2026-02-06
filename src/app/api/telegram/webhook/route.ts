@@ -40,6 +40,17 @@ async function sendTelegramMessage(chatId: number, text: string, parseMode: 'HTM
     return response.json();
 }
 
+async function sendTelegramAction(chatId: number, action: 'typing' | 'upload_photo' | 'record_video' | 'upload_video' | 'record_voice' | 'upload_voice' | 'upload_document' | 'choose_sticker' | 'find_location' | 'record_video_note' | 'upload_video_note') {
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendChatAction`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: chatId,
+            action,
+        }),
+    });
+}
+
 async function generateBlogPost(topic?: string) {
     const response = await fetch(`${BASE_URL}/api/blog/generate`, {
         method: 'POST',
@@ -81,7 +92,7 @@ export async function POST(req: Request) {
         // Handle commands (support both /command and command without slash)
         const lowerText = text.toLowerCase();
 
-        if (lowerText === '/start' || lowerText === 'start') {
+        if (lowerText === '/start' || lowerText === 'start' || lowerText === '/help' || lowerText === 'help' || lowerText === 'commands') {
             await sendTelegramMessage(chatId,
                 `🚀 <b>TableSift Blog Bot</b>
 
@@ -91,16 +102,16 @@ Welcome! I can generate and publish SEO-optimized blog posts for TableSift.
 • <code>generate</code> - Random topic from our SEO database
 • <code>generate Topic [your topic]</code> - Custom topic
 • <code>status</code> - Show recent posts
-• <code>help</code> - Show commands
+• <code>help</code> - Show this list
 
 <b>Examples:</b>
 <code>generate</code>
 <code>generate Topic How to convert PDF invoices to Excel</code>`
             );
         }
-        else if (lowerText.startsWith('/generate') || lowerText.startsWith('generate')) {
-            // Remove /generate or generate prefix
-            let remaining = text.replace(/^\/?generate\s*/i, '').trim();
+        else if (lowerText.startsWith('/generate') || lowerText.startsWith('generate') || lowerText.startsWith('/gen') || lowerText.startsWith('gen')) {
+            // Remove prefix
+            let remaining = text.replace(/^(\/)?(generate|gen)\s*/i, '').trim();
 
             // Check if it starts with "Topic" (case insensitive)
             let topic: string | undefined;
@@ -116,6 +127,9 @@ Welcome! I can generate and publish SEO-optimized blog posts for TableSift.
                     ? `⏳ Generating blog post about:\n<i>"${topic}"</i>\n\nThis may take 30-60 seconds...`
                     : `⏳ Picking a random SEO topic & generating...\n\nThis may take 30-60 seconds...`
             );
+
+            // Show typing indicator
+            await sendTelegramAction(chatId, 'typing');
 
             try {
                 const result = await generateBlogPost(topic);
@@ -200,12 +214,17 @@ Total AI posts: ${result.totalAIPosts || result.recentPosts.length}`
 <b>Optimal Posting Time:</b>
 Daily auto-publishing at 10:00 AM IST
 
-<b>Cost:</b> ~₹2-4 per post (GPT-4.1-mini)`
+<b>Cost:</b> ~₹2-4 per post (GPT-4o-mini)`
             );
         }
         else {
             await sendTelegramMessage(chatId,
-                `❓ Unknown command. Type <code>help</code> to see available commands.`
+                `❓ I didn't quite catch that. Here are the commands I understand:
+
+• <code>generate</code> - New random blog post
+• <code>generate Topic [topic]</code> - Specific topic
+• <code>status</code> - View recent posts
+• <code>help</code> - Show all options`
             );
         }
 
