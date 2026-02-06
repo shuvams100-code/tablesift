@@ -51,16 +51,35 @@ async function sendTelegramAction(chatId: number, action: 'typing' | 'upload_pho
     });
 }
 
-async function generateBlogPost(topic?: string) {
-    const response = await fetch(`${BASE_URL}/api/blog/generate`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${BLOG_GENERATE_SECRET}`,
-        },
-        body: topic ? JSON.stringify({ topic }) : '{}',
-    });
-    return response.json();
+// Helper to trigger blog generation (non-blocking)
+async function triggerBlogGeneration(chatId: number, topic?: string) {
+    const baseUrl = BASE_URL;
+    const secret = process.env.BLOG_GENERATE_SECRET;
+
+    console.log(`Triggering blog generation for chat ${chatId}, topic: ${topic || 'random'}`);
+
+    try {
+        // We do NOT await this fully in the main handler
+        const response = await fetch(`${baseUrl}/api/blog/generate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${secret}`
+            },
+            body: JSON.stringify({
+                topic,
+                notifyChatId: chatId // Tell the generator to notify the user when done
+            }),
+        });
+
+        if (!response.ok) {
+            const error = await response.text();
+            console.error('Generation trigger failed:', error);
+            await sendTelegramMessage(chatId, `❌ <b>Generation Trigger Failed</b>\n\nError: ${error}`);
+        }
+    } catch (err) {
+        console.error('Background generation error:', err);
+    }
 }
 
 /**
@@ -86,6 +105,8 @@ export async function POST(req: Request) {
         const text = update.message.text.trim();
         const userId = update.message.from.id;
 
+        console.log(`Telegram Bot Received: "${text}" from Chat: ${chatId} (User: ${userId})`);
+
         // Track admin users
         ADMIN_CHAT_IDS.add(userId);
 
@@ -110,6 +131,7 @@ Welcome! I can generate and publish SEO-optimized blog posts for TableSift.
             );
         }
         else if (lowerText.startsWith('/generate') || lowerText.startsWith('generate') || lowerText.startsWith('/gen') || lowerText.startsWith('gen')) {
+            console.log('Command matched: generate');
             // Remove prefix
             let remaining = text.replace(/^(\/)?(generate|gen)\s*/i, '').trim();
 
@@ -131,34 +153,13 @@ Welcome! I can generate and publish SEO-optimized blog posts for TableSift.
             // Show typing indicator
             await sendTelegramAction(chatId, 'typing');
 
-            try {
-                const result = await generateBlogPost(topic);
+            // Trigger in background and return 200 OK immediately to Telegram
+            // This prevents Telegram from retrying while we work
+            triggerBlogGeneration(chatId, topic).catch(err => {
+                console.error('Error starting background generation:', err);
+            });
 
-                if (result.success) {
-                    await sendTelegramMessage(chatId,
-                        `✅ <b>Blog Post Published!</b>
-
-📌 <b>Title:</b> ${result.post.title}
-
-📝 <b>Excerpt:</b>
-${result.post.excerpt}
-
-🔗 <b>URL:</b>
-<a href="${result.post.url}">${result.post.url}</a>`
-                    );
-                } else {
-                    await sendTelegramMessage(chatId,
-                        `❌ <b>Generation Failed</b>
-
-Error: ${result.error || 'Unknown error'}
-${result.details ? `\nDetails: ${result.details}` : ''}`
-                    );
-                }
-            } catch (error) {
-                await sendTelegramMessage(chatId,
-                    `❌ Error: ${error instanceof Error ? error.message : 'Failed to generate post'}`
-                );
-            }
+            return NextResponse.json({ ok: true });
         }
         else if (lowerText === '/status' || lowerText === 'status') {
             try {

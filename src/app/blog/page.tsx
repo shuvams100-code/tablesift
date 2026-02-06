@@ -4,6 +4,9 @@ import { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
     title: "TableSift Blog | Excel Tips, PDF Conversion & Data Extraction",
     description: "Learn how to convert PDF to Excel, extract tables from images, and automate your data entry workflow with our expert guides.",

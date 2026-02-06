@@ -4,6 +4,27 @@ import { db } from '@/lib/firebase-admin';
 import { Timestamp } from 'firebase-admin/firestore';
 import { getRandomTopic } from '@/lib/blog-topics';
 
+// Helper to send Telegram messages from any chat ID
+async function sendTelegramNotification(chatId: string, message: string) {
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    if (!token) return;
+
+    try {
+        await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId,
+                text: message,
+                parse_mode: 'HTML',
+                disable_web_page_preview: false,
+            }),
+        });
+    } catch (err) {
+        console.error('Failed to send Telegram notification:', err);
+    }
+}
+
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
@@ -167,9 +188,12 @@ export async function POST(req: Request) {
 
         // Get topic from request body or pick random unused one
         let topic: string;
+        let notifyChatId: string | undefined;
+
         try {
             const body = await req.json();
             topic = body.topic || getRandomTopic(usedTopics);
+            notifyChatId = body.notifyChatId;
         } catch {
             topic = getRandomTopic(usedTopics);
         }
@@ -207,6 +231,16 @@ export async function POST(req: Request) {
         });
 
         const postUrl = `https://tablesift.com/blog/${finalSlug}`;
+
+        // Notify via Telegram if requested
+        if (notifyChatId) {
+            await sendTelegramNotification(notifyChatId,
+                `✅ <b>Blog Post Published!</b>\n\n` +
+                `📌 <b>Title:</b> ${blog.title}\n\n` +
+                `📝 <b>Excerpt:</b>\n${blog.excerpt}\n\n` +
+                `🔗 <b>URL:</b>\n<a href="${postUrl}">${postUrl}</a>`
+            );
+        }
 
         return NextResponse.json({
             success: true,
