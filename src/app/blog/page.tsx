@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getPosts } from "@/lib/cms";
+import { getPosts } from "@/lib/cms-server";
 import { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";

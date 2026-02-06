@@ -1,4 +1,4 @@
-import { getPost, getPosts } from "@/lib/cms";
+import { getPost, getPosts } from "@/lib/cms-server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
