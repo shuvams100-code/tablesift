@@ -1,9 +1,9 @@
-
 import { getPost, getPosts } from "@/lib/cms";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
 import Header from "@/components/Header";
+import ViewTracker from "@/components/ViewTracker";
 
 interface Props {
     params: Promise<{ slug: string }>;
@@ -25,7 +25,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
 }
 
-// Generate static params for all posts at build time (optional but good for performance)
 export async function generateStaticParams() {
     const posts = await getPosts();
     return posts.map((post) => ({
@@ -39,21 +38,57 @@ export default async function BlogPost({ params }: Props) {
     if (!post) notFound();
 
     return (
-        <div className="min-h-screen pb-20">
+        <div style={{ minHeight: '100vh', background: '#ffffff' }}>
             <Header />
-            {/* Hero Header */}
-            <div className="bg-slate-900 text-white pt-32 pb-20 px-6 relative overflow-hidden">
-                {/* Background Glow */}
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-green-500/10 blur-[100px] rounded-full pointer-events-none transform translate-x-1/3 -translate-y-1/3"></div>
+            <ViewTracker slug={slug} />
 
-                <div className="max-w-3xl mx-auto relative z-10 text-center">
-                    <Link href="/blog" className="inline-block mb-8 text-green-400 font-bold text-sm tracking-widest hover:text-green-300 transition-colors">
+            {/* Hero Header */}
+            <div style={{
+                background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                color: 'white',
+                paddingTop: '120px',
+                paddingBottom: '80px',
+                paddingLeft: '24px',
+                paddingRight: '24px',
+                position: 'relative',
+                overflow: 'hidden'
+            }}>
+                {/* Background Glow */}
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    width: '600px',
+                    height: '600px',
+                    background: 'rgba(16, 124, 65, 0.1)',
+                    filter: 'blur(100px)',
+                    borderRadius: '50%',
+                    pointerEvents: 'none',
+                    transform: 'translate(33%, -33%)'
+                }}></div>
+
+                <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 10, textAlign: 'center' }}>
+                    <Link href="/blog" style={{
+                        display: 'inline-block',
+                        marginBottom: '32px',
+                        color: '#4ade80',
+                        fontWeight: 700,
+                        fontSize: '0.85rem',
+                        letterSpacing: '0.1em',
+                        textDecoration: 'none'
+                    }}>
                         ← BACK TO BLOG
                     </Link>
-                    <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight tracking-tight">
+                    <h1 style={{
+                        fontSize: '2.5rem',
+                        fontWeight: 900,
+                        marginBottom: '24px',
+                        lineHeight: 1.2,
+                        letterSpacing: '-1px'
+                    }}>
                         {post.title}
                     </h1>
-                    <div className="flex items-center justify-center gap-4 text-slate-400 text-sm">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', color: '#94a3b8', fontSize: '0.9rem' }}>
                         <span>{new Date(post.publishedAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                         <span>•</span>
                         <span>{post.author.name}</span>
@@ -62,13 +97,18 @@ export default async function BlogPost({ params }: Props) {
             </div>
 
             {/* Content Container */}
-            <article className="max-w-3xl mx-auto px-6 -mt-10 relative z-20">
-                <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 border border-slate-100">
+            <main style={{ maxWidth: '800px', margin: '0 auto', padding: '0 24px' }}>
+                <article className="glass-panel" style={{
+                    padding: '48px',
+                    marginTop: '-40px',
+                    position: 'relative',
+                    zIndex: 20
+                }}>
                     {post.coverImage && (
                         <img
                             src={post.coverImage}
                             alt={post.title}
-                            className="w-full h-auto rounded-xl shadow-sm mb-12"
+                            style={{ width: '100%', height: 'auto', borderRadius: '12px', marginBottom: '48px' }}
                         />
                     )}
 
@@ -77,17 +117,53 @@ export default async function BlogPost({ params }: Props) {
                         className="blog-content"
                         dangerouslySetInnerHTML={{ __html: post.content }}
                     />
-                </div>
-            </article>
+                </article>
 
-            {/* CTA Footer */}
-            <div className="max-w-3xl mx-auto px-6 mt-16 text-center">
-                <h3 className="text-2xl font-bold text-slate-900 mb-4">Ready to try TableSift?</h3>
-                <p className="text-slate-600 mb-8">Convert your first PDF to Excel for free today.</p>
-                <Link href="/" className="glow-btn inline-block">
-                    Start Extraction Free
-                </Link>
-            </div>
+                {/* CTA Footer */}
+                <div style={{ textAlign: 'center', margin: '60px 0 80px' }}>
+                    <h3 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px' }}>
+                        Ready to try TableSift?
+                    </h3>
+                    <p style={{ color: '#64748b', marginBottom: '32px' }}>
+                        Convert your first PDF to Excel for free today.
+                    </p>
+                    <Link href="/" className="btn-primary" style={{
+                        display: 'inline-block',
+                        padding: '16px 36px',
+                        textDecoration: 'none',
+                    }}>
+                        Start Extraction Free →
+                    </Link>
+                </div>
+            </main>
+
+            {/* Footer */}
+            <footer style={{ borderTop: '1px solid #f1f5f9', padding: '60px 24px', background: '#fafafa' }}>
+                <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '40px' }}>
+                    <div>
+                        <Link href="/" style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1e293b', textDecoration: 'none', letterSpacing: '-0.5px' }}>
+                            TableSift<span style={{ color: '#107c41' }}>.com</span>
+                        </Link>
+                        <p style={{ color: '#64748b', marginTop: '16px', maxWidth: '300px', lineHeight: 1.6 }}>
+                            The world&apos;s most advanced AI-powered extraction tool for spreadsheet professionals.
+                        </p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '60px' }}>
+                        <div>
+                            <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '20px' }}>Company</h4>
+                            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <li><Link href="/about" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>About</Link></li>
+                                <li><Link href="/blog" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Blog</Link></li>
+                                <li><Link href="/privacy" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Privacy Policy</Link></li>
+                                <li><Link href="/terms" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Terms of Service</Link></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div style={{ maxWidth: '1200px', margin: '40px auto 0', paddingTop: '40px', borderTop: '1px solid #e2e8f0', textAlign: 'center' }}>
+                    <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>© 2026 TableSift.com. All rights reserved.</p>
+                </div>
+            </footer>
         </div>
     );
 }

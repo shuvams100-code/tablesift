@@ -88,6 +88,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Google Analytics */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-0LXS80XCDV"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-0LXS80XCDV');
+            `,
+          }}
+        />
         {/* Premium Fonts: Satoshi (body) + Clash Display (headlines) */}
         <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700,800,900&f[]=clash-display@400,500,600,700&display=swap" rel="stylesheet" />
       </head>

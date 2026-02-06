@@ -1,54 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
+import Header from "@/components/Header";
 
 export default function AboutPageClient() {
-    const [scrolled, setScrolled] = useState(false);
-
-    useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 20);
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
-
     return (
         <div style={{ minHeight: '100vh', background: '#ffffff' }}>
-            {/* Navigation */}
-            <nav className={`navbar-glass ${scrolled ? 'scrolled' : ''}`} style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                width: 'calc(100% - 40px)',
-                maxWidth: '1100px',
-                margin: '20px auto',
-                padding: '12px 30px',
-                background: 'rgba(255, 255, 255, 0.8)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255, 255, 255, 0.5)',
-                borderRadius: '100px',
-                position: 'sticky',
-                top: '20px',
-                zIndex: 1000,
-            }}>
-                <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-                    <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1e293b', letterSpacing: '-0.5px' }}>
-                        TableSift<span style={{ color: '#107c41' }}>.com</span>
-                    </span>
-                </Link>
-                <Link href="/" className="glow-btn" style={{
-                    background: '#0f172a',
-                    color: '#ffffff',
-                    border: 'none',
-                    padding: '10px 24px',
-                    borderRadius: '99px',
-                    fontSize: '0.9rem',
-                    fontWeight: 700,
-                    textDecoration: 'none',
-                }}>
-                    Get Started
-                </Link>
-            </nav>
+            <Header />
 
             {/* Main Content */}
             <main style={{ maxWidth: '800px', margin: '0 auto', padding: '80px 24px 120px' }}>
@@ -191,6 +149,7 @@ export default function AboutPageClient() {
                             <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '20px' }}>Company</h4>
                             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 <li><Link href="/about" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>About</Link></li>
+                                <li><Link href="/blog" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Blog</Link></li>
                                 <li><Link href="/privacy" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Privacy Policy</Link></li>
                                 <li><Link href="/terms" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Terms of Service</Link></li>
                             </ul>

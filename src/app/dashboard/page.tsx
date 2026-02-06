@@ -627,6 +627,9 @@ const DashboardContent = () => {
                             <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.75rem' }}>
                                 Drag & Drop or Click to Upload
                             </p>
+                            <p style={{ fontSize: '0.95rem', color: '#22c55e', fontWeight: 600, marginBottom: '1rem' }}>
+                                ⚡ Bulk Upload: Select up to 10 files at once!
+                            </p>
                             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginBottom: '2rem' }}>
                                 {['JPG', 'PNG', 'PDF', 'DOCX'].map(ext => (
                                     <span key={ext} style={{
@@ -643,7 +646,7 @@ const DashboardContent = () => {
                                 ))}
                             </div>
                             <p style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500 }}>
-                                Max file size: 100MB
+                                Max 100MB per file • Files processed sequentially
                             </p>
                         </div>
                     )}

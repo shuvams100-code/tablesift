@@ -14,10 +14,10 @@ import { AnimatedSection, AnimatedGrid } from "@/components/AnimatedSection";
 import { auth, googleProvider, signInWithPopup } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 
-// --- DODO PAYMENT IDS ---
-const STARTER_ID = "pdt_0NXYHBcPszGyHO9M2lt8P"; // $12 Starter Plan - UPDATE WHEN READY
-const PRO_ID = "pdt_0NXYHGpP9pSriiWduXPUE";     // $49 Pro Plan - UPDATE WHEN READY
-const BUSINESS_ID = "PLACEHOLDER_BUSINESS_ID"; // $199 Business Plan - REPLACE WITH DODO ID
+// --- DODO PAYMENT IDS (LIVE PRODUCTION) ---
+const STARTER_ID = "pdt_0NXXzxOEqw2kCiWhVVmws"; // $12 Starter Plan - 50 Fuels/mo
+const PRO_ID = "pdt_0NXY0LRFGlLKb1psLfs6y";     // $49 Pro Plan - 200 Fuels/mo
+const BUSINESS_ID = "pdt_0NXvSY9wpwzCHAxLZ43vS"; // $199 Business Plan - 900 Fuels/mo
 
 export default function Home() {
   const router = useRouter();

@@ -9,7 +9,7 @@ import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { ArrowLeft, Save, Eye, Trash2 } from "lucide-react";
 
-const ADMIN_EMAILS = ["support@tablesift.com"];
+const ADMIN_EMAILS = ["shuvams100@gmail.com"];
 
 function generateSlug(title: string): string {
     return title

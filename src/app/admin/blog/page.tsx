@@ -10,7 +10,7 @@ import { db } from "@/lib/firebase";
 import { Trash2, Edit, Plus, LogOut, ArrowLeft } from "lucide-react";
 
 // Admin email whitelist
-const ADMIN_EMAILS = ["support@tablesift.com"];
+const ADMIN_EMAILS = ["shuvams100@gmail.com"];
 
 interface BlogPost {
     slug: string;
@@ -18,6 +18,8 @@ interface BlogPost {
     excerpt: string;
     publishedAt: string;
     coverImage?: string;
+    views?: number;
+    generatedByAI?: boolean;
 }
 
 export default function AdminBlog() {
@@ -53,6 +55,8 @@ export default function AdminBlog() {
                     excerpt: d.excerpt,
                     publishedAt: d.publishedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
                     coverImage: d.coverImage,
+                    views: d.views || 0,
+                    generatedByAI: d.generatedByAI || false,
                 };
             });
             setPosts(data);
@@ -184,6 +188,22 @@ export default function AdminBlog() {
                     </Link>
                 </div>
 
+                {/* Analytics Stats */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", marginBottom: "32px" }}>
+                    <div style={{ background: "#fff", padding: "20px", borderRadius: "12px", border: "1px solid #e2e8f0", textAlign: "center" }}>
+                        <p style={{ fontSize: "2rem", fontWeight: 800, color: "#107C41" }}>{posts.reduce((sum, p) => sum + (p.views || 0), 0)}</p>
+                        <p style={{ fontSize: "0.85rem", color: "#64748b" }}>Total Views</p>
+                    </div>
+                    <div style={{ background: "#fff", padding: "20px", borderRadius: "12px", border: "1px solid #e2e8f0", textAlign: "center" }}>
+                        <p style={{ fontSize: "2rem", fontWeight: 800, color: "#2563eb" }}>{posts.filter(p => p.generatedByAI).length}</p>
+                        <p style={{ fontSize: "0.85rem", color: "#64748b" }}>🤖 AI Posts</p>
+                    </div>
+                    <div style={{ background: "#fff", padding: "20px", borderRadius: "12px", border: "1px solid #e2e8f0", textAlign: "center" }}>
+                        <p style={{ fontSize: "2rem", fontWeight: 800, color: "#0f172a" }}>{posts.filter(p => !p.generatedByAI).length}</p>
+                        <p style={{ fontSize: "0.85rem", color: "#64748b" }}>Manual Posts</p>
+                    </div>
+                </div>
+
                 {posts.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "80px 20px", background: "#fff", borderRadius: "16px", border: "1px solid #e2e8f0" }}>
                         <p style={{ color: "#64748b", marginBottom: "24px" }}>No posts yet. Create your first one!</p>
@@ -223,9 +243,16 @@ export default function AdminBlog() {
                                     <img src={post.coverImage} alt="" style={{ width: "80px", height: "60px", objectFit: "cover", borderRadius: "8px" }} />
                                 )}
                                 <div style={{ flex: 1 }}>
-                                    <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0f172a", marginBottom: "4px" }}>{post.title}</h3>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                                        <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0f172a" }}>{post.title}</h3>
+                                        {post.generatedByAI && (
+                                            <span style={{ fontSize: "0.7rem", padding: "2px 8px", background: "#dbeafe", color: "#2563eb", borderRadius: "999px", fontWeight: 600 }}>🤖 AI</span>
+                                        )}
+                                    </div>
                                     <p style={{ fontSize: "0.85rem", color: "#64748b" }}>
                                         {new Date(post.publishedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+                                        <span style={{ margin: "0 8px" }}>•</span>
+                                        <span style={{ color: "#107C41", fontWeight: 600 }}>{post.views || 0} views</span>
                                     </p>
                                 </div>
                                 <div style={{ display: "flex", gap: "8px" }}>

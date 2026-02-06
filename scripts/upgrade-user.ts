@@ -35,13 +35,14 @@ async function upgradeUser() {
         }
 
         await userRef.update({
-            tier: 'pro',
-            planCredits: 500, // Give them standard Pro credits
+            tier: 'business',
+            planCredits: 7500, // Demo account with high fuel count
+            refillCredits: 0,
             subscriptionStatus: 'active',
             updatedAt: new Date()
         });
 
-        console.log('Successfully upgraded user to "pro" tier with 500 plan credits.');
+        console.log('Successfully upgraded demo account to "business" tier with 7500 plan credits.');
 
     } catch (error) {
         console.error('Error upgrading user:', error);
