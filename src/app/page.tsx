@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, ChevronDown, Rocket, Shield, Zap, Mail } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronDown, Rocket, Shield, Zap, Mail, Upload, Download } from "lucide-react";
 
 // --- COMPONENTS ---
 import Header from "@/components/Header";
@@ -81,7 +81,7 @@ export default function Home() {
     }
   };
 
-  const handleSubscribe = async (productId: string) => {
+  const handleSubscribe = async (productId: string, planName: string, monthlyCredits: number) => {
     if (!user) {
       await handleLogin();
       return;
@@ -95,8 +95,9 @@ export default function Home() {
           "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-          priceId: productId, // Using priceId as requested
-          userId: user.uid
+          productId,
+          planName,
+          monthlyCredits
         })
       });
       const data = await res.json();
@@ -172,85 +173,246 @@ export default function Home() {
 
       {/* --- HERO SECTION --- */}
       <section style={{
-        paddingTop: '180px',
-        paddingBottom: '80px',
+        paddingTop: '160px',
+        paddingBottom: '100px',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 30%, #a7f3d0 60%, #6ee7b7 100%)',
       }}>
-        <div className="max-w-container" style={{ paddingInline: '24px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '80px', alignItems: 'center' }}>
+        {/* Large Decorative Blur Blobs - Outseta style */}
+        <div style={{
+          position: 'absolute',
+          top: '-20%',
+          right: '-10%',
+          width: '600px',
+          height: '600px',
+          background: 'radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, rgba(20, 184, 166, 0.2) 50%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(60px)',
+          pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'absolute',
+          bottom: '-30%',
+          left: '-15%',
+          width: '700px',
+          height: '700px',
+          background: 'radial-gradient(circle, rgba(52, 211, 153, 0.5) 0%, rgba(16, 124, 65, 0.2) 50%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(80px)',
+          pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'absolute',
+          top: '30%',
+          left: '40%',
+          width: '400px',
+          height: '400px',
+          background: 'radial-gradient(circle, rgba(254, 243, 199, 0.6) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(60px)',
+          pointerEvents: 'none',
+        }} />
 
-            {/* Left Content */}
-            <div style={{ textAlign: 'left' }}>
-              <h1 className="hero-title" style={{ marginBottom: '24px' }}>
-                Convert PDFs & Screenshots to Excel.<br />
-                <span style={{ color: '#107c41' }}>AI that actually works.</span>
-              </h1>
+        <div className="max-w-container" style={{ paddingInline: '24px', position: 'relative', zIndex: 1 }}>
+          {/* Centered Hero Content */}
+          <div style={{ textAlign: 'center', maxWidth: '900px', margin: '0 auto', marginBottom: '60px' }}>
+            <h1 style={{
+              fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+              fontWeight: 800,
+              lineHeight: 1.1,
+              letterSpacing: '-0.03em',
+              color: '#0f172a',
+              marginBottom: '24px'
+            }}>
+              Convert PDFs & Screenshots to Excel.<br />
+              <span style={{ color: '#107c41' }}>AI that actually works.</span>
+            </h1>
 
-              <p className="hero-sub" style={{ marginBottom: '48px', fontSize: '1.25rem', maxWidth: '600px' }}>
-                Stop fixing messy formatting. Upload any document, image, or table. Our AI extracts structured data in seconds.
-              </p>
+            <p style={{
+              fontSize: '1.25rem',
+              color: '#475569',
+              lineHeight: 1.7,
+              marginBottom: '40px',
+              maxWidth: '650px',
+              margin: '0 auto 40px'
+            }}>
+              Stop fixing messy formatting. Upload any document, image, or table. Our AI extracts structured data in seconds.
+            </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ display: 'flex', gap: '20px' }}>
-                  <button onClick={handleGetStarted} className="btn-primary" style={{ height: '60px', padding: '0 40px' }}>
-                    Get 10 Free Fuels <ArrowRight size={20} style={{ marginLeft: '12px' }} />
-                  </button>
+            {/* CTA Buttons Row */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '24px' }}>
+              <button onClick={handleGetStarted} style={{
+                height: '56px',
+                padding: '0 32px',
+                background: '#107C41',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '1rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                boxShadow: '0 4px 20px rgba(16, 124, 65, 0.4)',
+                transition: 'all 0.2s ease',
+              }}>
+                Get 10 Free Fuels <ArrowRight size={18} />
+              </button>
+              <button onClick={() => router.push('#how-it-works')} style={{
+                height: '56px',
+                padding: '0 32px',
+                background: 'rgba(255,255,255,0.8)',
+                backdropFilter: 'blur(10px)',
+                color: '#0f172a',
+                border: '1px solid rgba(0,0,0,0.1)',
+                borderRadius: '12px',
+                fontSize: '1rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}>
+                See how it works
+              </button>
+            </div>
+
+            <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 500 }}>
+              No Credit Card Required. 10 Free Fuels included.
+            </span>
+          </div>
+
+          {/* Product Screenshots / UI Display - Outseta style floating cards */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '24px',
+            maxWidth: '1100px',
+            margin: '0 auto'
+          }}>
+            {/* Card 1 - Upload */}
+            <div style={{
+              background: 'rgba(255,255,255,0.9)',
+              backdropFilter: 'blur(20px)',
+              borderRadius: '20px',
+              padding: '32px',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.1)',
+              border: '1px solid rgba(255,255,255,0.8)',
+              transform: 'rotate(-2deg)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Upload size={20} color="#107c41" />
                 </div>
-                <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600, marginLeft: '4px' }}>
-                  No Credit Card Required. 10 Free Fuels included.
-                </span>
+                <span style={{ fontWeight: 700, color: '#0f172a' }}>Upload</span>
+              </div>
+              <p style={{ fontSize: '0.9rem', color: '#64748b' }}>Drag & drop PDFs, images, or screenshots</p>
+            </div>
 
-                {/* Social Proof Section */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginTop: '24px', flexWrap: 'wrap' }}>
-                  {/* Rating */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ display: 'flex', gap: '2px' }}>
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <svg key={star} width="18" height="18" viewBox="0 0 24 24" fill={star <= 4 ? '#FBBF24' : 'none'} stroke={star === 5 ? '#FBBF24' : 'none'}>
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill={star === 5 ? '#FBBF24' : undefined} style={{ opacity: star === 5 ? 0.9 : 1 }} />
-                        </svg>
-                      ))}
-                    </div>
-                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.95rem' }}>4.8</span>
-                    <span style={{ color: '#64748b', fontSize: '0.85rem' }}>rating</span>
-                  </div>
-
-                  {/* Divider */}
-                  <div style={{ width: '1px', height: '24px', background: '#e2e8f0' }}></div>
-
-                  {/* User Count */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.95rem' }}>{userCount.toLocaleString()}+</span>
-                    <span style={{ color: '#64748b', fontSize: '0.85rem' }}>documents processed</span>
-                  </div>
+            {/* Card 2 - Processing (center, larger) */}
+            <div style={{
+              background: 'rgba(255,255,255,0.95)',
+              backdropFilter: 'blur(20px)',
+              borderRadius: '20px',
+              padding: '32px',
+              boxShadow: '0 30px 80px rgba(0,0,0,0.15)',
+              border: '1px solid rgba(255,255,255,0.8)',
+              transform: 'translateY(-20px)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #107c41, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Zap size={22} color="white" />
+                </div>
+                <div>
+                  <span style={{ fontWeight: 700, color: '#0f172a', display: 'block' }}>AI Processing</span>
+                  <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 600 }}>✓ Data Extracted</span>
+                </div>
+              </div>
+              {/* Mini table preview */}
+              <div style={{
+                background: '#f8fafc',
+                borderRadius: '12px',
+                padding: '16px',
+                border: '1px solid #e2e8f0'
+              }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', fontSize: '0.75rem' }}>
+                  <div style={{ fontWeight: 700, color: '#64748b' }}>Name</div>
+                  <div style={{ fontWeight: 700, color: '#64748b' }}>Amount</div>
+                  <div style={{ fontWeight: 700, color: '#64748b' }}>Status</div>
+                  <div style={{ color: '#0f172a' }}>Invoice A</div>
+                  <div style={{ color: '#0f172a' }}>$1,250</div>
+                  <div style={{ color: '#10b981' }}>Paid</div>
+                  <div style={{ color: '#0f172a' }}>Invoice B</div>
+                  <div style={{ color: '#0f172a' }}>$3,400</div>
+                  <div style={{ color: '#f59e0b' }}>Pending</div>
                 </div>
               </div>
             </div>
 
-            {/* Right Side - Hero Visual */}
-            <div className="animate-float" style={{ position: 'relative' }}>
-              <div style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '120%',
-                height: '120%',
-                background: 'radial-gradient(circle, rgba(16, 124, 65, 0.12) 0%, transparent 70%)',
-                pointerEvents: 'none',
-                zIndex: -1
-              }}></div>
-              <HeroVisual />
+            {/* Card 3 - Download */}
+            <div style={{
+              background: 'rgba(255,255,255,0.9)',
+              backdropFilter: 'blur(20px)',
+              borderRadius: '20px',
+              padding: '32px',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.1)',
+              border: '1px solid rgba(255,255,255,0.8)',
+              transform: 'rotate(2deg)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Download size={20} color="#107c41" />
+                </div>
+                <span style={{ fontWeight: 700, color: '#0f172a' }}>Download</span>
+              </div>
+              <p style={{ fontSize: '0.9rem', color: '#64748b' }}>Get perfectly formatted .XLSX or .CSV files</p>
             </div>
+          </div>
 
+          {/* Social Proof Row */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '32px',
+            marginTop: '60px',
+            flexWrap: 'wrap'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '2px' }}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <svg key={star} width="18" height="18" viewBox="0 0 24 24" fill="#FBBF24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                ))}
+              </div>
+              <span style={{ fontWeight: 700, color: '#0f172a' }}>4.8</span>
+              <span style={{ color: '#64748b', fontSize: '0.9rem' }}>rating</span>
+            </div>
+            <div style={{ width: '1px', height: '24px', background: 'rgba(0,0,0,0.1)' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontWeight: 700, color: '#0f172a' }}>{userCount.toLocaleString()}+</span>
+              <span style={{ color: '#64748b', fontSize: '0.9rem' }}>documents processed</span>
+            </div>
           </div>
         </div>
       </section>
 
       {/* --- TESTIMONIALS MARQUEE --- */}
-      <section style={{ padding: '60px 0', backgroundColor: '#fff', borderTop: '1px solid #f1f5f9', overflow: 'hidden' }}>
-        <p style={{ color: '#94a3b8', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '32px', textAlign: 'center' }}>
+      <section style={{
+        padding: '80px 0',
+        background: 'linear-gradient(180deg, #f0fdf4 0%, #ecfdf5 50%, #ffffff 100%)',
+        overflow: 'hidden'
+      }}>
+        <p style={{
+          color: '#107c41',
+          fontWeight: 700,
+          fontSize: '0.85rem',
+          textTransform: 'uppercase',
+          letterSpacing: '0.15em',
+          marginBottom: '40px',
+          textAlign: 'center'
+        }}>
           What users are saying
         </p>
         {/* Center spotlight gradient overlay */}
@@ -260,8 +422,8 @@ export default function Home() {
             left: 0,
             top: 0,
             bottom: 0,
-            width: '120px',
-            background: 'linear-gradient(to right, #fff 0%, transparent 100%)',
+            width: '150px',
+            background: 'linear-gradient(to right, #f0fdf4 0%, transparent 100%)',
             zIndex: 10,
             pointerEvents: 'none'
           }}></div>
@@ -270,8 +432,8 @@ export default function Home() {
             right: 0,
             top: 0,
             bottom: 0,
-            width: '120px',
-            background: 'linear-gradient(to left, #fff 0%, transparent 100%)',
+            width: '150px',
+            background: 'linear-gradient(to left, #ffffff 0%, transparent 100%)',
             zIndex: 10,
             pointerEvents: 'none'
           }}></div>
@@ -292,24 +454,25 @@ export default function Home() {
                 { name: "Emily T.", role: "Operations Manager", text: "Simple, fast, and no learning curve. My team adopted it in minutes.", avatar: "ET" },
                 { name: "Mike L.", role: "Startup Founder", text: "Screenshot to Excel in seconds. This is the future.", avatar: "ML" },
               ].map((t, i) => (
-                <div key={`${setIndex}-${i}`} className="testimonial-card" style={{
-                  minWidth: '320px',
-                  background: '#f8fafc',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  border: '1px solid #e2e8f0',
+                <div key={`${setIndex}-${i}`} style={{
+                  minWidth: '340px',
+                  background: 'rgba(255,255,255,0.9)',
+                  backdropFilter: 'blur(10px)',
+                  borderRadius: '20px',
+                  padding: '28px',
+                  border: '1px solid rgba(16, 124, 65, 0.1)',
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.06)',
                   flexShrink: 0,
-                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}>
-                  <p style={{ color: '#475569', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '16px', fontStyle: 'italic' }}>
+                  <p style={{ color: '#334155', fontSize: '1rem', lineHeight: 1.7, marginBottom: '20px' }}>
                     &quot;{t.text}&quot;
                   </p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #107c41 0%, #22c55e 100%)',
+                      width: '44px',
+                      height: '44px',
+                      borderRadius: '12px',
+                      background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -318,8 +481,8 @@ export default function Home() {
                       fontWeight: 700
                     }}>{t.avatar}</div>
                     <div>
-                      <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.9rem' }}>{t.name}</div>
-                      <div style={{ color: '#94a3b8', fontSize: '0.8rem' }}>{t.role}</div>
+                      <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.95rem' }}>{t.name}</div>
+                      <div style={{ color: '#64748b', fontSize: '0.85rem' }}>{t.role}</div>
                     </div>
                   </div>
                 </div>
@@ -329,39 +492,141 @@ export default function Home() {
         </div>
       </section>
 
-      {/* --- WHY TABLESIFT? (PROBLEM/SOLUTION GRID) --- */}
-      <section id="why-tablesift" className="section-gradient-1 section-glow" style={{ padding: '140px 24px', borderTop: '1px solid #f1f5f9' }}>
-        <div className="max-w-container">
+      {/* --- WHY TABLESIFT? (DARK SHOWCASE SECTION - Outseta style) --- */}
+      <section id="why-tablesift" style={{
+        padding: '140px 24px',
+        background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Decorative blur */}
+        <div style={{
+          position: 'absolute',
+          top: '20%',
+          right: '-10%',
+          width: '500px',
+          height: '500px',
+          background: 'radial-gradient(circle, rgba(16, 124, 65, 0.15) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(80px)',
+          pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'absolute',
+          bottom: '-10%',
+          left: '10%',
+          width: '400px',
+          height: '400px',
+          background: 'radial-gradient(circle, rgba(52, 211, 153, 0.1) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(60px)',
+          pointerEvents: 'none',
+        }} />
+
+        <div className="max-w-container" style={{ position: 'relative', zIndex: 1 }}>
           <AnimatedSection animation="fade-up">
-            <h2 style={{ fontSize: '3rem', fontWeight: 900, textAlign: 'center', marginBottom: '80px', color: '#0f172a' }}>Why TableSift?</h2>
+            <p style={{
+              textAlign: 'center',
+              color: '#10b981',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.15em',
+              marginBottom: '16px'
+            }}>
+              Why TableSift?
+            </p>
+            <h2 style={{
+              fontSize: 'clamp(2rem, 4vw, 3rem)',
+              fontWeight: 900,
+              textAlign: 'center',
+              marginBottom: '80px',
+              color: '#ffffff',
+              maxWidth: '800px',
+              margin: '0 auto 80px'
+            }}>
+              Stop wrestling with messy data. <br />
+              <span style={{ color: '#10b981' }}>Start extracting in seconds.</span>
+            </h2>
           </AnimatedSection>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '40px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px' }}>
             <AnimatedSection animation="fade-up" delay={100}>
-              <div className="glass-panel" style={{ padding: '48px' }}>
-                <div className="icon-animate" style={{ fontSize: '2rem', marginBottom: '24px' }}>⚡</div>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '16px' }}>Messy OCR Results</h3>
-                <p style={{ color: '#64748b', fontSize: '1.1rem', lineHeight: 1.6 }}>
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '24px',
+                padding: '40px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                height: '100%'
+              }}>
+                <div style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '24px',
+                  fontSize: '1.5rem'
+                }}>⚡</div>
+                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '16px', color: '#ffffff' }}>Messy OCR Results</h3>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', lineHeight: 1.7 }}>
                   Standard tools fail on complex layouts. We specialize in Clean Data Extraction preserving headers and row alignment.
                 </p>
               </div>
             </AnimatedSection>
 
             <AnimatedSection animation="fade-up" delay={200}>
-              <div className="glass-panel" style={{ padding: '48px' }}>
-                <div className="icon-animate" style={{ fontSize: '2rem', marginBottom: '24px' }}>📸</div>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '16px' }}>Screenshot to Spreadsheet</h3>
-                <p style={{ color: '#64748b', fontSize: '1.1rem', lineHeight: 1.6 }}>
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '24px',
+                padding: '40px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                height: '100%'
+              }}>
+                <div style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '24px',
+                  fontSize: '1.5rem'
+                }}>📸</div>
+                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '16px', color: '#ffffff' }}>Screenshot to Spreadsheet</h3>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', lineHeight: 1.7 }}>
                   Don&apos;t retype data. Snap a picture of a financial report or invoice and convert Image to Excel AI instantly.
                 </p>
               </div>
             </AnimatedSection>
 
             <AnimatedSection animation="fade-up" delay={300}>
-              <div className="glass-panel" style={{ padding: '48px' }}>
-                <div className="icon-animate" style={{ fontSize: '2rem', marginBottom: '24px' }}>📦</div>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '16px' }}>Bulk Processing</h3>
-                <p style={{ color: '#64748b', fontSize: '1.1rem', lineHeight: 1.6 }}>
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '24px',
+                padding: '40px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                height: '100%'
+              }}>
+                <div style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '24px',
+                  fontSize: '1.5rem'
+                }}>📦</div>
+                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '16px', color: '#ffffff' }}>Bulk Processing</h3>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', lineHeight: 1.7 }}>
                   Need to parse 100 pages? Our PDF Parsing engine handles bulk uploads without crashing.
                 </p>
               </div>
@@ -371,35 +636,140 @@ export default function Home() {
       </section>
 
       {/* --- HOW IT WORKS --- */}
-      <section id="how-it-works" className="section-gradient-2" style={{ padding: '140px 24px', borderTop: '1px solid #f1f5f9' }}>
-        <div className="max-w-container">
+      <section id="how-it-works" style={{
+        padding: '140px 24px',
+        background: '#ffffff',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Subtle background accent */}
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '800px',
+          height: '800px',
+          background: 'radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, transparent 70%)',
+          borderRadius: '50%',
+          pointerEvents: 'none',
+        }} />
+
+        <div className="max-w-container" style={{ position: 'relative', zIndex: 1 }}>
           <AnimatedSection animation="fade-up">
-            <h2 style={{ fontSize: '3rem', fontWeight: 900, textAlign: 'center', marginBottom: '80px', color: '#0f172a' }}>From Image to Excel in 3 Steps</h2>
+            <p style={{
+              textAlign: 'center',
+              color: '#10b981',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.15em',
+              marginBottom: '16px'
+            }}>
+              How It Works
+            </p>
+            <h2 style={{
+              fontSize: 'clamp(2rem, 4vw, 3rem)',
+              fontWeight: 900,
+              textAlign: 'center',
+              marginBottom: '80px',
+              color: '#0f172a',
+              maxWidth: '700px',
+              margin: '0 auto 80px'
+            }}>
+              From Image to Excel <span style={{ color: '#107c41' }}>in 3 Simple Steps</span>
+            </h2>
           </AnimatedSection>
 
-          <div className="steps-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '60px', position: 'relative' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '48px',
+            maxWidth: '1100px',
+            margin: '0 auto'
+          }}>
 
             <AnimatedSection animation="fade-up" delay={100}>
-              <div style={{ textAlign: 'center' }}>
-                <div className="step-number" style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#107c41', fontSize: '1.5rem', fontWeight: 900, margin: '0 auto 32px' }}>1</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '16px' }}>Upload your PDF or Image</h3>
-                <p style={{ color: '#64748b', fontSize: '1.1rem' }}>Supports scanned docs, photos, and high-res PDFs.</p>
+              <div style={{
+                background: 'linear-gradient(180deg, #f8fafc 0%, #ffffff 100%)',
+                borderRadius: '24px',
+                padding: '40px',
+                border: '1px solid #e2e8f0',
+                textAlign: 'center',
+                height: '100%'
+              }}>
+                <div style={{
+                  width: '72px',
+                  height: '72px',
+                  borderRadius: '20px',
+                  background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '1.75rem',
+                  fontWeight: 900,
+                  margin: '0 auto 28px',
+                  boxShadow: '0 8px 24px rgba(16, 124, 65, 0.3)'
+                }}>1</div>
+                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '16px', color: '#0f172a' }}>Upload your PDF or Image</h3>
+                <p style={{ color: '#64748b', fontSize: '1.05rem', lineHeight: 1.7 }}>Supports scanned docs, photos, and high-res PDFs.</p>
               </div>
             </AnimatedSection>
 
             <AnimatedSection animation="fade-up" delay={200}>
-              <div style={{ textAlign: 'center' }}>
-                <div className="step-number" style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#107c41', fontSize: '1.5rem', fontWeight: 900, margin: '0 auto 32px' }}>2</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '16px' }}>AI Identifies Data</h3>
-                <p style={{ color: '#64748b', fontSize: '1.1rem' }}>Our vision models identify rows, columns, and headers automatically.</p>
+              <div style={{
+                background: 'linear-gradient(180deg, #f8fafc 0%, #ffffff 100%)',
+                borderRadius: '24px',
+                padding: '40px',
+                border: '1px solid #e2e8f0',
+                textAlign: 'center',
+                height: '100%'
+              }}>
+                <div style={{
+                  width: '72px',
+                  height: '72px',
+                  borderRadius: '20px',
+                  background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '1.75rem',
+                  fontWeight: 900,
+                  margin: '0 auto 28px',
+                  boxShadow: '0 8px 24px rgba(16, 124, 65, 0.3)'
+                }}>2</div>
+                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '16px', color: '#0f172a' }}>AI Identifies Data</h3>
+                <p style={{ color: '#64748b', fontSize: '1.05rem', lineHeight: 1.7 }}>Our vision models identify rows, columns, and headers automatically.</p>
               </div>
             </AnimatedSection>
 
             <AnimatedSection animation="fade-up" delay={300}>
-              <div style={{ textAlign: 'center' }}>
-                <div className="step-number" style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#107c41', fontSize: '1.5rem', fontWeight: 900, margin: '0 auto 32px' }}>3</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '16px' }}>Download Results</h3>
-                <p style={{ color: '#64748b', fontSize: '1.1rem' }}>Download as perfectly formatted .XLSX or .CSV files.</p>
+              <div style={{
+                background: 'linear-gradient(180deg, #f8fafc 0%, #ffffff 100%)',
+                borderRadius: '24px',
+                padding: '40px',
+                border: '1px solid #e2e8f0',
+                textAlign: 'center',
+                height: '100%'
+              }}>
+                <div style={{
+                  width: '72px',
+                  height: '72px',
+                  borderRadius: '20px',
+                  background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '1.75rem',
+                  fontWeight: 900,
+                  margin: '0 auto 28px',
+                  boxShadow: '0 8px 24px rgba(16, 124, 65, 0.3)'
+                }}>3</div>
+                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '16px', color: '#0f172a' }}>Download Results</h3>
+                <p style={{ color: '#64748b', fontSize: '1.05rem', lineHeight: 1.7 }}>Download as perfectly formatted .XLSX or .CSV files.</p>
               </div>
             </AnimatedSection>
 
@@ -407,27 +777,46 @@ export default function Home() {
         </div>
       </section>
 
-      {/* --- BUILT FOR PROFESSIONALS --- */}
-      <section id="built-for" className="section-gradient-1 section-glow" style={{ padding: '120px 24px', borderTop: '1px solid #f1f5f9' }}>
-        <div className="max-w-container">
+      {/* --- BUILT FOR PROFESSIONALS (DARK SHOWCASE) --- */}
+      <section id="built-for" style={{
+        padding: '140px 24px',
+        background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Decorative blur */}
+        <div style={{
+          position: 'absolute',
+          top: '-10%',
+          left: '20%',
+          width: '500px',
+          height: '500px',
+          background: 'radial-gradient(circle, rgba(16, 124, 65, 0.12) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(80px)',
+          pointerEvents: 'none',
+        }} />
+
+        <div className="max-w-container" style={{ position: 'relative', zIndex: 1 }}>
           <AnimatedSection animation="fade-up">
             <div style={{ textAlign: 'center', marginBottom: '60px' }}>
               <span style={{
-                background: '#f0fdf4',
-                color: '#166534',
-                padding: '8px 16px',
-                borderRadius: '8px',
-                fontSize: '0.8rem',
+                background: 'rgba(16, 185, 129, 0.15)',
+                color: '#10b981',
+                padding: '8px 20px',
+                borderRadius: '20px',
+                fontSize: '0.85rem',
                 fontWeight: 700,
                 textTransform: 'uppercase',
-                letterSpacing: '0.05em'
+                letterSpacing: '0.1em',
+                border: '1px solid rgba(16, 185, 129, 0.2)'
               }}>
                 Built for Workflow
               </span>
-              <h2 style={{ fontSize: '2.75rem', fontWeight: 900, marginTop: '24px', marginBottom: '16px', color: '#0f172a' }}>
-                Who Uses TableSift?
+              <h2 style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)', fontWeight: 900, marginTop: '24px', marginBottom: '16px', color: '#ffffff' }}>
+                Who Uses <span style={{ color: '#10b981' }}>TableSift?</span>
               </h2>
-              <p style={{ color: '#64748b', fontSize: '1.15rem', maxWidth: '600px', margin: '0 auto' }}>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.15rem', maxWidth: '600px', margin: '0 auto' }}>
                 Trusted by professionals who deal with documents daily. It&apos;s not a trend—it&apos;s a workflow essential.
               </p>
             </div>
@@ -437,73 +826,115 @@ export default function Home() {
 
             {/* Accounting Firms */}
             <AnimatedSection animation="fade-up" delay={100}>
-              <div className="glass-panel" style={{ padding: '32px', textAlign: 'left' }}>
-                <div className="icon-animate" style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🧾</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '12px', color: '#0f172a' }}>Accounting Firms</h3>
-                <p style={{ color: '#64748b', fontSize: '1rem', lineHeight: 1.7, marginBottom: '16px' }}>
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '20px',
+                padding: '32px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                height: '100%'
+              }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🧾</div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '12px', color: '#ffffff' }}>Accounting Firms</h3>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', lineHeight: 1.7, marginBottom: '16px' }}>
                   Convert bank statements, GST invoices, and ledger exports to Excel. No more manual data entry during tax season.
                 </p>
-                <span style={{ fontSize: '0.85rem', color: '#107c41', fontWeight: 700 }}>Bank Statements • GST Returns • Tally Exports</span>
+                <span style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: 700 }}>Bank Statements • GST Returns • Tally Exports</span>
               </div>
             </AnimatedSection>
 
             {/* Audit Firms */}
             <AnimatedSection animation="fade-up" delay={150}>
-              <div className="glass-panel" style={{ padding: '32px', textAlign: 'left' }}>
-                <div className="icon-animate" style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🔍</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '12px', color: '#0f172a' }}>Audit Firms</h3>
-                <p style={{ color: '#64748b', fontSize: '1rem', lineHeight: 1.7, marginBottom: '16px' }}>
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '20px',
+                padding: '32px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                height: '100%'
+              }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🔍</div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '12px', color: '#ffffff' }}>Audit Firms</h3>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', lineHeight: 1.7, marginBottom: '16px' }}>
                   Extract financial tables from compliance documents. Verify entries against ledgers in minutes, not hours.
                 </p>
-                <span style={{ fontSize: '0.85rem', color: '#107c41', fontWeight: 700 }}>Compliance Docs • Verification Tables • ITR Data</span>
+                <span style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: 700 }}>Compliance Docs • Verification Tables • ITR Data</span>
               </div>
             </AnimatedSection>
 
             {/* Logistics & Operations */}
             <AnimatedSection animation="fade-up" delay={200}>
-              <div className="glass-panel" style={{ padding: '32px', textAlign: 'left' }}>
-                <div className="icon-animate" style={{ fontSize: '2.5rem', marginBottom: '16px' }}>📦</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '12px', color: '#0f172a' }}>Logistics & Operations</h3>
-                <p style={{ color: '#64748b', fontSize: '1rem', lineHeight: 1.7, marginBottom: '16px' }}>
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '20px',
+                padding: '32px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                height: '100%'
+              }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>📦</div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '12px', color: '#ffffff' }}>Logistics & Operations</h3>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', lineHeight: 1.7, marginBottom: '16px' }}>
                   Process vendor bills, shipping manifests, and purchase orders at scale. Keep your operations running smooth.
                 </p>
-                <span style={{ fontSize: '0.85rem', color: '#107c41', fontWeight: 700 }}>Vendor Bills • PO Tables • Shipping Manifests</span>
+                <span style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: 700 }}>Vendor Bills • PO Tables • Shipping Manifests</span>
               </div>
             </AnimatedSection>
 
             {/* Research Teams */}
             <AnimatedSection animation="fade-up" delay={250}>
-              <div className="glass-panel" style={{ padding: '32px', textAlign: 'left' }}>
-                <div className="icon-animate" style={{ fontSize: '2.5rem', marginBottom: '16px' }}>📊</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '12px', color: '#0f172a' }}>Research Teams</h3>
-                <p style={{ color: '#64748b', fontSize: '1rem', lineHeight: 1.7, marginBottom: '16px' }}>
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '20px',
+                padding: '32px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                height: '100%'
+              }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>📊</div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '12px', color: '#ffffff' }}>Research Teams</h3>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', lineHeight: 1.7, marginBottom: '16px' }}>
                   Digitize survey data, report tables, and academic citations. Spend time analyzing, not transcribing.
                 </p>
-                <span style={{ fontSize: '0.85rem', color: '#107c41', fontWeight: 700 }}>Survey Data • Report Tables • Citations</span>
+                <span style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: 700 }}>Survey Data • Report Tables • Citations</span>
               </div>
             </AnimatedSection>
 
             {/* Agencies */}
             <AnimatedSection animation="fade-up" delay={300}>
-              <div className="glass-panel" style={{ padding: '32px', textAlign: 'left' }}>
-                <div className="icon-animate" style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🏢</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '12px', color: '#0f172a' }}>Agencies</h3>
-                <p style={{ color: '#64748b', fontSize: '1rem', lineHeight: 1.7, marginBottom: '16px' }}>
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '20px',
+                padding: '32px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                height: '100%'
+              }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🏢</div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '12px', color: '#ffffff' }}>Agencies</h3>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', lineHeight: 1.7, marginBottom: '16px' }}>
                   Handle client invoices, expense reports, and campaign data. Streamline your billing and reporting cycles.
                 </p>
-                <span style={{ fontSize: '0.85rem', color: '#107c41', fontWeight: 700 }}>Client Invoices • Expense Reports • Campaign Data</span>
+                <span style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: 700 }}>Client Invoices • Expense Reports • Campaign Data</span>
               </div>
             </AnimatedSection>
 
             {/* Back-Office & BPO */}
             <AnimatedSection animation="fade-up" delay={350}>
-              <div className="glass-panel" style={{ padding: '32px', textAlign: 'left' }}>
-                <div className="icon-animate" style={{ fontSize: '2.5rem', marginBottom: '16px' }}>⚙️</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '12px', color: '#0f172a' }}>Back-Office & BPO</h3>
-                <p style={{ color: '#64748b', fontSize: '1rem', lineHeight: 1.7, marginBottom: '16px' }}>
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '20px',
+                padding: '32px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                height: '100%'
+              }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>⚙️</div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '12px', color: '#ffffff' }}>Back-Office & BPO</h3>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', lineHeight: 1.7, marginBottom: '16px' }}>
                   Bulk data entry is your business. TableSift handles 100s of documents per day without breaking a sweat.
                 </p>
-                <span style={{ fontSize: '0.85rem', color: '#107c41', fontWeight: 700 }}>Bulk Processing • Data Entry • Document Automation</span>
+                <span style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: 700 }}>Bulk Processing • Data Entry • Document Automation</span>
               </div>
             </AnimatedSection>
 
@@ -514,137 +945,281 @@ export default function Home() {
       {/* Pricing Section follows */}
 
       {/* --- PRICING SECTION --- */}
-      <section id="pricing" style={{ padding: '140px 0', backgroundColor: '#fcfcfc', borderTop: '1px solid #f1f5f9' }}>
-        <div className="max-w-container" style={{ paddingInline: '24px', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '20px', color: '#0f172a' }}>Simple, per-page fuel packs.</h2>
-          <p style={{ color: '#64748b', fontSize: '1.25rem', marginBottom: '80px' }}>No hidden fees. Cancel anytime.</p>
+      <section id="pricing" style={{
+        padding: '140px 0',
+        background: 'linear-gradient(180deg, #f8fafc 0%, #f0fdf4 50%, #ecfdf5 100%)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Decorative blur */}
+        <div style={{
+          position: 'absolute',
+          top: '0',
+          right: '-10%',
+          width: '500px',
+          height: '500px',
+          background: 'radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(80px)',
+          pointerEvents: 'none',
+        }} />
+
+        <div className="max-w-container" style={{ paddingInline: '24px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+          <p style={{
+            textAlign: 'center',
+            color: '#10b981',
+            fontWeight: 700,
+            fontSize: '0.85rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.15em',
+            marginBottom: '16px'
+          }}>
+            Pricing
+          </p>
+          <h2 style={{
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 900,
+            marginBottom: '20px',
+            color: '#0f172a'
+          }}>
+            Simple, <span style={{ color: '#107c41' }}>per-page fuel packs</span>
+          </h2>
+          <p style={{ color: '#64748b', fontSize: '1.2rem', marginBottom: '80px' }}>No hidden fees. Cancel anytime.</p>
 
           <div className="pricing-grid" style={{
             display: 'grid',
             gap: '24px',
             maxWidth: '1400px',
             margin: '0 auto',
-            paddingTop: '20px'
           }}>
 
             {/* Card 1: Free Tier */}
-            <div className="glass-panel" style={{ padding: '56px 40px', textAlign: 'left', display: 'flex', flexDirection: 'column' }}>
+            <div style={{
+              padding: '48px 36px',
+              textAlign: 'left',
+              display: 'flex',
+              flexDirection: 'column',
+              background: 'rgba(255, 255, 255, 0.8)',
+              backdropFilter: 'blur(20px)',
+              borderRadius: '24px',
+              border: '1px solid rgba(255, 255, 255, 0.8)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.06)'
+            }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px', color: '#107C41' }}>Free</h3>
               <div style={{ marginBottom: '24px' }}>
-                <span style={{ fontSize: '3rem', fontWeight: 900 }}>$0</span>
+                <span style={{ fontSize: '3rem', fontWeight: 900, color: '#0f172a' }}>$0</span>
                 <span style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 600, marginLeft: '4px' }}>/ one-time</span>
               </div>
               <p style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 700, marginBottom: '24px' }}>10 Fuels (Lifetime)</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <li style={{ color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.05rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#107C41' }}></span>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px 0', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <li style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)' }}></span>
                   Standard AI Processing
                 </li>
-                <li style={{ color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.05rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#107C41' }}></span>
+                <li style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)' }}></span>
                   Export to Excel/CSV
                 </li>
-                <li style={{ color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.05rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#107C41' }}></span>
+                <li style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)' }}></span>
                   24-Hour Secure Deletion
                 </li>
               </ul>
-              <button onClick={handleGetStarted} style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '2px solid #e2e8f0', background: 'transparent', fontWeight: 800, cursor: 'pointer', marginTop: 'auto' }}>Start Free</button>
+              <button onClick={handleGetStarted} style={{
+                width: '100%',
+                padding: '16px',
+                borderRadius: '14px',
+                border: '2px solid #e2e8f0',
+                background: 'transparent',
+                fontWeight: 700,
+                cursor: 'pointer',
+                marginTop: 'auto',
+                fontSize: '1rem',
+                color: '#475569',
+                transition: 'all 0.2s ease'
+              }}>Start Free</button>
             </div>
 
             {/* Card 2: Starter (MOST POPULAR) */}
-            <div className="glass-panel" style={{ padding: '56px 40px', textAlign: 'left', border: '2px solid #107C41', backgroundColor: '#fff', position: 'relative', display: 'flex', flexDirection: 'column', overflow: 'visible' }}>
-              <div className="badge-popular">Most Popular</div>
+            <div style={{
+              padding: '48px 36px',
+              textAlign: 'left',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'visible',
+              background: 'linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%)',
+              borderRadius: '24px',
+              border: '2px solid #10b981',
+              boxShadow: '0 12px 40px rgba(16, 185, 129, 0.2)'
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: '-14px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)',
+                color: 'white',
+                padding: '6px 20px',
+                borderRadius: '20px',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}>Most Popular</div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px', color: '#107C41' }}>Starter</h3>
               <div style={{ marginBottom: '24px' }}>
-                <span style={{ fontSize: '3rem', fontWeight: 900 }}>$12</span>
+                <span style={{ fontSize: '3rem', fontWeight: 900, color: '#0f172a' }}>$12</span>
                 <span style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 600, marginLeft: '4px' }}>/ mo</span>
               </div>
               <p style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 700, marginBottom: '24px' }}>50 Fuels / mo</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <li style={{ color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.05rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#107C41' }}></span>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px 0', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <li style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)' }}></span>
                   Everything in Free
                 </li>
-                <li style={{ color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.05rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#107C41' }}></span>
+                <li style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)' }}></span>
                   Priority Email Support
                 </li>
-                <li style={{ color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.05rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#107C41' }}></span>
+                <li style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)' }}></span>
                   Cancel Anytime
                 </li>
-                <li style={{ color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.05rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#107C41' }}></span>
+                <li style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)' }}></span>
                   Perfect for Freelancers
                 </li>
               </ul>
-              <button onClick={() => handleSubscribe(STARTER_ID)} className="btn-primary" style={{ width: '100%', padding: '16px', marginTop: 'auto' }}>Get Starter</button>
+              <button onClick={() => handleSubscribe(STARTER_ID, 'Starter', 50)} style={{
+                width: '100%',
+                padding: '16px',
+                marginTop: 'auto',
+                background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '14px',
+                fontWeight: 700,
+                fontSize: '1rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(16, 124, 65, 0.3)'
+              }}>Get Starter</button>
             </div>
 
             {/* Card 3: Pro */}
-            <div className="glass-panel" style={{ padding: '56px 40px', textAlign: 'left', display: 'flex', flexDirection: 'column' }}>
+            <div style={{
+              padding: '48px 36px',
+              textAlign: 'left',
+              display: 'flex',
+              flexDirection: 'column',
+              background: 'rgba(255, 255, 255, 0.8)',
+              backdropFilter: 'blur(20px)',
+              borderRadius: '24px',
+              border: '1px solid rgba(255, 255, 255, 0.8)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.06)'
+            }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px', color: '#107C41' }}>Pro</h3>
               <div style={{ marginBottom: '24px' }}>
-                <span style={{ fontSize: '3rem', fontWeight: 900 }}>$49</span>
+                <span style={{ fontSize: '3rem', fontWeight: 900, color: '#0f172a' }}>$49</span>
                 <span style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 600, marginLeft: '4px' }}>/ mo</span>
               </div>
               <p style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 700, marginBottom: '24px' }}>200 Fuels / mo</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <li style={{ color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.05rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#107C41' }}></span>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px 0', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <li style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)' }}></span>
                   Everything in Starter
                 </li>
-                <li style={{ color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.05rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#107C41' }}></span>
+                <li style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)' }}></span>
                   Bulk File Uploads
                 </li>
-                <li style={{ color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.05rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#107C41' }}></span>
+                <li style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)' }}></span>
                   High-Volume Workflow
                 </li>
-                <li style={{ color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.05rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#107C41' }}></span>
+                <li style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)' }}></span>
                   Invoice Billing Available
                 </li>
               </ul>
-              <button onClick={() => handleSubscribe(PRO_ID)} style={{ width: '100%', padding: '16px', borderRadius: '12px', background: '#0f172a', color: '#fff', fontWeight: 800, cursor: 'pointer', border: 'none', marginTop: 'auto' }}>Get Pro</button>
+              <button onClick={() => handleSubscribe(PRO_ID, 'Pro', 200)} style={{
+                width: '100%',
+                padding: '16px',
+                borderRadius: '14px',
+                background: '#0f172a',
+                color: '#fff',
+                fontWeight: 700,
+                cursor: 'pointer',
+                border: 'none',
+                marginTop: 'auto',
+                fontSize: '1rem'
+              }}>Get Pro</button>
             </div>
 
             {/* Card 4: Business */}
-            <div className="glass-panel" style={{ padding: '56px 40px', textAlign: 'left', display: 'flex', flexDirection: 'column' }}>
+            <div style={{
+              padding: '48px 36px',
+              textAlign: 'left',
+              display: 'flex',
+              flexDirection: 'column',
+              background: 'rgba(255, 255, 255, 0.8)',
+              backdropFilter: 'blur(20px)',
+              borderRadius: '24px',
+              border: '1px solid rgba(255, 255, 255, 0.8)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.06)'
+            }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px', color: '#107C41' }}>Business</h3>
               <div style={{ marginBottom: '24px' }}>
-                <span style={{ fontSize: '3rem', fontWeight: 900 }}>$199</span>
+                <span style={{ fontSize: '3rem', fontWeight: 900, color: '#0f172a' }}>$199</span>
                 <span style={{ fontSize: '0.875rem', color: '#64748b', fontWeight: 600, marginLeft: '4px' }}>/ mo</span>
               </div>
               <p style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 700, marginBottom: '24px' }}>900 Fuels / mo</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <li style={{ color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.05rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#107C41' }}></span>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px 0', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <li style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)' }}></span>
                   Everything in Pro
                 </li>
-                <li style={{ color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.05rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#107C41' }}></span>
+                <li style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)' }}></span>
                   Team Accounts (5 users)
                 </li>
-                <li style={{ color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.05rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#107C41' }}></span>
+                <li style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)' }}></span>
                   Priority Support
                 </li>
-                <li style={{ color: '#4b5563', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.05rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#107C41' }}></span>
+                <li style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)' }}></span>
                   90-Day Download History
                 </li>
               </ul>
-              <button onClick={() => handleSubscribe(BUSINESS_ID)} style={{ width: '100%', padding: '16px', borderRadius: '12px', background: '#0f172a', color: '#fff', fontWeight: 800, cursor: 'pointer', border: 'none', marginTop: 'auto' }}>Get Business</button>
+              <button onClick={() => handleSubscribe(BUSINESS_ID, 'Business', 900)} style={{
+                width: '100%',
+                padding: '16px',
+                borderRadius: '14px',
+                background: '#0f172a',
+                color: '#fff',
+                fontWeight: 700,
+                cursor: 'pointer',
+                border: 'none',
+                marginTop: 'auto',
+                fontSize: '1rem'
+              }}>Get Business</button>
             </div>
           </div>
 
           {/* Flexible Pricing CTA */}
-          <div style={{ textAlign: 'center', marginTop: '60px', padding: '40px 20px', background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)', borderRadius: '20px', border: '1px solid #bbf7d0' }}>
-            <p style={{ fontSize: '1.35rem', color: '#334155', fontWeight: 600, marginBottom: '12px' }}>
-              Need a <span style={{ color: '#107C41', fontWeight: 800 }}>custom plan</span>? We&apos;re flexible.
+          <div style={{
+            textAlign: 'center',
+            marginTop: '60px',
+            padding: '48px 24px',
+            background: 'rgba(255,255,255,0.9)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: '24px',
+            border: '1px solid rgba(16, 185, 129, 0.2)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.04)'
+          }}>
+            <p style={{ fontSize: '1.35rem', color: '#0f172a', fontWeight: 700, marginBottom: '12px' }}>
+              Need a <span style={{ color: '#107C41' }}>custom plan</span>? We&apos;re flexible.
             </p>
             <p style={{ color: '#64748b', fontSize: '1rem', marginBottom: '24px' }}>
               Volume discounts, team billing, or unique requirements — let&apos;s talk.
@@ -653,8 +1228,8 @@ export default function Home() {
               onClick={() => setShowContactModal(true)}
               style={{
                 padding: '14px 32px',
-                borderRadius: '12px',
-                background: '#107C41',
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)',
                 color: '#fff',
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -673,9 +1248,31 @@ export default function Home() {
       </section>
 
       {/* --- FAQ SECTION --- */}
-      <section id="faq" style={{ padding: '140px 24px', background: '#fff', borderTop: '1px solid #f1f5f9' }}>
+      <section id="faq" style={{
+        padding: '140px 24px',
+        background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+      }}>
         <div style={{ maxWidth: '850px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: '3rem', fontWeight: 900, textAlign: 'center', marginBottom: '60px' }}>Curiosities</h2>
+          <p style={{
+            textAlign: 'center',
+            color: '#10b981',
+            fontWeight: 700,
+            fontSize: '0.85rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.15em',
+            marginBottom: '16px'
+          }}>
+            FAQs
+          </p>
+          <h2 style={{
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 900,
+            textAlign: 'center',
+            marginBottom: '60px',
+            color: '#0f172a'
+          }}>
+            Got Questions? <span style={{ color: '#107c41' }}>We&apos;ve Got Answers</span>
+          </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {[
               { q: "Does this work on Scanned PDFs?", a: "Yes. Our AI includes advanced OCR (Optical Character Recognition) that reads data from screenshots, photos, and scanned documents, not just digital PDFs." },
@@ -684,65 +1281,135 @@ export default function Home() {
               { q: "Can I convert a photo of a table?", a: "Yes. Use our 'Image to Excel' feature. Just snap a photo of a financial report, invoice, or schedule, and we will convert it to a spreadsheet." },
               { q: "What is a 'Fuel'?", a: "One Fuel equals one page scan. If you upload a 5-page PDF, it costs 5 Fuels. This ensures you only pay for exactly what you use." }
             ].map((item, i) => (
-              <details key={i} className="glass-panel" style={{ padding: '24px', cursor: 'pointer' }}>
-                <summary style={{ fontWeight: 800, fontSize: '1.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', listStyle: 'none', color: '#0f172a' }}>
+              <details key={i} style={{
+                padding: '28px',
+                cursor: 'pointer',
+                background: '#ffffff',
+                borderRadius: '16px',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.04)'
+              }}>
+                <summary style={{ fontWeight: 800, fontSize: '1.15rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', listStyle: 'none', color: '#0f172a' }}>
                   {item.q}
                   <ChevronDown size={20} color="#107C41" />
                 </summary>
-                <p style={{ marginTop: '20px', color: '#64748b', fontSize: '1.1rem', lineHeight: 1.7 }}>{item.a}</p>
+                <p style={{ marginTop: '20px', color: '#64748b', fontSize: '1.05rem', lineHeight: 1.7 }}>{item.a}</p>
               </details>
             ))}
           </div>
         </div>
       </section>
 
-      {/* --- FOOTER --- */}
-      <footer style={{ padding: '120px 24px 60px', backgroundColor: '#fff', borderTop: '1px solid #f1f5f9' }}>
-        <div className="max-w-container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '80px', marginBottom: '80px' }}>
+      {/* --- FOOTER WITH DARK CTA --- */}
+      <footer style={{
+        background: 'linear-gradient(180deg, #0f172a 0%, #020617 100%)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Decorative blur */}
+        <div style={{
+          position: 'absolute',
+          top: '10%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '600px',
+          height: '400px',
+          background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(80px)',
+          pointerEvents: 'none',
+        }} />
+
+        {/* CTA Section */}
+        <div style={{ padding: '120px 24px 80px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+          <h2 style={{
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 900,
+            color: '#ffffff',
+            marginBottom: '24px'
+          }}>
+            Ready to <span style={{ color: '#10b981' }}>Save Hours</span> Every Week?
+          </h2>
+          <p style={{
+            color: 'rgba(255,255,255,0.7)',
+            fontSize: '1.2rem',
+            marginBottom: '40px',
+            maxWidth: '600px',
+            margin: '0 auto 40px'
+          }}>
+            Join thousands of professionals who trust TableSift for their document extraction needs.
+          </p>
+          <button onClick={handleGetStarted} style={{
+            height: '60px',
+            padding: '0 40px',
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '14px',
+            fontSize: '1.1rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '12px',
+            boxShadow: '0 8px 32px rgba(16, 185, 129, 0.4)',
+          }}>
+            Get 10 Free Fuels <ArrowRight size={20} />
+          </button>
+          <p style={{ marginTop: '20px', color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>
+            No credit card required
+          </p>
+        </div>
+
+        {/* Footer Links */}
+        <div className="max-w-container" style={{ padding: '0 24px 60px', position: 'relative', zIndex: 1 }}>
+          <div style={{
+            borderTop: '1px solid rgba(255,255,255,0.1)',
+            paddingTop: '60px',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '60px',
+          }}>
 
             {/* Brand Col */}
             <div>
               <Link href="/" style={{ textDecoration: 'none', display: 'inline-block', marginBottom: '24px' }}>
-                <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px' }}>
-                  TableSift<span style={{ color: '#107c41' }}>.com</span>
+                <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.5px' }}>
+                  TableSift<span style={{ color: '#10b981' }}>.com</span>
                 </span>
               </Link>
-              <p style={{ color: '#64748b', fontSize: '1rem', lineHeight: 1.6, marginBottom: '32px', maxWidth: '300px' }}>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.95rem', lineHeight: 1.7, maxWidth: '280px' }}>
                 The world&apos;s most intelligent table extraction engine. Turn messy documents into clean Excel files in seconds.
               </p>
-              <button onClick={handleGetStarted} className="btn-primary" style={{ padding: '12px 32px' }}>
-                Get Started Free
-              </button>
             </div>
 
             {/* Product Links */}
             <div>
-              <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '32px' }}>Product</h4>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <li><Link href="#why-tablesift" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Why TableSift?</Link></li>
-                <li><Link href="#how-it-works" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>How it Works</Link></li>
-                <li><Link href="/blog" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Blog</Link></li>
-                <li><Link href="#pricing" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Pricing</Link></li>
-                <li><Link href="#faq" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>FAQ</Link></li>
+              <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '24px' }}>Product</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <li><Link href="#why-tablesift" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontWeight: 500, fontSize: '0.95rem' }}>Why TableSift?</Link></li>
+                <li><Link href="#how-it-works" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontWeight: 500, fontSize: '0.95rem' }}>How it Works</Link></li>
+                <li><Link href="/blog" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontWeight: 500, fontSize: '0.95rem' }}>Blog</Link></li>
+                <li><Link href="#pricing" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontWeight: 500, fontSize: '0.95rem' }}>Pricing</Link></li>
+                <li><Link href="#faq" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontWeight: 500, fontSize: '0.95rem' }}>FAQ</Link></li>
               </ul>
             </div>
 
             {/* Company Links */}
             <div>
-              <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '32px' }}>Company</h4>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <li><Link href="/about" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>About</Link></li>
-                <li><Link href="/privacy" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Privacy Policy</Link></li>
-                <li><Link href="/terms" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Terms of Service</Link></li>
-                <li><a href="mailto:support@tablesift.com" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Contact Support</a></li>
+              <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '24px' }}>Company</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <li><Link href="/about" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontWeight: 500, fontSize: '0.95rem' }}>About</Link></li>
+                <li><Link href="/privacy" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontWeight: 500, fontSize: '0.95rem' }}>Privacy Policy</Link></li>
+                <li><Link href="/terms" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontWeight: 500, fontSize: '0.95rem' }}>Terms of Service</Link></li>
+                <li><a href="mailto:support@tablesift.com" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontWeight: 500, fontSize: '0.95rem' }}>Contact Support</a></li>
               </ul>
             </div>
 
           </div>
 
-          <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '40px', textAlign: 'center' }}>
-            <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: '60px', paddingTop: '30px', textAlign: 'center' }}>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>
               © 2026 TableSift.com. All rights reserved. Built for data-driven teams.
             </p>
           </div>

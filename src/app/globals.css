@@ -5,6 +5,12 @@
   --text-main: #0f172a;
   --text-muted: #64748b;
   --border-color: rgba(226, 232, 240, 0.8);
+
+  /* Outseta-style accent colors */
+  --accent-mint: #34d399;
+  --accent-teal: #14b8a6;
+  --dark-section: #0f172a;
+  --dark-section-lighter: #1e293b;
 }
 
 * {
@@ -48,6 +54,66 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 100px;
   box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+}
+
+/* =========================================
+   BLUR BLOBS (Outseta-style decorative)
+   ========================================= */
+
+.blur-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.blur-blob-green {
+  background: radial-gradient(circle, rgba(16, 124, 65, 0.25) 0%, transparent 70%);
+}
+
+.blur-blob-mint {
+  background: radial-gradient(circle, rgba(52, 211, 153, 0.3) 0%, transparent 70%);
+}
+
+.blur-blob-teal {
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.25) 0%, transparent 70%);
+}
+
+/* =========================================
+   DARK SECTION STYLES
+   ========================================= */
+
+.dark-section {
+  background: linear-gradient(180deg, var(--dark-section) 0%, var(--dark-section-lighter) 100%);
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.dark-section h2,
+.dark-section h3 {
+  color: #ffffff;
+}
+
+.dark-section p {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Glass card for dark backgrounds */
+.glass-card-dark {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.glass-card-dark:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-4px);
 }
 
 /* =========================================

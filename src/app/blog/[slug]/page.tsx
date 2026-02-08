@@ -42,7 +42,7 @@ export default async function BlogPost({ params }: Props) {
     if (!post) notFound();
 
     return (
-        <div style={{ minHeight: '100vh', background: '#ffffff' }}>
+        <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)' }}>
             <Header />
             <ViewTracker slug={slug} />
 
@@ -50,8 +50,8 @@ export default async function BlogPost({ params }: Props) {
             <div style={{
                 background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
                 color: 'white',
-                paddingTop: '120px',
-                paddingBottom: '80px',
+                paddingTop: '140px',
+                paddingBottom: '100px',
                 paddingLeft: '24px',
                 paddingRight: '24px',
                 position: 'relative',
@@ -64,8 +64,8 @@ export default async function BlogPost({ params }: Props) {
                     right: 0,
                     width: '600px',
                     height: '600px',
-                    background: 'rgba(16, 124, 65, 0.1)',
-                    filter: 'blur(100px)',
+                    background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)',
+                    filter: 'blur(80px)',
                     borderRadius: '50%',
                     pointerEvents: 'none',
                     transform: 'translate(33%, -33%)'
@@ -73,18 +73,24 @@ export default async function BlogPost({ params }: Props) {
 
                 <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 10, textAlign: 'center' }}>
                     <Link href="/blog" style={{
-                        display: 'inline-block',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
                         marginBottom: '32px',
-                        color: '#4ade80',
+                        color: '#10b981',
                         fontWeight: 700,
                         fontSize: '0.85rem',
                         letterSpacing: '0.1em',
-                        textDecoration: 'none'
+                        textDecoration: 'none',
+                        padding: '8px 16px',
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        borderRadius: '50px',
+                        border: '1px solid rgba(16, 185, 129, 0.2)'
                     }}>
                         ← BACK TO BLOG
                     </Link>
                     <h1 style={{
-                        fontSize: '2.5rem',
+                        fontSize: 'clamp(1.75rem, 4vw, 2.75rem)',
                         fontWeight: 900,
                         marginBottom: '24px',
                         lineHeight: 1.2,
@@ -92,9 +98,9 @@ export default async function BlogPost({ params }: Props) {
                     }}>
                         {post.title}
                     </h1>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', color: '#94a3b8', fontSize: '0.9rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>
                         <span>{new Date(post.publishedAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                        <span>•</span>
+                        <span style={{ opacity: 0.5 }}>•</span>
                         <span>{post.author.name}</span>
                     </div>
                 </div>
@@ -102,17 +108,22 @@ export default async function BlogPost({ params }: Props) {
 
             {/* Content Container */}
             <main style={{ maxWidth: '800px', margin: '0 auto', padding: '0 24px' }}>
-                <article className="glass-panel" style={{
+                <article style={{
                     padding: '48px',
-                    marginTop: '-40px',
+                    marginTop: '-60px',
                     position: 'relative',
-                    zIndex: 20
+                    zIndex: 20,
+                    background: 'rgba(255,255,255,0.95)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '24px',
+                    border: '1px solid rgba(0,0,0,0.06)',
+                    boxShadow: '0 16px 64px rgba(0,0,0,0.08)'
                 }}>
                     {post.coverImage && (
                         <img
                             src={post.coverImage}
                             alt={post.title}
-                            style={{ width: '100%', height: 'auto', borderRadius: '12px', marginBottom: '48px' }}
+                            style={{ width: '100%', height: 'auto', borderRadius: '16px', marginBottom: '48px' }}
                         />
                     )}
 
@@ -124,20 +135,48 @@ export default async function BlogPost({ params }: Props) {
                 </article>
 
                 {/* CTA Footer */}
-                <div style={{ textAlign: 'center', margin: '60px 0 80px' }}>
-                    <h3 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px' }}>
-                        Ready to try TableSift?
-                    </h3>
-                    <p style={{ color: '#64748b', marginBottom: '32px' }}>
-                        Convert your first PDF to Excel for free today.
-                    </p>
-                    <Link href="/" className="btn-primary" style={{
-                        display: 'inline-block',
-                        padding: '16px 36px',
-                        textDecoration: 'none',
-                    }}>
-                        Start Extraction Free →
-                    </Link>
+                <div style={{
+                    textAlign: 'center',
+                    margin: '80px 0 100px',
+                    padding: '60px 40px',
+                    background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                    borderRadius: '24px',
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}>
+                    <div style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '400px',
+                        height: '400px',
+                        background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)',
+                        filter: 'blur(60px)',
+                        borderRadius: '50%',
+                        pointerEvents: 'none',
+                    }} />
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                        <h3 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'white', marginBottom: '16px' }}>
+                            Ready to try TableSift?
+                        </h3>
+                        <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '32px', fontSize: '1.1rem' }}>
+                            Convert your first PDF to Excel for free today.
+                        </p>
+                        <Link href="/" style={{
+                            display: 'inline-block',
+                            padding: '18px 40px',
+                            textDecoration: 'none',
+                            background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)',
+                            color: 'white',
+                            borderRadius: '14px',
+                            fontWeight: 700,
+                            fontSize: '1rem',
+                            boxShadow: '0 8px 32px rgba(16, 185, 129, 0.4)'
+                        }}>
+                            Start Extraction Free →
+                        </Link>
+                    </div>
                 </div>
             </main>
 

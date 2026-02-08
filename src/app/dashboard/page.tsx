@@ -380,34 +380,40 @@ const DashboardContent = () => {
 
     if (isLoading) {
         return (
-            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
+            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(180deg, #f8fafc 0%, #f0fdf4 100%)' }}>
                 <div style={{ textAlign: 'center' }}>
-                    <div className="spinner" style={{ width: '40px', height: '40px', border: '3px solid #e2e8f0', borderTop: '3px solid #22c55e', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 1rem' }}></div>
-                    <p style={{ color: '#64748b' }}>Loading...</p>
+                    <div className="spinner" style={{ width: '48px', height: '48px', border: '3px solid #e2e8f0', borderTop: '3px solid #10b981', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 1rem' }}></div>
+                    <p style={{ color: '#64748b', fontWeight: 500 }}>Loading your dashboard...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(180deg, #f8fafc 0%, #f0fdf4 100%)' }}>
 
             {/* Premium Glassmorphic Header */}
             <header className={`nav-header ${scrolled ? 'scrolled' : ''}`} style={{
                 position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                padding: scrolled ? '0.75rem 2rem' : '1.25rem 2rem',
+                top: scrolled ? 0 : '20px',
+                left: scrolled ? 0 : '50%',
+                right: scrolled ? 0 : 'auto',
+                transform: scrolled ? 'none' : 'translateX(-50%)',
+                width: scrolled ? '100%' : 'calc(100% - 40px)',
+                maxWidth: scrolled ? 'none' : '1100px',
+                padding: scrolled ? '0.75rem 2rem' : '14px 32px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 zIndex: 1000,
-                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                background: scrolled ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.01)',
-                backdropFilter: scrolled ? 'blur(20px) saturate(180%)' : 'blur(0px)',
-                borderBottom: scrolled ? '1px solid rgba(16, 124, 65, 0.08)' : '1px solid transparent',
-                boxShadow: scrolled ? '0 4px 20px -5px rgba(0, 0, 0, 0.08)' : 'none',
+                transition: 'all 0.3s ease',
+                background: scrolled ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderRadius: scrolled ? 0 : '100px',
+                borderBottom: scrolled ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                border: scrolled ? 'none' : '1px solid rgba(255,255,255,0.5)',
+                boxShadow: scrolled ? '0 4px 20px -5px rgba(0, 0, 0, 0.08)' : '0 4px 20px rgba(0,0,0,0.04)',
             }}>
                 <Link href="/" className="logo">
                     TableSift<span>.com</span>
@@ -927,9 +933,9 @@ const DashboardContent = () => {
                         <div style={{
                             background: '#f8fafc',
                             borderRadius: '24px',
-                            padding: '2rem',
-                            maxWidth: '900px',
-                            width: '100%',
+                            padding: '2.5rem',
+                            maxWidth: '1100px',
+                            width: '95%',
                             maxHeight: '90vh',
                             overflowY: 'auto',
                             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
@@ -951,55 +957,99 @@ const DashboardContent = () => {
                                 <p style={{ color: '#64748b' }}>Choose the best plan for your needs.</p>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
                                 {/* Starter Plan */}
-                                <div style={{ padding: '2rem', background: 'white', border: '2px solid #22c55e', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Starter</h3>
-                                        <span style={{ background: '#22c55e', color: 'white', padding: '4px 10px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}>Popular</span>
+                                {(userTier === "free" || userTier === "none") && (
+                                    <div style={{ padding: '2rem', background: 'white', border: '2px solid #22c55e', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Starter</h3>
+                                            <span style={{ background: '#22c55e', color: 'white', padding: '4px 10px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}>Popular</span>
+                                        </div>
+                                        <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '-0.75rem' }}>For regular users</p>
+                                        <div>
+                                            <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a' }}>$12</span>
+                                            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>/month</span>
+                                        </div>
+                                        <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
+                                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 50 Fuel / month</li>
+                                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Hybrid GPT-4o Engine</li>
+                                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Word Doc Support (3 fuel)</li>
+                                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 5 images at once</li>
+                                        </ul>
+                                        <button
+                                            onClick={() => handleUpgrade('pdt_0NXXzxOEqw2kCiWhVVmws', 'Starter', 50)}
+                                            style={{ marginTop: 'auto', padding: '12px 20px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.4)' }}
+                                        >
+                                            Upgrade to Starter
+                                        </button>
                                     </div>
-                                    <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '-0.75rem' }}>For regular users</p>
-                                    <div>
-                                        <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a' }}>$12</span>
-                                        <span style={{ color: '#64748b', fontSize: '0.85rem' }}>/month</span>
-                                    </div>
-                                    <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
-                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 50 Fuel / month</li>
-                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Hybrid GPT-4o Engine</li>
-                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Word Doc Support (3 fuel)</li>
-                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 5 images at once</li>
-                                    </ul>
-                                    <button
-                                        onClick={() => handleUpgrade('pdt_0NXYHBcPszGyHO9M2lt8P', 'Starter', 50)}
-                                        style={{ marginTop: 'auto', padding: '12px 20px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.4)' }}
-                                    >
-                                        Upgrade to Starter
-                                    </button>
-                                </div>
+                                )}
 
                                 {/* Pro Plan */}
-                                <div style={{ padding: '2rem', background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                                    <div>
-                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Pro</h3>
-                                        <p style={{ color: '#64748b', fontSize: '0.85rem' }}>For power users</p>
+                                {(userTier === "free" || userTier === "none" || userTier === "starter") && (
+                                    <div style={{ padding: '2rem', background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                                        <div>
+                                            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Pro</h3>
+                                            <p style={{ color: '#64748b', fontSize: '0.85rem' }}>For power users</p>
+                                        </div>
+                                        <div>
+                                            <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a' }}>$49</span>
+                                            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>/month</span>
+                                        </div>
+                                        <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
+                                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 200 Fuel / month</li>
+                                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 20 images at once</li>
+                                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Up to 50 PDF pages</li>
+                                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Priority Support</li>
+                                        </ul>
+                                        <button
+                                            onClick={() => handleUpgrade('pdt_0NXY0LRFGlLKb1psLfs6y', 'Pro', 200)}
+                                            style={{ marginTop: 'auto', padding: '12px 20px', background: 'white', color: '#0f172a', border: '2px solid #e2e8f0', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem' }}
+                                        >
+                                            Upgrade to Pro
+                                        </button>
                                     </div>
-                                    <div>
-                                        <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a' }}>$49</span>
-                                        <span style={{ color: '#64748b', fontSize: '0.85rem' }}>/month</span>
+                                )}
+
+                                {/* Business Plan */}
+                                {(userTier === "free" || userTier === "none" || userTier === "starter" || userTier === "pro") && (
+                                    <div style={{ padding: '2rem', background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                                        <div>
+                                            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>Business</h3>
+                                            <p style={{ color: '#64748b', fontSize: '0.85rem' }}>Enterprise grade</p>
+                                        </div>
+                                        <div>
+                                            <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a' }}>$199</span>
+                                            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>/month</span>
+                                        </div>
+                                        <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
+                                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 900 Fuel / month</li>
+                                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Everything in Pro</li>
+                                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Team Accounts (5 users)</li>
+                                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 90-Day Download History</li>
+                                        </ul>
+                                        <button
+                                            onClick={() => handleUpgrade('pdt_0NXvSY9wpwzCHAxLZ43vS', 'Business', 900)}
+                                            style={{ marginTop: 'auto', padding: '12px 20px', background: 'white', color: '#0f172a', border: '2px solid #e2e8f0', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem' }}
+                                        >
+                                            Upgrade to Business
+                                        </button>
                                     </div>
-                                    <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
-                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 200 Fuel / month</li>
-                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 20 images at once</li>
-                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Up to 50 PDF pages</li>
-                                        <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Priority Support</li>
-                                    </ul>
-                                    <button
-                                        onClick={() => handleUpgrade('pdt_0NXYHGpP9pSriiWduXPUE', 'Pro', 200)}
-                                        style={{ marginTop: 'auto', padding: '12px 20px', background: 'white', color: '#0f172a', border: '2px solid #e2e8f0', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem' }}
-                                    >
-                                        Upgrade to Pro
-                                    </button>
-                                </div>
+                                )}
+
+                                {/* Custom Plan CTA for Business users */}
+                                {userTier === "business" && (
+                                    <div style={{ padding: '2rem', background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '16px', gridColumn: '1 / -1', textAlign: 'center' }}>
+                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '1rem' }}>Need even more power?</h3>
+                                        <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '1.5rem' }}>For higher volume or unique enterprise needs, contact us for a custom dedicated solution.</p>
+                                        <a
+                                            href="mailto:support@tablesift.com"
+                                            style={{ display: 'inline-block', padding: '12px 24px', background: '#0f172a', color: 'white', borderRadius: '10px', fontWeight: 600, textDecoration: 'none' }}
+                                        >
+                                            Contact Support
+                                        </a>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

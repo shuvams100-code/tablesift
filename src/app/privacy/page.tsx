@@ -6,27 +6,27 @@ import Footer from "@/components/Footer";
 
 export default function PrivacyPage() {
     return (
-        <div style={{ minHeight: '100vh', background: '#ffffff' }}>
+        <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)' }}>
             <Header />
 
             {/* Main Content */}
-            <main style={{ maxWidth: '800px', margin: '0 auto', padding: '100px 24px 80px' }}>
+            <main style={{ maxWidth: '800px', margin: '0 auto', padding: '120px 24px 80px' }}>
                 {/* Hero */}
                 <div style={{ marginBottom: '60px', textAlign: 'center' }}>
                     <span style={{
-                        background: '#dbeafe',
+                        background: 'linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%)',
                         color: '#1e40af',
-                        padding: '8px 16px',
-                        borderRadius: '8px',
+                        padding: '8px 20px',
+                        borderRadius: '50px',
                         fontSize: '0.8rem',
                         fontWeight: 700,
                         textTransform: 'uppercase',
-                        letterSpacing: '0.05em'
+                        letterSpacing: '0.1em'
                     }}>
                         Privacy
                     </span>
                     <h1 style={{
-                        fontSize: '3rem',
+                        fontSize: 'clamp(2rem, 5vw, 3rem)',
                         fontWeight: 900,
                         color: '#0f172a',
                         marginTop: '24px',
@@ -41,14 +41,30 @@ export default function PrivacyPage() {
                 </div>
 
                 {/* Introduction */}
-                <div className="glass-panel" style={{ padding: '40px', marginBottom: '24px' }}>
+                <div style={{
+                    padding: '40px',
+                    marginBottom: '24px',
+                    background: 'rgba(255,255,255,0.8)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '24px',
+                    border: '1px solid rgba(255,255,255,0.8)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.06)'
+                }}>
                     <p style={{ color: '#64748b', lineHeight: 1.8, fontSize: '1.05rem' }}>
                         At TableSift (&ldquo;Company&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;), we are committed to protecting your privacy and ensuring the security of your personal data. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our Service, in compliance with the General Data Protection Regulation (GDPR), the Information Technology Act, 2000 (India), and other applicable data protection laws.
                     </p>
                 </div>
 
                 {/* Section 1 */}
-                <div className="glass-panel" style={{ padding: '40px', marginBottom: '24px' }}>
+                <div style={{
+                    padding: '40px',
+                    marginBottom: '24px',
+                    background: 'rgba(255,255,255,0.8)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '24px',
+                    border: '1px solid rgba(255,255,255,0.8)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.06)'
+                }}>
                     <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px', color: '#0f172a' }}>
                         1. Data Controller Information
                     </h2>
@@ -63,7 +79,15 @@ export default function PrivacyPage() {
                 </div>
 
                 {/* Section 2 */}
-                <div className="glass-panel" style={{ padding: '40px', marginBottom: '24px' }}>
+                <div style={{
+                    padding: '40px',
+                    marginBottom: '24px',
+                    background: 'rgba(255,255,255,0.8)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '24px',
+                    border: '1px solid rgba(255,255,255,0.8)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.06)'
+                }}>
                     <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px', color: '#0f172a' }}>
                         2. Data We Collect
                     </h2>
@@ -85,7 +109,15 @@ export default function PrivacyPage() {
                 </div>
 
                 {/* Section 3 */}
-                <div className="glass-panel" style={{ padding: '40px', marginBottom: '24px' }}>
+                <div style={{
+                    padding: '40px',
+                    marginBottom: '24px',
+                    background: 'rgba(255,255,255,0.8)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '24px',
+                    border: '1px solid rgba(255,255,255,0.8)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.06)'
+                }}>
                     <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px', color: '#0f172a' }}>
                         3. How We Use Your Data
                     </h2>
@@ -100,24 +132,53 @@ export default function PrivacyPage() {
                     </ul>
                 </div>
 
-                {/* Section 4 - Document Processing */}
-                <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '48px', borderRadius: '20px', color: 'white', marginBottom: '24px' }}>
-                    <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px' }}>
-                        4. Document Processing & Zero-Trace Policy
-                    </h2>
-                    <p style={{ fontSize: '1.05rem', lineHeight: 1.8, marginBottom: '16px', opacity: 0.95 }}>
-                        We employ a strict <strong>Zero-Trace policy</strong> for document processing. This is our commitment to your data sovereignty:
-                    </p>
-                    <ul style={{ lineHeight: 1.8, fontSize: '1.05rem', paddingLeft: '24px', opacity: 0.9 }}>
-                        <li>Documents are processed in <strong>ephemeral, high-security environments</strong></li>
-                        <li>Uploaded files are <strong>never stored permanently</strong> on our servers</li>
-                        <li>Upon extraction completion, both original documents and results are <strong>purged from active memory</strong></li>
-                        <li>We do <strong>not train AI models</strong> on your uploaded documents</li>
-                    </ul>
+                {/* Section 4 - Document Processing - Dark Section */}
+                <div style={{
+                    background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                    padding: '48px',
+                    borderRadius: '24px',
+                    color: 'white',
+                    marginBottom: '24px',
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}>
+                    <div style={{
+                        position: 'absolute',
+                        top: '-30%',
+                        right: '-10%',
+                        width: '300px',
+                        height: '300px',
+                        background: 'radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%)',
+                        borderRadius: '50%',
+                        filter: 'blur(40px)',
+                        pointerEvents: 'none',
+                    }} />
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px' }}>
+                            4. Document Processing & Zero-Trace Policy
+                        </h2>
+                        <p style={{ fontSize: '1.05rem', lineHeight: 1.8, marginBottom: '16px', opacity: 0.95 }}>
+                            We employ a strict <strong>Zero-Trace policy</strong> for document processing. This is our commitment to your data sovereignty:
+                        </p>
+                        <ul style={{ lineHeight: 1.8, fontSize: '1.05rem', paddingLeft: '24px', opacity: 0.9 }}>
+                            <li>Documents are processed in <strong>ephemeral, high-security environments</strong></li>
+                            <li>Uploaded files are <strong>never stored permanently</strong> on our servers</li>
+                            <li>Upon extraction completion, both original documents and results are <strong>purged from active memory</strong></li>
+                            <li>We do <strong>not train AI models</strong> on your uploaded documents</li>
+                        </ul>
+                    </div>
                 </div>
 
                 {/* Section 5 */}
-                <div className="glass-panel" style={{ padding: '40px', marginBottom: '24px' }}>
+                <div style={{
+                    padding: '40px',
+                    marginBottom: '24px',
+                    background: 'rgba(255,255,255,0.8)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '24px',
+                    border: '1px solid rgba(255,255,255,0.8)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.06)'
+                }}>
                     <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px', color: '#0f172a' }}>
                         5. Data Sharing & Third Parties
                     </h2>
@@ -136,7 +197,15 @@ export default function PrivacyPage() {
                 </div>
 
                 {/* Section 6 */}
-                <div className="glass-panel" style={{ padding: '40px', marginBottom: '24px' }}>
+                <div style={{
+                    padding: '40px',
+                    marginBottom: '24px',
+                    background: 'rgba(255,255,255,0.8)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '24px',
+                    border: '1px solid rgba(255,255,255,0.8)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.06)'
+                }}>
                     <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px', color: '#0f172a' }}>
                         6. Data Retention & Deletion
                     </h2>
@@ -152,7 +221,15 @@ export default function PrivacyPage() {
                 </div>
 
                 {/* Section 7 - User Rights */}
-                <div className="glass-panel" style={{ padding: '40px', marginBottom: '24px' }}>
+                <div style={{
+                    padding: '40px',
+                    marginBottom: '24px',
+                    background: 'rgba(255,255,255,0.8)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '24px',
+                    border: '1px solid rgba(255,255,255,0.8)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.06)'
+                }}>
                     <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px', color: '#0f172a' }}>
                         7. Your Rights (GDPR)
                     </h2>
@@ -160,27 +237,27 @@ export default function PrivacyPage() {
                         Under the GDPR and applicable data protection laws, you have the following rights:
                     </p>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
-                        <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px' }}>
+                        <div style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', padding: '20px', borderRadius: '16px' }}>
                             <h4 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>🔍 Access</h4>
                             <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Request a copy of your data</p>
                         </div>
-                        <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px' }}>
+                        <div style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', padding: '20px', borderRadius: '16px' }}>
                             <h4 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>✏️ Rectification</h4>
                             <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Correct inaccurate data</p>
                         </div>
-                        <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px' }}>
+                        <div style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', padding: '20px', borderRadius: '16px' }}>
                             <h4 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>🗑️ Erasure</h4>
                             <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Request data deletion</p>
                         </div>
-                        <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px' }}>
+                        <div style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', padding: '20px', borderRadius: '16px' }}>
                             <h4 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>📦 Portability</h4>
                             <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Export data in standard format</p>
                         </div>
-                        <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px' }}>
+                        <div style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', padding: '20px', borderRadius: '16px' }}>
                             <h4 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>🚫 Object</h4>
                             <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Object to processing</p>
                         </div>
-                        <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px' }}>
+                        <div style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', padding: '20px', borderRadius: '16px' }}>
                             <h4 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>⏸️ Restrict</h4>
                             <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Limit data processing</p>
                         </div>
@@ -190,8 +267,16 @@ export default function PrivacyPage() {
                     </p>
                 </div>
 
-                {/* Section 8 */}
-                <div className="glass-panel" style={{ padding: '40px', marginBottom: '24px' }}>
+                {/* Remaining Sections */}
+                <div style={{
+                    padding: '40px',
+                    marginBottom: '24px',
+                    background: 'rgba(255,255,255,0.8)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '24px',
+                    border: '1px solid rgba(255,255,255,0.8)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.06)'
+                }}>
                     <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px', color: '#0f172a' }}>
                         8. Data Security
                     </h2>
@@ -207,63 +292,39 @@ export default function PrivacyPage() {
                     </ul>
                 </div>
 
-                {/* Section 9 */}
-                <div className="glass-panel" style={{ padding: '40px', marginBottom: '24px' }}>
+                <div style={{
+                    padding: '40px',
+                    marginBottom: '24px',
+                    background: 'rgba(255,255,255,0.8)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '24px',
+                    border: '1px solid rgba(255,255,255,0.8)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.06)'
+                }}>
                     <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px', color: '#0f172a' }}>
-                        9. International Data Transfers
-                    </h2>
-                    <p style={{ color: '#64748b', lineHeight: 1.8, fontSize: '1.05rem' }}>
-                        Your data may be processed on servers located outside your country of residence, including the United States (via Google Cloud). For transfers outside the EU/EEA, we rely on Standard Contractual Clauses (SCCs) approved by the European Commission to ensure adequate protection of your data.
-                    </p>
-                </div>
-
-                {/* Section 10 */}
-                <div className="glass-panel" style={{ padding: '40px', marginBottom: '24px' }}>
-                    <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px', color: '#0f172a' }}>
-                        10. Cookies & Analytics
+                        9. Contact Information
                     </h2>
                     <p style={{ color: '#64748b', lineHeight: 1.8, fontSize: '1.05rem', marginBottom: '16px' }}>
-                        We use cookies and similar technologies for:
-                    </p>
-                    <ul style={{ color: '#64748b', lineHeight: 1.8, fontSize: '1.05rem', paddingLeft: '24px', marginBottom: '16px' }}>
-                        <li><strong style={{ color: '#0f172a' }}>Essential Cookies:</strong> Required for Service functionality (authentication, security)</li>
-                        <li><strong style={{ color: '#0f172a' }}>Analytics Cookies:</strong> Google Analytics for usage insights (can be disabled)</li>
-                    </ul>
-                    <p style={{ color: '#64748b', lineHeight: 1.8, fontSize: '1.05rem' }}>
-                        You can manage cookie preferences through your browser settings.
-                    </p>
-                </div>
-
-                {/* Section 11 */}
-                <div className="glass-panel" style={{ padding: '40px', marginBottom: '24px' }}>
-                    <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px', color: '#0f172a' }}>
-                        11. Children&apos;s Privacy
-                    </h2>
-                    <p style={{ color: '#64748b', lineHeight: 1.8, fontSize: '1.05rem' }}>
-                        Our Service is not intended for individuals under 18 years of age. We do not knowingly collect personal data from children. If you believe a child has provided us with personal data, please contact us immediately at support@tablesift.com.
-                    </p>
-                </div>
-
-                {/* Section 12 */}
-                <div className="glass-panel" style={{ padding: '40px', marginBottom: '24px' }}>
-                    <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '20px', color: '#0f172a' }}>
-                        12. Policy Updates & Contact
-                    </h2>
-                    <p style={{ color: '#64748b', lineHeight: 1.8, fontSize: '1.05rem', marginBottom: '16px' }}>
-                        We may update this Privacy Policy periodically. Material changes will be communicated via email or prominent notice on our website. We encourage you to review this policy regularly.
+                        For questions about this Privacy Policy, please contact us:
                     </p>
                     <p style={{ color: '#0f172a', lineHeight: 1.8, fontSize: '1.05rem', fontWeight: 600 }}>
-                        All Inquiries: support@tablesift.com
+                        Email: support@tablesift.com
                     </p>
                 </div>
 
                 {/* CTA */}
                 <div style={{ textAlign: 'center', marginTop: '60px' }}>
                     <p style={{ color: '#64748b', marginBottom: '24px' }}>Have questions about your privacy?</p>
-                    <a href="mailto:support@tablesift.com" className="btn-primary" style={{
+                    <a href="mailto:support@tablesift.com" style={{
                         display: 'inline-block',
                         padding: '16px 36px',
                         textDecoration: 'none',
+                        background: 'linear-gradient(135deg, #107c41 0%, #10b981 100%)',
+                        color: 'white',
+                        borderRadius: '14px',
+                        fontWeight: 700,
+                        fontSize: '1rem',
+                        boxShadow: '0 4px 14px rgba(16, 124, 65, 0.3)'
                     }}>
                         Contact Support
                     </a>

@@ -16,36 +16,36 @@ export default async function BlogIndex() {
     const posts = await getPosts();
 
     return (
-        <div style={{ minHeight: '100vh', background: '#ffffff' }}>
+        <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)' }}>
             <Header />
 
             {/* Main Content */}
-            <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '100px 24px 80px' }}>
+            <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '120px 24px 80px' }}>
                 {/* Hero */}
                 <div style={{ marginBottom: '60px', textAlign: 'center' }}>
                     <span style={{
-                        background: '#dcfce7',
+                        background: 'linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%)',
                         color: '#166534',
-                        padding: '8px 16px',
-                        borderRadius: '8px',
+                        padding: '8px 20px',
+                        borderRadius: '50px',
                         fontSize: '0.8rem',
                         fontWeight: 700,
                         textTransform: 'uppercase',
-                        letterSpacing: '0.05em'
+                        letterSpacing: '0.1em'
                     }}>
                         Knowledge Hub
                     </span>
                     <h1 style={{
-                        fontSize: '3rem',
+                        fontSize: 'clamp(2rem, 5vw, 3rem)',
                         fontWeight: 900,
                         color: '#0f172a',
                         marginTop: '24px',
                         marginBottom: '16px',
                         letterSpacing: '-1px',
                     }}>
-                        Latest Updates & Guides
+                        Latest <span style={{ color: '#107c41' }}>Updates</span> & Guides
                     </h1>
-                    <p style={{ color: '#64748b', fontSize: '1.25rem' }}>
+                    <p style={{ color: '#64748b', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto' }}>
                         Master data extraction with our tutorials and news.
                     </p>
                 </div>
@@ -59,16 +59,21 @@ export default async function BlogIndex() {
                 }}>
                     {posts.map((post) => (
                         <Link href={`/blog/${post.slug}`} key={post.slug} style={{ textDecoration: 'none' }}>
-                            <article className="glass-panel" style={{
+                            <article style={{
                                 height: '100%',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 overflow: 'hidden',
                                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                                cursor: 'pointer'
+                                cursor: 'pointer',
+                                background: 'rgba(255,255,255,0.9)',
+                                backdropFilter: 'blur(20px)',
+                                borderRadius: '24px',
+                                border: '1px solid rgba(0,0,0,0.06)',
+                                boxShadow: '0 8px 32px rgba(0,0,0,0.06)'
                             }}>
                                 {post.coverImage && (
-                                    <div style={{ height: '200px', overflow: 'hidden', borderBottom: '1px solid #f1f5f9' }}>
+                                    <div style={{ height: '200px', overflow: 'hidden' }}>
                                         <img
                                             src={post.coverImage}
                                             alt={post.title}
@@ -78,7 +83,7 @@ export default async function BlogIndex() {
                                 )}
                                 <div style={{ padding: '32px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                                     <span style={{
-                                        color: '#107c41',
+                                        color: '#10b981',
                                         fontSize: '0.75rem',
                                         fontWeight: 700,
                                         textTransform: 'uppercase',
@@ -117,28 +122,28 @@ export default async function BlogIndex() {
                                         alignItems: 'center',
                                         gap: '12px',
                                         paddingTop: '24px',
-                                        borderTop: '1px solid #f1f5f9'
+                                        borderTop: '1px solid rgba(0,0,0,0.06)'
                                     }}>
                                         {post.author.photoURL ? (
-                                            <img src={post.author.photoURL} style={{ width: '32px', height: '32px', borderRadius: '50%' }} alt={post.author.name} />
+                                            <img src={post.author.photoURL} style={{ width: '36px', height: '36px', borderRadius: '50%' }} alt={post.author.name} />
                                         ) : (
                                             <div style={{
-                                                width: '32px',
-                                                height: '32px',
+                                                width: '36px',
+                                                height: '36px',
                                                 borderRadius: '50%',
-                                                background: '#e2e8f0',
+                                                background: 'linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%)',
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
-                                                fontSize: '0.75rem',
+                                                fontSize: '0.8rem',
                                                 fontWeight: 700,
-                                                color: '#64748b'
+                                                color: '#166534'
                                             }}>
                                                 {post.author.name.charAt(0)}
                                             </div>
                                         )}
                                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>{post.author.name}</span>
+                                            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a' }}>{post.author.name}</span>
                                             <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
                                                 {new Date(post.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                             </span>
