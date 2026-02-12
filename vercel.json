@@ -7,6 +7,14 @@
         {
             "path": "/api/cron/publish-blog",
             "schedule": "30 4 * * *"
+        },
+        {
+            "path": "/api/cron/reddit-radar",
+            "schedule": "0 */6 * * *"
+        },
+        {
+            "path": "/api/cron/social-content",
+            "schedule": "0 3 * * *"
         }
     ]
 }
