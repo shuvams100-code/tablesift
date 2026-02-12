@@ -16,12 +16,12 @@ import { db } from "@/lib/firebase-admin";
  * }
  */
 
-// Define credit allocation by tier
+// Define credit allocation by tier (must match actual pricing plans)
 const PLAN_CREDITS: Record<string, number> = {
-    free: 0,
-    pro: 250,        // Example: Pro plan gets 250 credits/month
-    business: 1000,  // Business plan gets 1000 credits/month
-    enterprise: 5000 // Enterprise gets 5000 credits/month
+    free: 0,           // Free tier: 10 lifetime fuels, no monthly reset
+    starter: 50,       // Starter plan: 50 fuels/month
+    pro: 200,          // Pro plan: 200 fuels/month
+    business: 900,     // Business plan: 900 fuels/month
 };
 
 export async function GET(req: NextRequest) {
