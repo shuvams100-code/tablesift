@@ -3,13 +3,11 @@ import OpenAI from 'openai';
 import { db } from '@/lib/firebase-admin';
 import { getRandomSocialTopic } from '@/lib/social-templates';
 
+export const dynamic = 'force-dynamic';
+
 const CRON_SECRET = process.env.CRON_SECRET;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const ADMIN_TELEGRAM_CHAT_ID = process.env.ADMIN_TELEGRAM_CHAT_ID;
-
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
 
 async function sendTelegramMessage(text: string) {
     if (!ADMIN_TELEGRAM_CHAT_ID || !TELEGRAM_BOT_TOKEN) return;
@@ -47,6 +45,15 @@ export async function GET(req: Request) {
         }
 
         console.log('Social Content Engine started at', new Date().toISOString());
+
+        const openai = new OpenAI({
+            apiKey: process.env.OPENAI_API_KEY,
+        });
+
+        if (!process.env.OPENAI_API_KEY) {
+            console.error('OPENAI_API_KEY is missing');
+            return NextResponse.json({ error: 'Configuration error' }, { status: 500 });
+        }
 
         // Get recently used angles from Firestore to avoid repetition
         let recentAngles: string[] = [];

@@ -2,13 +2,11 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { db } from '@/lib/firebase-admin';
 
+export const dynamic = 'force-dynamic';
+
 const CRON_SECRET = process.env.CRON_SECRET;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const ADMIN_TELEGRAM_CHAT_ID = process.env.ADMIN_TELEGRAM_CHAT_ID;
-
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
 
 // Reddit search queries to monitor
 const SEARCH_QUERIES = [
@@ -144,6 +142,15 @@ export async function GET(req: Request) {
         }
 
         console.log('Reddit Radar scan started at', new Date().toISOString());
+
+        const openai = new OpenAI({
+            apiKey: process.env.OPENAI_API_KEY,
+        });
+
+        if (!process.env.OPENAI_API_KEY) {
+            console.error('OPENAI_API_KEY is missing');
+            return NextResponse.json({ error: 'Configuration error' }, { status: 500 });
+        }
 
         // Get already-seen post IDs from Firestore
         const seenSnapshot = await db.collection('seen_reddit_posts')

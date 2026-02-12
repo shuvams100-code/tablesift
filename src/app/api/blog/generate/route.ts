@@ -4,6 +4,8 @@ import { db } from '@/lib/firebase-admin';
 import { Timestamp } from 'firebase-admin/firestore';
 import { getRandomTopic } from '@/lib/blog-topics';
 
+export const dynamic = 'force-dynamic';
+
 // Helper to send Telegram messages from any chat ID
 async function sendTelegramNotification(chatId: string, message: string) {
     const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -24,10 +26,6 @@ async function sendTelegramNotification(chatId: string, message: string) {
         console.error('Failed to send Telegram notification:', err);
     }
 }
-
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
 
 // Generate URL-friendly slug from title
 function generateSlug(title: string): string {

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { adminAuth, db } from '@/lib/firebase-admin';
 
+export const dynamic = 'force-dynamic';
+
 // Demo account configuration
 const DEMO_ACCOUNT_EMAIL = 'shuvams100@gmail.com';
 const DEMO_ACCOUNT_FUEL_COUNT = 7500;
