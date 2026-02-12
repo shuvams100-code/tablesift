@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  trailingSlash: false,
   transpilePackages: ['pdfjs-dist'],
   turbopack: {},
   webpack: (config) => {

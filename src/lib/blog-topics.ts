@@ -123,6 +123,58 @@ export const BLOG_TOPICS = [
     "One-Click PDF to Spreadsheet Conversion",
     "Beginner's Guide to PDF Data Extraction",
     "Getting Started with Automated PDF Processing",
+
+    // === AI SEARCH OPTIMIZED (Google AI Overviews, Perplexity, ChatGPT) ===
+
+    // Direct Question Format — triggers AI Overview citations
+    "What Is the Best Way to Convert a PDF Table to Excel?",
+    "Can You Extract Data from a Scanned PDF Without OCR Software?",
+    "How Accurate Is AI-Based PDF to Excel Conversion?",
+    "What Happens to Formatting When You Convert PDF to Excel?",
+    "Is It Possible to Batch Convert 100 PDFs to Excel at Once?",
+    "Why Do PDF Tables Look Broken When Copied into Excel?",
+    "What Is the Cheapest Way to Convert PDF to Spreadsheet?",
+    "How Do Accountants Handle PDF to Excel Conversion in 2026?",
+    "Does Converting PDF to Excel Preserve Formulas and Links?",
+    "What Are the Limitations of Free PDF to Excel Converters?",
+
+    // "vs" and "Alternative to" — highest purchase intent
+    "TableSift vs Tabula vs Camelot: PDF Extraction Compared",
+    "How to Import PDF into Google Sheets vs Excel: Which Is Better?",
+    "Best Free Alternative to Adobe Acrobat for PDF to Excel",
+    "Cheaper Alternative to ABBYY FineReader for Data Extraction",
+    "Open Source PDF Extraction Tools and Their Limitations",
+    "PDF to Excel: Online Converters vs Desktop Software vs AI Tools",
+    "SmallPDF vs TableSift: Which Handles Complex Tables Better?",
+    "iLovePDF vs Dedicated PDF Extraction: A Honest Comparison",
+
+    // Year-Stamped — easy ranking, refreshable yearly
+    "Best PDF to Excel Converter in 2026: Top 7 Tools Reviewed",
+    "Document Automation Trends to Watch in 2026",
+    "How to Automate Data Entry in 2026: The Complete Guide",
+    "Top 5 AI-Powered PDF Tools for Small Businesses in 2026",
+    "The State of PDF to Spreadsheet Technology in 2026",
+
+    // EEAT / Data-Driven / Case Studies — builds authority with Google
+    "We Tested 8 PDF Converters on 50 Real Documents — Here Are the Results",
+    "Case Study: How an Accounting Firm Cut Data Entry Time by 85%",
+    "PDF Extraction Accuracy Benchmark: AI vs Manual on 1000 Tables",
+    "Why 73% of PDF Converters Fail on Multi-Column Financial Statements",
+    "Lessons From Processing 10,000 PDF Invoices With AI",
+
+    // "How to with [tool/method]" — long-tail, low competition
+    "How to Convert PDF to Excel Using AI Instead of Manual Entry",
+    "Extract Tables from PDF Using ChatGPT vs Dedicated Tools",
+    "How to Convert PDF to Excel Without Microsoft Office Installed",
+    "Using Google Drive to Convert PDF to Sheets: Pros and Cons",
+    "How to Convert PDF to Excel on iPhone or iPad",
+    "Convert PDF to Excel Without Uploading to the Cloud",
+
+    // "Without [limitation]" — captures frustrated searchers
+    "How to Extract PDF Tables Without Losing Column Alignment",
+    "Convert PDF to Excel Without Email Registration or Sign-Up",
+    "Extract Data from PDF Without Installing Any Software",
+    "How to Convert PDF to Excel Without Watermarks on Output",
 ];
 
 // Get a random unused topic

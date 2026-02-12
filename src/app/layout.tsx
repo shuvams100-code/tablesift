@@ -57,6 +57,9 @@ export const metadata: Metadata = {
   authors: [{ name: "TableSift AI" }],
   creator: "TableSift AI",
   publisher: "TableSift AI",
+  alternates: {
+    canonical: '/',
+  },
   robots: {
     index: true,
     follow: true,

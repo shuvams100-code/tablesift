@@ -7,6 +7,10 @@ import Footer from "@/components/Footer";
 export default function TermsPage() {
     return (
         <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)' }}>
+            <head>
+                <link rel="canonical" href="https://tablesift.com/terms" />
+                <title>Terms of Service | TableSift</title>
+            </head>
             <Header />
 
             {/* Main Content */}
