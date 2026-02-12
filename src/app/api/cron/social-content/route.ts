@@ -53,10 +53,6 @@ export async function GET(req: Request) {
 
         console.log('Social Content Engine started at', new Date().toISOString());
 
-        const openai = new OpenAI({
-            apiKey: process.env.OPENAI_API_KEY,
-        });
-
         if (!process.env.OPENAI_API_KEY) {
             console.error('OPENAI_API_KEY is missing');
             return NextResponse.json({ error: 'Configuration error' }, { status: 500 });
@@ -127,24 +123,20 @@ Category guide:
             temperature: 0.9,
             max_tokens: 500,
         });
-        response_format: { type: 'json_object' },
-        temperature: 0.9,
-            max_tokens: 500,
-        });
 
-    const content = response.choices[0].message.content;
-    if (!content) {
-        throw new Error('No content generated');
-    }
+        const content = response.choices[0].message.content;
+        if (!content) {
+            throw new Error('No content generated');
+        }
 
-    const parsed = JSON.parse(content);
-    const hashtags = topic.hashtags.join(' ');
+        const parsed = JSON.parse(content);
+        const hashtags = topic.hashtags.join(' ');
 
-    // Format the Telegram message
-    const twitterPost = `${parsed.twitter}\n\n${hashtags}`;
-    const linkedinPost = parsed.linkedin;
+        // Format the Telegram message
+        const twitterPost = `${parsed.twitter}\n\n${hashtags}`;
+        const linkedinPost = parsed.linkedin;
 
-    const message = `📱 <b>Ready-to-Post Content</b>
+        const message = `📱 <b>Ready-to-Post Content</b>
 
 ━━━━━━━━━━━━━━━━━━━━━━
 
@@ -163,37 +155,37 @@ Category guide:
 📌 Category: ${topic.category}
 💡 Tap the text above to copy → paste → post!`;
 
-    await sendTelegramMessage(message);
+        await sendTelegramMessage(message);
 
-    // Log to Firestore to track what's been posted
-    if (db) {
-        await db.collection('social_posts_log').add({
-            angle: topic.angle,
+        // Log to Firestore to track what's been posted
+        if (db) {
+            await db.collection('social_posts_log').add({
+                angle: topic.angle,
+                category: topic.category,
+                twitter: twitterPost,
+                linkedin: linkedinPost,
+                createdAt: new Date(),
+            });
+        }
+
+        console.log('Social content generated and sent via Telegram');
+
+        return NextResponse.json({
+            success: true,
             category: topic.category,
-            twitter: twitterPost,
-            linkedin: linkedinPost,
-            createdAt: new Date(),
+            angle: topic.angle,
         });
+
+    } catch (error) {
+        console.error('Social Content Engine error:', error);
+
+        await sendTelegramMessage(
+            `❌ <b>Social Content Error</b>\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
+
+        return NextResponse.json({
+            error: 'Social content generation failed',
+            details: error instanceof Error ? error.message : 'Unknown error',
+        }, { status: 500 });
     }
-
-    console.log('Social content generated and sent via Telegram');
-
-    return NextResponse.json({
-        success: true,
-        category: topic.category,
-        angle: topic.angle,
-    });
-
-} catch (error) {
-    console.error('Social Content Engine error:', error);
-
-    await sendTelegramMessage(
-        `❌ <b>Social Content Error</b>\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
-
-    return NextResponse.json({
-        error: 'Social content generation failed',
-        details: error instanceof Error ? error.message : 'Unknown error',
-    }, { status: 500 });
-}
 }

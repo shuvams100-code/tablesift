@@ -37,6 +37,13 @@ function generateSlug(title: string): string {
         .slice(0, 60);
 }
 
+const getOpenAI = () => {
+    if (!process.env.OPENAI_API_KEY) {
+        throw new Error('OPENAI_API_KEY is missing');
+    }
+    return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+};
+
 // Enhanced SEO System Prompt - Based on 2025-2026 Google Best Practices
 const SYSTEM_PROMPT = `You are an expert content writer for TableSift, a B2B SaaS tool that converts PDFs and scanned documents to clean Excel spreadsheets automatically.
 
