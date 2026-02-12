@@ -1,6 +1,6 @@
 /**
  * Topic Database for TableSift Blog
- * 100+ SEO-optimized topics related to PDF-to-Excel conversion
+ * 160+ SEO-optimized topics related to PDF-to-Excel conversion
  * Each topic is designed to attract potential TableSift customers
  */
 
