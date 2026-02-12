@@ -8,6 +8,13 @@ const CRON_SECRET = process.env.CRON_SECRET;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const ADMIN_TELEGRAM_CHAT_ID = process.env.ADMIN_TELEGRAM_CHAT_ID;
 
+const getOpenAI = () => {
+    if (!process.env.OPENAI_API_KEY) {
+        throw new Error('OPENAI_API_KEY is missing');
+    }
+    return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+};
+
 // Reddit search queries to monitor
 const SEARCH_QUERIES = [
     'pdf to excel',
@@ -85,6 +92,7 @@ async function searchReddit(query: string): Promise<RedditPost[]> {
 
 async function generatePersonalizedReply(post: RedditPost): Promise<string> {
     try {
+        const openai = getOpenAI();
         const response = await openai.chat.completions.create({
             model: 'gpt-4o-mini',
             messages: [

@@ -1,4 +1,7 @@
 import { NextResponse } from 'next/server';
+import { db } from '@/lib/firebase-admin';
+
+export const dynamic = 'force-dynamic';
 
 const BLOG_GENERATE_SECRET = process.env.BLOG_GENERATE_SECRET;
 const CRON_SECRET = process.env.CRON_SECRET;

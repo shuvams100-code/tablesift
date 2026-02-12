@@ -9,6 +9,13 @@ const CRON_SECRET = process.env.CRON_SECRET;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const ADMIN_TELEGRAM_CHAT_ID = process.env.ADMIN_TELEGRAM_CHAT_ID;
 
+const getOpenAI = () => {
+    if (!process.env.OPENAI_API_KEY) {
+        throw new Error('OPENAI_API_KEY is missing');
+    }
+    return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+};
+
 async function sendTelegramMessage(text: string) {
     if (!ADMIN_TELEGRAM_CHAT_ID || !TELEGRAM_BOT_TOKEN) return;
 
@@ -69,6 +76,7 @@ export async function GET(req: Request) {
         const topic = getRandomSocialTopic(recentAngles);
 
         // Generate content via GPT-4o-mini
+        const openai = getOpenAI();
         const response = await openai.chat.completions.create({
             model: 'gpt-4o-mini',
             messages: [
@@ -119,20 +127,24 @@ Category guide:
             temperature: 0.9,
             max_tokens: 500,
         });
+        response_format: { type: 'json_object' },
+        temperature: 0.9,
+            max_tokens: 500,
+        });
 
-        const content = response.choices[0].message.content;
-        if (!content) {
-            throw new Error('No content generated');
-        }
+    const content = response.choices[0].message.content;
+    if (!content) {
+        throw new Error('No content generated');
+    }
 
-        const parsed = JSON.parse(content);
-        const hashtags = topic.hashtags.join(' ');
+    const parsed = JSON.parse(content);
+    const hashtags = topic.hashtags.join(' ');
 
-        // Format the Telegram message
-        const twitterPost = `${parsed.twitter}\n\n${hashtags}`;
-        const linkedinPost = parsed.linkedin;
+    // Format the Telegram message
+    const twitterPost = `${parsed.twitter}\n\n${hashtags}`;
+    const linkedinPost = parsed.linkedin;
 
-        const message = `📱 <b>Ready-to-Post Content</b>
+    const message = `📱 <b>Ready-to-Post Content</b>
 
 ━━━━━━━━━━━━━━━━━━━━━━
 
@@ -151,37 +163,37 @@ Category guide:
 📌 Category: ${topic.category}
 💡 Tap the text above to copy → paste → post!`;
 
-        await sendTelegramMessage(message);
+    await sendTelegramMessage(message);
 
-        // Log to Firestore to track what's been posted
-        if (db) {
-            await db.collection('social_posts_log').add({
-                angle: topic.angle,
-                category: topic.category,
-                twitter: twitterPost,
-                linkedin: linkedinPost,
-                createdAt: new Date(),
-            });
-        }
-
-        console.log('Social content generated and sent via Telegram');
-
-        return NextResponse.json({
-            success: true,
-            category: topic.category,
+    // Log to Firestore to track what's been posted
+    if (db) {
+        await db.collection('social_posts_log').add({
             angle: topic.angle,
+            category: topic.category,
+            twitter: twitterPost,
+            linkedin: linkedinPost,
+            createdAt: new Date(),
         });
-
-    } catch (error) {
-        console.error('Social Content Engine error:', error);
-
-        await sendTelegramMessage(
-            `❌ <b>Social Content Error</b>\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}`
-        );
-
-        return NextResponse.json({
-            error: 'Social content generation failed',
-            details: error instanceof Error ? error.message : 'Unknown error',
-        }, { status: 500 });
     }
+
+    console.log('Social content generated and sent via Telegram');
+
+    return NextResponse.json({
+        success: true,
+        category: topic.category,
+        angle: topic.angle,
+    });
+
+} catch (error) {
+    console.error('Social Content Engine error:', error);
+
+    await sendTelegramMessage(
+        `❌ <b>Social Content Error</b>\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+
+    return NextResponse.json({
+        error: 'Social content generation failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
+    }, { status: 500 });
+}
 }

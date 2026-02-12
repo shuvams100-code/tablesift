@@ -113,6 +113,7 @@ interface GeneratedBlog {
 }
 
 async function generateBlogContent(topic: string): Promise<GeneratedBlog> {
+    const openai = getOpenAI();
     const response = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
