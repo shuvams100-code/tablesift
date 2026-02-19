@@ -66,6 +66,7 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({
             checkoutUrl: session.checkout_url,
+            // @ts-ignore
             paymentId: session.payment_id || session.checkout_session_id,
         });
 
