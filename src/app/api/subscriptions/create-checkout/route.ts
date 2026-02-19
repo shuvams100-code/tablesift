@@ -6,6 +6,7 @@ import { getBaseUrl } from '@/lib/config';
 export async function POST(req: NextRequest) {
     try {
         const authHeader = req.headers.get('Authorization');
+        console.log('Backend: Received Auth Header:', authHeader ? `Present (Length: ${authHeader.length})` : 'Missing');
         if (!authHeader?.startsWith('Bearer ')) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }

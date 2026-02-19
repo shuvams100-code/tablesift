@@ -88,6 +88,7 @@ export default function Home() {
     }
     try {
       const token = await user.getIdToken();
+      console.log('Frontend: Generated Token for Subscription:', token ? 'Token exists' : 'No token');
       const res = await fetch("/api/subscriptions/create-checkout", {
         method: "POST",
         headers: {
