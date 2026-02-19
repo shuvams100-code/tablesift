@@ -27,6 +27,8 @@ export async function POST(req: NextRequest) {
         }
 
         // 3. Create Checkout Session via Dodo SDK (for hosted page)
+        const baseUrl = getBaseUrl();
+        const returnUrl = `${baseUrl}/credits?success=true`;
         console.log('Creating Dodo Payment checkout session:', { productId, userId, returnUrl });
 
         // @ts-ignore
