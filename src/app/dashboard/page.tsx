@@ -179,7 +179,12 @@ const DashboardContent = () => {
             }
 
             const { checkoutUrl } = data;
-            window.location.href = checkoutUrl;
+            if (checkoutUrl) {
+                window.location.href = checkoutUrl;
+            } else {
+                console.error('Checkout URL is missing from response', data);
+                alert('Payment initialization failed: No checkout URL returned. Please check console for details.');
+            }
 
         } catch (err: any) {
             console.error("Upgrade failed:", err);

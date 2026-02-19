@@ -106,7 +106,12 @@ export default function Home() {
         throw new Error(data.error || 'Failed to start checkout');
       }
       if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
+        if (data.checkoutUrl) {
+          window.location.href = data.checkoutUrl;
+        } else {
+          console.error('Checkout URL is missing from response', data);
+          alert('Payment initialization failed: No checkout URL returned. Please check console for details.');
+        }
       }
     } catch (err: any) {
       console.error("Subscription failed", err);

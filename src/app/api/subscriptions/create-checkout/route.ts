@@ -61,6 +61,12 @@ export async function POST(req: NextRequest) {
                 return_url: returnUrl,
             });
 
+            console.log('Dodo Session Created:', JSON.stringify(session, null, 2));
+
+            if (!session.checkout_url) {
+                console.error('CRITICAL: Dodo session created but checkout_url is missing!', session);
+            }
+
             return NextResponse.json({
                 checkoutUrl: session.checkout_url,
                 // @ts-ignore
