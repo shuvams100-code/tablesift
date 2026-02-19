@@ -22,6 +22,11 @@ if (typeof window !== 'undefined' && typeof Promise.withResolvers === 'undefined
     };
 }
 
+// Product IDs (Live)
+const STARTER_ID = process.env.NEXT_PUBLIC_DODO_SUB_STARTER || "pdt_0NXXzxOEqw2kCiWhVVmws";
+const PRO_ID = process.env.NEXT_PUBLIC_DODO_SUB_PRO || "pdt_0NXY0LRFGlLKb1psLfs6y";
+const BUSINESS_ID = process.env.NEXT_PUBLIC_DODO_SUB_BUSINESS || "pdt_0NXvSY9wpwzCHAxLZ43vS";
+
 const DashboardContent = () => {
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
@@ -976,7 +981,7 @@ const DashboardContent = () => {
                                             <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 5 images at once</li>
                                         </ul>
                                         <button
-                                            onClick={() => handleUpgrade('pdt_0NXXzxOEqw2kCiWhVVmws', 'Starter', 50)}
+                                            onClick={() => handleUpgrade(STARTER_ID, 'Starter', 50)}
                                             style={{ marginTop: 'auto', padding: '12px 20px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.4)' }}
                                         >
                                             Upgrade to Starter
@@ -1002,7 +1007,7 @@ const DashboardContent = () => {
                                             <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> Priority Support</li>
                                         </ul>
                                         <button
-                                            onClick={() => handleUpgrade('pdt_0NXY0LRFGlLKb1psLfs6y', 'Pro', 200)}
+                                            onClick={() => handleUpgrade(PRO_ID, 'Pro', 200)}
                                             style={{ marginTop: 'auto', padding: '12px 20px', background: 'white', color: '#0f172a', border: '2px solid #e2e8f0', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem' }}
                                         >
                                             Upgrade to Pro
@@ -1028,7 +1033,7 @@ const DashboardContent = () => {
                                             <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}><span style={{ color: '#22c55e' }}>✓</span> 90-Day Download History</li>
                                         </ul>
                                         <button
-                                            onClick={() => handleUpgrade('pdt_0NXvSY9wpwzCHAxLZ43vS', 'Business', 900)}
+                                            onClick={() => handleUpgrade(BUSINESS_ID, 'Business', 900)}
                                             style={{ marginTop: 'auto', padding: '12px 20px', background: 'white', color: '#0f172a', border: '2px solid #e2e8f0', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem' }}
                                         >
                                             Upgrade to Business

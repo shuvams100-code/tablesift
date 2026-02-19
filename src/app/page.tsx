@@ -15,9 +15,9 @@ import { auth, googleProvider, signInWithPopup } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 
 // --- DODO PAYMENT IDS (LIVE PRODUCTION) ---
-const STARTER_ID = "pdt_0NXXzxOEqw2kCiWhVVmws"; // $12 Starter Plan - 50 Fuels/mo
-const PRO_ID = "pdt_0NXY0LRFGlLKb1psLfs6y";     // $49 Pro Plan - 200 Fuels/mo
-const BUSINESS_ID = "pdt_0NXvSY9wpwzCHAxLZ43vS"; // $199 Business Plan - 900 Fuels/mo
+const STARTER_ID = process.env.NEXT_PUBLIC_DODO_SUB_STARTER || "pdt_0NXXzxOEqw2kCiWhVVmws"; // $12 Starter Plan - 50 Fuels/mo
+const PRO_ID = process.env.NEXT_PUBLIC_DODO_SUB_PRO || "pdt_0NXY0LRFGlLKb1psLfs6y";     // $49 Pro Plan - 200 Fuels/mo
+const BUSINESS_ID = process.env.NEXT_PUBLIC_DODO_SUB_BUSINESS || "pdt_0NXvSY9wpwzCHAxLZ43vS"; // $199 Business Plan - 900 Fuels/mo
 
 export default function Home() {
   const router = useRouter();
