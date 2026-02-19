@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
         const payment = await dodoClient.payments.create({
             billing: {
                 city: 'Not Provided',
-                country: 'IN', // Default, Dodo will adjust based on actual customer loc
+                country: 'IN',
                 state: 'Not Provided',
                 street: 'Not Provided',
                 zipcode: '000000',
@@ -49,17 +49,20 @@ export async function POST(req: NextRequest) {
                     quantity: 1,
                 },
             ],
-            // Metadata to use in webhook
             metadata: {
                 user_id: userId,
                 credits: credits.toString(),
                 type: 'credit_topup',
             },
-            // Redirect URLs
             return_url: returnUrl,
         });
 
-        // 4. Return checkout URL
+        console.log('Dodo Payment Created:', JSON.stringify(payment, null, 2));
+
+        if (!payment.payment_link) {
+            console.error('CRITICAL: Dodo payment created but payment_link is missing!', payment);
+        }
+
         return NextResponse.json({
             checkoutUrl: payment.payment_link,
             paymentId: payment.payment_id,

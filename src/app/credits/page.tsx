@@ -90,7 +90,13 @@ export default function CreditsPage() {
             }
 
             const { checkoutUrl } = await response.json();
-            window.location.href = checkoutUrl;
+            if (checkoutUrl) {
+                window.location.href = checkoutUrl;
+            } else {
+                console.error('Checkout URL is missing from response');
+                alert('Payment initialization failed: No checkout URL returned. Please check console for details.');
+                setProcessingPack(null);
+            }
         } catch (error) {
             console.error("Purchase failed", error);
             setProcessingPack(null);
