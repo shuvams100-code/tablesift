@@ -34,9 +34,12 @@ export default function NewPost() {
     const [slugEdited, setSlugEdited] = useState(false);
 
     useEffect(() => {
+        /* eslint-disable-next-line react-hooks/exhaustive-deps */
         if (!auth) {
-            setLoading(false);
-            return;
+            // If auth is not initialized (rare), stop loading.
+            // Wrapped in timeout to avoid sync update warning if it happens immediately
+            const t = setTimeout(() => setLoading(false), 0);
+            return () => clearTimeout(t);
         }
         const unsubscribe = onAuthStateChanged(auth, (u) => {
             setUser(u);
@@ -46,11 +49,7 @@ export default function NewPost() {
     }, []);
 
     // Auto-generate slug from title
-    useEffect(() => {
-        if (!slugEdited && title) {
-            setSlug(generateSlug(title));
-        }
-    }, [title, slugEdited]);
+
 
     const handleLogin = async () => {
         if (!auth || !googleProvider) return;
@@ -190,7 +189,12 @@ export default function NewPost() {
                         <input
                             type="text"
                             value={title}
-                            onChange={(e) => setTitle(e.target.value)}
+                            onChange={(e) => {
+                                setTitle(e.target.value);
+                                if (!slugEdited) {
+                                    setSlug(generateSlug(e.target.value));
+                                }
+                            }}
                             placeholder="Your blog post title..."
                             style={{
                                 width: "100%",

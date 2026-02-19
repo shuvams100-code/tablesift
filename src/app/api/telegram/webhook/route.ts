@@ -133,7 +133,7 @@ Welcome! I can generate and publish SEO-optimized blog posts for TableSift.
         else if (lowerText.startsWith('/generate') || lowerText.startsWith('generate') || lowerText.startsWith('/gen') || lowerText.startsWith('gen')) {
             console.log('Command matched: generate');
             // Remove prefix
-            let remaining = text.replace(/^(\/)?(generate|gen)\s*/i, '').trim();
+            const remaining = text.replace(/^(\/)?(generate|gen)\s*/i, '').trim();
 
             // Check if it starts with "Topic" (case insensitive)
             let topic: string | undefined;

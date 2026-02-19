@@ -7,7 +7,7 @@ import { auth, googleProvider, signInWithPopup, signOut } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { ArrowLeft, Save, Eye, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Eye } from "lucide-react";
 
 const ADMIN_EMAILS = ["shuvams100@gmail.com"];
 
@@ -39,9 +39,11 @@ export default function EditPost({ params }: Props) {
     const [coverImage, setCoverImage] = useState("");
 
     useEffect(() => {
+        /* eslint-disable-next-line react-hooks/exhaustive-deps */
         if (!auth) {
-            setLoading(false);
-            return;
+            // If auth is not initialized, stop loading eventually
+            const t = setTimeout(() => setLoading(false), 0);
+            return () => clearTimeout(t);
         }
         const unsubscribe = onAuthStateChanged(auth, (u) => {
             setUser(u);

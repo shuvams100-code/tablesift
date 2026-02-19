@@ -12,7 +12,8 @@ const getOpenAI = () => {
     if (!process.env.OPENAI_API_KEY) {
         throw new Error('OPENAI_API_KEY is missing');
     }
-    return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    return _openai;
 };
 
 // Reddit search queries to monitor
@@ -151,9 +152,7 @@ export async function GET(req: Request) {
 
         console.log('Reddit Radar scan started at', new Date().toISOString());
 
-        const openai = new OpenAI({
-            apiKey: process.env.OPENAI_API_KEY,
-        });
+
 
         if (!process.env.OPENAI_API_KEY) {
             console.error('OPENAI_API_KEY is missing');

@@ -101,12 +101,16 @@ export default function Home() {
         })
       });
       const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to start checkout');
+      }
       if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
       }
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     } catch (err: any) {
       console.error("Subscription failed", err);
+      // Fallback UI for now since there's no toast
+      alert(`Payment Error: ${err.message}`);
     }
   };
 

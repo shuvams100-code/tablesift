@@ -176,7 +176,6 @@ const DashboardContent = () => {
             const { checkoutUrl } = data;
             window.location.href = checkoutUrl;
 
-            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         } catch (err: any) {
             console.error("Upgrade failed:", err);
             setError(`Failed to start upgrade: ${err.message}`);
@@ -207,7 +206,7 @@ const DashboardContent = () => {
 
             if (context) {
                 try {
-                    /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
+
                     // @ts-ignore
                     await page.render({ canvasContext: context, viewport }).promise;
                     const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));

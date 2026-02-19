@@ -30,9 +30,11 @@ export default function AdminBlog() {
     const [deleting, setDeleting] = useState<string | null>(null);
 
     useEffect(() => {
+        /* eslint-disable-next-line react-hooks/exhaustive-deps */
         if (!auth) {
-            setLoading(false);
-            return;
+            // If auth is not initialized, stop loading eventually
+            const t = setTimeout(() => setLoading(false), 0);
+            return () => clearTimeout(t);
         }
         const unsubscribe = onAuthStateChanged(auth, (u) => {
             setUser(u);
