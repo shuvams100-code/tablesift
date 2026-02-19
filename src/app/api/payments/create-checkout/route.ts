@@ -26,15 +26,14 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Missing productId or credits' }, { status: 400 });
         }
 
-        // 3. Create one-time payment via Dodo SDK
-        const baseUrl = getBaseUrl();
-        const returnUrl = `${baseUrl}/credits?success=true`;
-        console.log('Creating Dodo Payment checkout:', { productId, userId, returnUrl });
+        // 3. Create Checkout Session via Dodo SDK (for hosted page)
+        console.log('Creating Dodo Payment checkout session:', { productId, userId, returnUrl });
 
-        const payment = await dodoClient.payments.create({
-            billing: {
+        // @ts-ignore
+        const session = await dodoClient.checkoutSessions.create({
+            billing_address: {
                 city: 'Not Provided',
-                country: 'IN',
+                country: 'IN', // Default, Dodo will adjust based on actual customer loc
                 state: 'Not Provided',
                 street: 'Not Provided',
                 zipcode: '000000',
@@ -57,15 +56,15 @@ export async function POST(req: NextRequest) {
             return_url: returnUrl,
         });
 
-        console.log('Dodo Payment Created:', JSON.stringify(payment, null, 2));
+        console.log('Dodo Session Created:', JSON.stringify(session, null, 2));
 
-        if (!payment.payment_link) {
-            console.error('CRITICAL: Dodo payment created but payment_link is missing!', payment);
+        if (!session.checkout_url) {
+            console.error('CRITICAL: Dodo session created but checkout_url is missing!', session);
         }
 
         return NextResponse.json({
-            checkoutUrl: payment.payment_link,
-            paymentId: payment.payment_id,
+            checkoutUrl: session.checkout_url,
+            paymentId: session.payment_id || session.checkout_session_id,
         });
 
     } catch (error: any) {
